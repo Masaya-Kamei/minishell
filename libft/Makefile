@@ -75,4 +75,10 @@ fclean	:	clean
 
 re		: fclean all
 
-.PHONY	: all clean fclean re bonus
+debug	: CFLAGS += -g
+debug	: fclean bonus
+
+address	: CFLAGS += -g -fsanitize=address
+address	: fclean bonus
+
+.PHONY	: all clean fclean re bonus debug address
