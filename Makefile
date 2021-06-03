@@ -1,6 +1,6 @@
-# Makefile for minishell, updated 2021年 5月31日 月曜日 17時34分53秒 JST
+# Makefile for minishell, updated 2021年 6月 3日 木曜日 11時44分21秒 JST
 
-SRCNAME	:= debug.c get_line.c minishell.c split_line.c utils.c
+SRCNAME	:= debug.c get_line.c lex_line.c minishell.c utils.c
 
 # DO NOT ADD OR MODIFY ANY LINES ABOVE THIS -- run 'make source' to add files
 

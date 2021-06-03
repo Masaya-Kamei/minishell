@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/29 18:28:52 by mkamei            #+#    #+#             */
-/*   Updated: 2021/05/30 17:51:44 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/06/02 13:33:02 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,19 @@ void	free_double_pointer(char **strs)
 		i++;
 	}
 	free(strs);
+}
+
+void	free_tokens(t_token *tokens)
+{
+	int	i;
+
+	i = 0;
+	while (tokens[i].str != NULL)
+	{
+		free(tokens[i].str);
+		i++;
+	}
+	free(tokens);
 }
 
 int	free_and_return(void *p, int status)

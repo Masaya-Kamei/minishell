@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/30 17:55:37 by mkamei            #+#    #+#             */
-/*   Updated: 2021/05/31 13:57:21 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/06/03 11:54:33 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,8 +26,6 @@ void	print_line_and_word_start_array(char *line, int *word_start_array)
 			printf("#");
 			j++;
 		}
-		else if (line[i] == '\n')
-			printf("\n");
 		else
 			printf(" ");
 		i++;
@@ -35,14 +33,15 @@ void	print_line_and_word_start_array(char *line, int *word_start_array)
 	printf("%s\n", line);
 }
 
-void	print_argv(char **argv)
+void	print_tokens(t_token *tokens)
 {
 	int	i;
 
+	printf("tokens\n");
 	i = 0;
-	while (argv[i] != NULL)
+	while (tokens[i].str != NULL)
 	{
-		printf("argv[%2d]	:%s\n", i, argv[i]);
+		printf("%2d	type:%c, str:%s\n", i, tokens[i].type, tokens[i].str);
 		i++;
 	}
 }
