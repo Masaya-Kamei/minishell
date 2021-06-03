@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/30 17:55:37 by mkamei            #+#    #+#             */
-/*   Updated: 2021/06/03 11:54:33 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/06/03 16:08:02 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,7 @@ void	print_tokens(t_token *tokens)
 {
 	int	i;
 
-	printf("tokens\n");
+	printf("[ tokens ]\n");
 	i = 0;
 	while (tokens[i].str != NULL)
 	{

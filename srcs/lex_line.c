@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/29 18:33:43 by mkamei            #+#    #+#             */
-/*   Updated: 2021/06/03 14:25:36 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/06/03 18:17:38 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,15 +18,15 @@ static int	add_index_until_token_end(char *line, int *i)
 	int		num_flag;
 
 	num_flag = 1;
-	while (ft_strchr("\n \t;<>|", line[*i]) == NULL || line[*i - 1] == '\\')
+	while (ft_strchr("\n \t;<>|", line[*i]) == NULL
+		|| (line[*i] != '\n' && is_escape(line, *i) == 1))
 	{
-		if (line[*i] == '\'' || (line[*i] == '\"' && line[*i - 1] != '\\'))
+		if (line[*i] == '\'' || (line[*i] == '\"' && is_escape(line, *i) == 0))
 		{
 			quote = line[(*i)++];
-			while ((quote == '\'' && line[*i] != '\'')
-				|| (quote == '\"' && (line[*i] != '\"' || line[*i - 1] == '\\')))
+			while (line[*i] != quote || (quote == '\"' && is_escape(line, *i)))
 			{
-				if (line[*i] == '\0')
+				if (line[*i] == '\n')
 					return (ERR_MULTILINE);
 				(*i)++;
 			}
@@ -65,6 +65,8 @@ static int	store_in_token_start_indexes(
 				return (ERR_MULTILINE);
 		}
 	}
+	if (is_escape(line, i) == 1)
+		return (ERR_MULTILINE);
 	token_start_indexes[*token_num] = -1;
 	return (SUCCESS);
 }

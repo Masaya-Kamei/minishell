@@ -3,3 +3,4 @@ minishell
 *.bak
 *.txt
 *.a
+.DS_Store
