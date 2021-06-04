@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/29 18:33:43 by mkamei            #+#    #+#             */
-/*   Updated: 2021/06/03 18:17:38 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/06/04 13:19:17 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,28 +16,28 @@ static int	add_index_until_token_end(char *line, int *i)
 {
 	char	quote;
 	int		num_flag;
+	int		esc_flag;
 
 	num_flag = 1;
-	while (ft_strchr("\n \t;<>|", line[*i]) == NULL
-		|| (line[*i] != '\n' && is_escape(line, *i) == 1))
+	esc_flag = 0;
+	while (ft_strchr("\n \t;<>|", line[*i]) == NULL || esc_flag == 1)
 	{
-		if (line[*i] == '\'' || (line[*i] == '\"' && is_escape(line, *i) == 0))
+		if ((line[*i] == '\'' || line[*i] == '\"') && esc_flag == 0)
 		{
 			quote = line[(*i)++];
-			while (line[*i] != quote || (quote == '\"' && is_escape(line, *i)))
+			while (line[*i] != '\n'
+				&& (line[*i] != quote || (quote == '\"' && esc_flag == 1)))
 			{
-				if (line[*i] == '\n')
-					return (ERR_MULTILINE);
-				(*i)++;
+				esc_flag = (line[(*i)++] == '\\') && ((esc_flag + 1) % 2);
 			}
 		}
+		if (line[*i] == '\n')
+			return (ERR_MULTILINE);
 		num_flag = num_flag && ft_isdigit(line[*i]);
-		(*i)++;
+		esc_flag = (line[(*i)++] == '\\') && ((esc_flag + 1) % 2);
 	}
-	if (num_flag == 1 && line[*i] == '>' && line[*i + 1] == '>')
-		(*i) += 2;
-	else if (num_flag == 1 && (line[*i] == '>' || line[*i] == '<'))
-		(*i)++;
+	*i += (num_flag == 1) && (line[*i] == '>' || line[*i] == '<');
+	*i += (num_flag == 1) && (line[*i - 1] == '>') && (line[*i] == '>');
 	return (SUCCESS);
 }
 
@@ -65,8 +65,6 @@ static int	store_in_token_start_indexes(
 				return (ERR_MULTILINE);
 		}
 	}
-	if (is_escape(line, i) == 1)
-		return (ERR_MULTILINE);
 	token_start_indexes[*token_num] = -1;
 	return (SUCCESS);
 }

@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/28 09:39:27 by mkamei            #+#    #+#             */
-/*   Updated: 2021/06/03 18:08:38 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/06/04 11:43:34 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,6 @@ typedef struct s_token
 
 int		get_line(char **line);
 int		lex_line(char *line, t_token **tokens, int *token_num);
-int		is_escape(char *str, int i);
 void	free_double_pointer(char **strs);
 void	free_tokens(t_token *tokens);
 int		free_and_return(void *p, int status);
