@@ -1,6 +1,6 @@
-# Makefile for minishell, updated 2021年 5月27日 木曜日 17時43分54秒 JST
+# Makefile for minishell, updated 2021年 6月 3日 木曜日 11時44分21秒 JST
 
-SRCNAME	:= main.c
+SRCNAME	:= debug.c get_line.c lex_line.c minishell.c utils.c
 
 # DO NOT ADD OR MODIFY ANY LINES ABOVE THIS -- run 'make source' to add files
 
@@ -13,6 +13,7 @@ NAME	:= minishell
 LIBFTDIR	:= ./libft
 LIBFTNAME 	:= libft.a
 LIBFT		:= $(LIBFTDIR)/$(LIBFTNAME)
+LIBFTTARGET	:= bonus
 
 CC		:= gcc
 CFLAGS	:= -Wall -Wextra -Werror
@@ -26,9 +27,8 @@ all		:	$(NAME)
 $(NAME)	:	$(LIBFTNAME) $(OBJS)
 			$(CC) $(CFLAGS) $(INCLUDE) $(OBJS) $(LIBFT) -o $(NAME)
 
-
 $(LIBFTNAME):
-			make -C $(LIBFTDIR)
+			make $(LIBFTTARGET) -C $(LIBFTDIR)
 
 clean	:
 			$(RM) Makefile.bak $(OBJS)
@@ -40,9 +40,17 @@ fclean	: 	clean
 
 re		:	fclean all
 
+debug	: CFLAGS += -g
+debug	: LIBFTTARGET := debug
+debug	: re
+
+address	: CFLAGS += -g -fsanitize=address
+address	: LIBFTTARGET := address
+address	: re
+
 source:
 	@cp Makefile Makefile.bak
 	@sed -i "" -r -e "s/(^# Makefile .* updated).*/\1 `date`/" Makefile
-	@sed -i "" -r -e "s/(^SRCNAME\t:=).*/\1 `ls srcs`/" Makefile
+	@sed -i "" -r -e "s/(^SRCNAME\t:=).*/\1 `ls -1 srcs | grep .c | xargs`/" Makefile
 
-.PHONY:	all clean fclean re source $(LIBFTNAME)
+.PHONY:	all clean fclean re debug address source $(LIBFTNAME)

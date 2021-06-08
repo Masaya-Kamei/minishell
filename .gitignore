@@ -1,3 +1,6 @@
 minishell
 *.o
 *.bak
+*.txt
+*.a
+.DS_Store
