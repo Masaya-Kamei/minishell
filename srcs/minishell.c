@@ -6,19 +6,24 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/28 15:30:07 by mkamei            #+#    #+#             */
-/*   Updated: 2021/06/03 12:03:49 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/06/10 18:07:03 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-static void	set_err_msgs(char err_msgs[ERR_NUM][ERR_MSG_MAX_LEN])
+static void	write_err_msg(int err_num)
 {
-	ft_strlcpy(err_msgs[ERR_MULTILINE],
-		"Not supported multiline commands\n", 34);
+	const char	err_msgs[6][50] = {"", "", "",
+		"Not supported multiline commands",
+		"syntax error near unexpected token `;'",
+		"syntax error near unexpected token `;;'"};
+
+	printf("minishell: ");
+	printf("%s\n", err_msgs[err_num]);
 }
 
-static int	loop_minishell(char err_msgs[ERR_NUM][ERR_MSG_MAX_LEN])
+static int	loop_minishell(void)
 {
 	char	*line;
 	t_token	*tokens;
@@ -35,26 +40,26 @@ static int	loop_minishell(char err_msgs[ERR_NUM][ERR_MSG_MAX_LEN])
 		free(line);
 		if (status == ERR_MALLOC)
 			exit(1);
-		else if (status == ERR_MULTILINE)
+		else if (status == ERR_MULTILINE || token_num == 0)
 		{
-			printf("%s", err_msgs[ERR_MULTILINE]);
+			if (status == ERR_MULTILINE)
+				write_err_msg(ERR_MULTILINE);
+			else
+				free_tokens(tokens);
 			continue ;
 		}
 		print_tokens(tokens);
-		//status = process_commandline(tokens, 0, token_num - 1);
+		status = process_commandline(tokens, 0, token_num - 1);
 		free_tokens(tokens);
-		// if (status == ERR_MALLOC)
-		// 	exit(1);
-		//else if (status != SUCCESS)
-		// 	printf("%s", err_msgs[status]);
+		if (status == ERR_MALLOC)
+			exit(1);
+		else if (status != SUCCESS)
+			write_err_msg(status);
 	}
 }
 
 int	main(void)
 {
-	char	err_msgs[ERR_NUM][ERR_MSG_MAX_LEN];
-
-	set_err_msgs(err_msgs);
-	loop_minishell(err_msgs);
+	loop_minishell();
 	return (0);
 }
