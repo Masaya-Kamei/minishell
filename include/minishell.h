@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/28 09:39:27 by mkamei            #+#    #+#             */
-/*   Updated: 2021/06/04 11:43:34 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/06/10 17:53:57 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,13 +16,13 @@
 # include "../libft/libft.h"
 # include <stdio.h>
 
-# define ERR_NUM 20
-# define ERR_MSG_MAX_LEN 50
+# define BUFFER_SIZE 10
 # define SUCCESS 0
 # define ERR_MALLOC 1
 # define ERR_READ 2
 # define ERR_MULTILINE 3
-# define BUFFER_SIZE 10
+# define ERR_SEMICOLON 4
+# define ERR_D_SEMICOLON 5
 
 typedef enum e_token_type{
 	SEMICOLON	= ';',
@@ -40,6 +40,7 @@ typedef struct s_token
 
 int		get_line(char **line);
 int		lex_line(char *line, t_token **tokens, int *token_num);
+int		process_commandline(t_token *tokens, int start, int end);
 void	free_double_pointer(char **strs);
 void	free_tokens(t_token *tokens);
 int		free_and_return(void *p, int status);
