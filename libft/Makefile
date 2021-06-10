@@ -32,9 +32,8 @@ SRCNAME	=	ft_strlen.c \
 			ft_putchar_fd.c \
 			ft_putstr_fd.c \
 			ft_putendl_fd.c \
-			ft_putnbr_fd.c
-
-B_NAME	=	ft_lstnew.c \
+			ft_putnbr_fd.c \
+			ft_lstnew.c \
 			ft_lstadd_front.c \
 			ft_lstsize.c \
 			ft_lstlast.c \
@@ -45,9 +44,7 @@ B_NAME	=	ft_lstnew.c \
 			ft_lstmap.c
 
 SRCS	= $(addprefix $(SRCDIR), $(SRCNAME))
-B_SRCS	= $(addprefix $(SRCDIR), $(B_NAME))
 OBJS	= $(SRCS:.c=.o)
-B_OBJS	= $(B_SRCS:.c=.o)
 INCLUDE	= -I./
 NAME	= libft.a
 CC		= gcc
@@ -64,21 +61,18 @@ all		:	$(NAME)
 $(NAME)	:	$(OBJS)
 			$(AR) $(ARFLAGS) $(NAME) $(OBJS)
 
-bonus	:	$(OBJS) $(B_OBJS)
-			$(AR) $(ARFLAGS) $(NAME) $(OBJS) $(B_OBJS)
-
 clean	:
 			$(RM) $(OBJS) $(B_OBJS)
 
 fclean	:	clean
 			$(RM) $(NAME)
 
-re		: fclean all
+re		: 	fclean all
 
-debug	: CFLAGS += -g
-debug	: fclean bonus
+debug	: 	CFLAGS += -g
+debug	: 	re
 
-address	: CFLAGS += -g -fsanitize=address
-address	: fclean bonus
+address	: 	CFLAGS += -g -fsanitize=address
+address	: 	re
 
-.PHONY	: all clean fclean re bonus debug address
+.PHONY	: all clean fclean re debug address
