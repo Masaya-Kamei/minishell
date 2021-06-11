@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/28 15:30:07 by mkamei            #+#    #+#             */
-/*   Updated: 2021/06/10 18:07:03 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/06/11 17:42:49 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,10 +14,7 @@
 
 static void	write_err_msg(int err_num)
 {
-	const char	err_msgs[6][50] = {"", "", "",
-		"Not supported multiline commands",
-		"syntax error near unexpected token `;'",
-		"syntax error near unexpected token `;;'"};
+	const char	err_msgs[3][50] = {"", "", ""};
 
 	printf("minishell: ");
 	printf("%s\n", err_msgs[err_num]);
@@ -40,16 +37,13 @@ static int	loop_minishell(void)
 		free(line);
 		if (status == ERR_MALLOC)
 			exit(1);
-		else if (status == ERR_MULTILINE || token_num == 0)
+		else if (token_num == 0)
 		{
-			if (status == ERR_MULTILINE)
-				write_err_msg(ERR_MULTILINE);
-			else
-				free_tokens(tokens);
+			free_tokens(tokens);
 			continue ;
 		}
 		print_tokens(tokens);
-		status = process_commandline(tokens, 0, token_num - 1);
+		// status = process_pipeline(tokens, 0, token_num - 1);
 		free_tokens(tokens);
 		if (status == ERR_MALLOC)
 			exit(1);

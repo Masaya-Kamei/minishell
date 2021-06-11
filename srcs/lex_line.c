@@ -6,42 +6,39 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/29 18:33:43 by mkamei            #+#    #+#             */
-/*   Updated: 2021/06/04 13:19:17 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/06/11 17:57:00 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-static int	add_index_until_token_end(char *line, int *i)
+static void	add_index_until_token_end(char *line, int *i)
 {
 	char	quote;
 	int		num_flag;
-	int		esc_flag;
 
 	num_flag = 1;
-	esc_flag = 0;
-	while (ft_strchr("\n \t;<>|", line[*i]) == NULL || esc_flag == 1)
+	while (ft_strchr("\n \t<>|", line[*i]) == NULL)
 	{
-		if ((line[*i] == '\'' || line[*i] == '\"') && esc_flag == 0)
+		if (line[*i] == '\'' || line[*i] == '\"')
 		{
 			quote = line[(*i)++];
-			while (line[*i] != '\n'
-				&& (line[*i] != quote || (quote == '\"' && esc_flag == 1)))
+			while (line[*i] != quote)
 			{
-				esc_flag = (line[(*i)++] == '\\') && ((esc_flag + 1) % 2);
+				if (line[*i] == '\n')
+					return ;
+				(*i)++;
 			}
 		}
-		if (line[*i] == '\n')
-			return (ERR_MULTILINE);
 		num_flag = num_flag && ft_isdigit(line[*i]);
-		esc_flag = (line[(*i)++] == '\\') && ((esc_flag + 1) % 2);
+		(*i)++;
 	}
 	*i += (num_flag == 1) && (line[*i] == '>' || line[*i] == '<');
-	*i += (num_flag == 1) && (line[*i - 1] == '>') && (line[*i] == '>');
-	return (SUCCESS);
+	*i += (num_flag == 1) && ((line[*i - 1] == '>' && line[*i] == '>')
+			|| (line[*i - 1] == '<' && line[*i] == '<'));
 }
 
-static int	store_in_token_start_indexes(
+static void	store_in_token_start_indexes(
 	char *line, int *token_start_indexes, int *token_num)
 {
 	int		i;
@@ -52,21 +49,19 @@ static int	store_in_token_start_indexes(
 	{
 		if (line[i] == ' ' || line[i] == '\t')
 			i++;
-		else if (ft_strchr(";<>|", line[i]) != NULL)
+		else if (ft_strchr("<>|", line[i]) != NULL)
 		{
 			token_start_indexes[(*token_num)++] = i++;
-			if (line[i - 1] == '>' && line[i] == '>')
-				i++;
+			i += (line[i - 1] == '>' && line[i] == '>')
+				|| (line[i - 1] == '<' && line[i] == '<');
 		}
 		else
 		{
 			token_start_indexes[(*token_num)++] = i;
-			if (add_index_until_token_end(line, &i) == ERR_MULTILINE)
-				return (ERR_MULTILINE);
+			add_index_until_token_end(line, &i);
 		}
 	}
 	token_start_indexes[*token_num] = -1;
-	return (SUCCESS);
 }
 
 static int	store_in_str_member_of_t_token(
@@ -100,20 +95,21 @@ static void	store_in_type_member_of_t_token(t_token *tokens)
 	i = 0;
 	while (tokens[i].str != NULL)
 	{
-		if (tokens[i].str[0] == '>' && tokens[i].str[1] == '>')
-			tokens[i].type = D_GREATER;
-		else if (ft_strchr(";<>|", tokens[i].str[0]) != NULL)
-			tokens[i].type = tokens[i].str[0];
+		if (tokens[i].str[0] == '|')
+			tokens[i].type = '|';
 		else
 		{
-			tokens[i].type = WORD;
 			j = 0;
 			while (ft_isdigit(tokens[i].str[j]) == 1)
 				j++;
 			if (tokens[i].str[j] == '>' && tokens[i].str[j + 1] == '>')
 				tokens[i].type = D_GREATER;
+			else if (tokens[i].str[j] == '<' && tokens[i].str[j + 1] == '<')
+				tokens[i].type = D_LESS;
 			else if (tokens[i].str[j] == '>' || tokens[i].str[j] == '<')
 				tokens[i].type = tokens[i].str[j];
+			else
+				tokens[i].type = WORD;
 		}
 		i++;
 	}
@@ -127,9 +123,7 @@ int	lex_line(char *line, t_token **tokens, int *token_num)
 	token_start_indexes = (int *)malloc(sizeof(int) * (ft_strlen(line) + 1));
 	if (token_start_indexes == NULL)
 		return (ERR_MALLOC);
-	status = store_in_token_start_indexes(line, token_start_indexes, token_num);
-	if (status == ERR_MULTILINE)
-		return (free_and_return(token_start_indexes, ERR_MULTILINE));
+	store_in_token_start_indexes(line, token_start_indexes, token_num);
 	*tokens = (t_token *)malloc(sizeof(t_token) * (*token_num + 1));
 	if (*tokens == NULL)
 		return (free_and_return(token_start_indexes, ERR_MALLOC));
