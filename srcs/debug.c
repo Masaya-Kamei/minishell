@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/30 17:55:37 by mkamei            #+#    #+#             */
-/*   Updated: 2021/06/03 16:08:02 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/06/16 14:46:58 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,4 +44,27 @@ void	print_tokens(t_token *tokens)
 		printf("%2d	type:%c, str:%s\n", i, tokens[i].type, tokens[i].str);
 		i++;
 	}
+}
+
+void	execve_sleep(void)
+{
+	char	**argv;
+	pid_t	pid;
+	int		status;
+
+	argv = (char **)malloc(sizeof(char *) * 3);
+	argv[0] = ft_strdup("sleep");
+	argv[1] = ft_strdup("3");
+	argv[2] = NULL;
+	pid = fork();
+	if (pid == 0)
+	{
+		execve("/bin/sleep", argv, NULL);
+		exit(1);
+	}
+	else
+	{
+		wait(&status);
+	}
+	free_double_pointer(argv);
 }
