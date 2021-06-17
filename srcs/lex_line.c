@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/29 18:33:43 by mkamei            #+#    #+#             */
-/*   Updated: 2021/06/11 17:57:00 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/06/15 19:42:13 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,14 +18,14 @@ static void	add_index_until_token_end(char *line, int *i)
 	int		num_flag;
 
 	num_flag = 1;
-	while (ft_strchr("\n \t<>|", line[*i]) == NULL)
+	while (line[*i] != '\0' && ft_strchr(" \t<>|", line[*i]) == NULL)
 	{
 		if (line[*i] == '\'' || line[*i] == '\"')
 		{
 			quote = line[(*i)++];
 			while (line[*i] != quote)
 			{
-				if (line[*i] == '\n')
+				if (line[*i] == '\0')
 					return ;
 				(*i)++;
 			}
@@ -45,7 +45,7 @@ static void	store_in_token_start_indexes(
 
 	i = 0;
 	*token_num = 0;
-	while (line[i] != '\n')
+	while (line[i] != '\0')
 	{
 		if (line[i] == ' ' || line[i] == '\t')
 			i++;
@@ -77,7 +77,7 @@ static int	store_in_str_member_of_t_token(
 		start = token_start_indexes[i];
 		next_start = token_start_indexes[i + 1];
 		if (next_start == -1)
-			next_start = ft_strlen(line) - 1;
+			next_start = ft_strlen(line);
 		tokens[i].str = ft_substr(line, start, next_start - start);
 		if (tokens[i].str == NULL)
 			return (ERR_MALLOC);
