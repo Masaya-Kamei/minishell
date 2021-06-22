@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/29 18:33:43 by mkamei            #+#    #+#             */
-/*   Updated: 2021/06/15 19:42:13 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/06/19 17:55:55 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 static void	add_index_until_token_end(char *line, int *i)
 {
 	char	quote;
+	char	*next_quote_pointer;
 	int		num_flag;
 
 	num_flag = 1;
@@ -23,12 +24,9 @@ static void	add_index_until_token_end(char *line, int *i)
 		if (line[*i] == '\'' || line[*i] == '\"')
 		{
 			quote = line[(*i)++];
-			while (line[*i] != quote)
-			{
-				if (line[*i] == '\0')
-					return ;
-				(*i)++;
-			}
+			next_quote_pointer = ft_strchr(&line[*i], quote);
+			if (next_quote_pointer != NULL)
+				*i += next_quote_pointer - &line[*i];
 		}
 		num_flag = num_flag && ft_isdigit(line[*i]);
 		(*i)++;
@@ -113,6 +111,7 @@ static void	store_in_type_member_of_t_token(t_token *tokens)
 		}
 		i++;
 	}
+	tokens[i].type = '\0';
 }
 
 int	lex_line(char *line, t_token **tokens, int *token_num)
