@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/18 11:54:50 by mkamei            #+#    #+#             */
-/*   Updated: 2021/06/21 22:21:39 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/06/22 19:13:10 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,17 +70,17 @@ static int	get_string_from_word(char *word, int i, int start, char **str)
 			str_type = &word[i];
 			start += (i > 0 && word[i - 1] == '$');
 		}
-		else if (i > 0 && *str_type == word[i - 1] && str_type != &word[i - 1])
-			str_type = RAW;
 		if ((*str_type == *RAW && word[i] == '$')
 			|| (*str_type == '\"' && ft_strchr("\" \t$", word[i]) != NULL)
-			|| (*str_type == '\'' && word[i] == '\' \t'))
+			|| (*str_type == '\'' && word[i] == '\''))
 		{
 			if (substr_and_strjoin_to_str(
 					&word[start], i - start, str_type, str) == ERR_MALLOC)
 				return (ERR_MALLOC);
 			start = i + (word[i] == '\"' || word[i] == '\'');
 		}
+		if (*str_type == word[i] && str_type != &word[i])
+			str_type = RAW;
 		i++;
 	}
 	return (substr_and_strjoin_to_str(&word[start], i - start, str_type, str));
