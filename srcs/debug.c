@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/30 17:55:37 by mkamei            #+#    #+#             */
-/*   Updated: 2021/06/16 14:46:58 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/06/21 14:33:20 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,8 +39,13 @@ void	print_tokens(t_token *tokens)
 
 	printf("[ tokens ]\n");
 	i = 0;
-	while (tokens[i].str != NULL)
+	while (tokens[i].type != '\0')
 	{
+		if (tokens[i].type == WORD)
+		{
+			if (change_word_to_string(&tokens[i].str) == ERR_MALLOC)
+				return ;
+		}
 		printf("%2d	type:%c, str:%s\n", i, tokens[i].type, tokens[i].str);
 		i++;
 	}
