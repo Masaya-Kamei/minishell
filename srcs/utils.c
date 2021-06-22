@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/29 18:28:52 by mkamei            #+#    #+#             */
-/*   Updated: 2021/06/04 11:43:43 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/06/21 13:36:02 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@ void	free_tokens(t_token *tokens)
 	int	i;
 
 	i = 0;
-	while (tokens[i].str != NULL)
+	while (tokens[i].type != '\0')
 	{
 		free(tokens[i].str);
 		i++;
