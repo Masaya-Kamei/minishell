@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
+/*   By: keguchi <keguchi@student.42tokyo.jp>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/28 15:30:07 by mkamei            #+#    #+#             */
-/*   Updated: 2021/06/16 19:40:18 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/06/24 18:35:48 by keguchi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,6 +73,8 @@ static void	loop_minishell(void)
 		}
 		print_tokens(tokens);
 		// status = process_pipeline(tokens, 0, token_num - 1);
+		printf("token_num = %d\n", token_num);
+		status = pipe_line(tokens, token_num - 1);
 		g_received_signal = 0;
 		execve_sleep();
 		if (g_received_signal == SIGINT)
