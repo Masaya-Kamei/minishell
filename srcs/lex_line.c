@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/29 18:33:43 by mkamei            #+#    #+#             */
-/*   Updated: 2021/06/24 22:40:38 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/06/25 09:13:27 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ static void	add_index_until_token_end(char *line, int *i)
 	int		num_flag;
 
 	num_flag = 1;
-	while (line[*i] != '\0' && ft_strchr(" \t<>|", line[*i]) == NULL)
+	while (line[*i] != '\0' && ft_strchr(" <>|", line[*i]) == NULL)
 	{
 		if (line[*i] == '\'' || line[*i] == '\"')
 		{
@@ -45,7 +45,7 @@ static void	store_in_token_start_indexes(
 	*token_num = 0;
 	while (line[i] != '\0')
 	{
-		if (line[i] == ' ' || line[i] == '\t')
+		if (line[i] == ' ')
 			i++;
 		else if (ft_strchr("<>|", line[i]) != NULL)
 		{
@@ -77,7 +77,7 @@ static int	store_in_str_member_of_t_token(
 			len = token_start_indexes[i + 1] - start;
 		else
 			len = ft_strlen(line) - start;
-		while (line[start + len - 1] == ' ' || line[start + len - 1] == '\t')
+		while (line[start + len - 1] == ' ')
 			len--;
 		tokens[i].str = ft_substr(line, start, len);
 		if (tokens[i].str == NULL)

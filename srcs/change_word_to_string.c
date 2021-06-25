@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/18 11:54:50 by mkamei            #+#    #+#             */
-/*   Updated: 2021/06/22 19:13:10 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/06/25 09:12:59 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,7 +71,7 @@ static int	get_string_from_word(char *word, int i, int start, char **str)
 			start += (i > 0 && word[i - 1] == '$');
 		}
 		if ((*str_type == *RAW && word[i] == '$')
-			|| (*str_type == '\"' && ft_strchr("\" \t$", word[i]) != NULL)
+			|| (*str_type == '\"' && ft_strchr("\" $", word[i]) != NULL)
 			|| (*str_type == '\'' && word[i] == '\''))
 		{
 			if (substr_and_strjoin_to_str(
