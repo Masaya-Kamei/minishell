@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/29 18:33:43 by mkamei            #+#    #+#             */
-/*   Updated: 2021/06/19 17:55:55 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/06/24 22:40:38 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,16 +67,19 @@ static int	store_in_str_member_of_t_token(
 {
 	int		i;
 	int		start;
-	int		next_start;
+	int		len;
 
 	i = 0;
 	while (token_start_indexes[i] != -1)
 	{
 		start = token_start_indexes[i];
-		next_start = token_start_indexes[i + 1];
-		if (next_start == -1)
-			next_start = ft_strlen(line);
-		tokens[i].str = ft_substr(line, start, next_start - start);
+		if (token_start_indexes[i + 1] != -1)
+			len = token_start_indexes[i + 1] - start;
+		else
+			len = ft_strlen(line) - start;
+		while (line[start + len - 1] == ' ' || line[start + len - 1] == '\t')
+			len--;
+		tokens[i].str = ft_substr(line, start, len);
 		if (tokens[i].str == NULL)
 			return (ERR_MALLOC);
 		i++;
