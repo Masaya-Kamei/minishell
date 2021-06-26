@@ -1,6 +1,6 @@
-# Makefile for minishell, updated 2021年 6月11日 金曜日 16時49分04秒 JST
+# Makefile for minishell, updated 2021年 6月26日 土曜日 13時32分40秒 JST
 
-SRCNAME	:= debug.c lex_line.c minishell.c utils.c change_word_to_string.c
+SRCNAME	:= debug.c expand_word_token.c lex_line.c minishell.c utils.c
 
 # DO NOT ADD OR MODIFY ANY LINES ABOVE THIS -- run 'make source' to add files
 
