@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/28 09:39:27 by mkamei            #+#    #+#             */
-/*   Updated: 2021/06/17 18:28:36 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/06/26 13:32:29 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@
 # include <readline/readline.h>
 # include <readline/history.h>
 
+# define RAW "\0"
 # define SUCCESS 0
 # define ERR_MALLOC 1
 
@@ -37,6 +38,7 @@ typedef struct s_token
 }				t_token;
 
 int		lex_line(char *line, t_token **tokens, int *token_num);
+int		expand_word_token(char **word);
 void	free_double_pointer(char **strs);
 void	free_tokens(t_token *tokens);
 int		free_and_return(void *p, int status);
