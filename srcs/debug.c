@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/30 17:55:37 by mkamei            #+#    #+#             */
-/*   Updated: 2021/06/26 13:34:07 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/07/09 22:07:33 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@ void	print_line_and_word_start_array(char *line, int *word_start_array)
 	printf("%s\n", line);
 }
 
-void	print_tokens(t_token *tokens)
+void	print_tokens(t_token *tokens, t_list *env_list)
 {
 	int	i;
 
@@ -43,7 +43,7 @@ void	print_tokens(t_token *tokens)
 	{
 		if (tokens[i].type == WORD)
 		{
-			if (expand_word_token(&tokens[i].str) == ERR_MALLOC)
+			if (expand_word_token(&tokens[i].str, env_list) == ENOMEM)
 				return ;
 		}
 		printf("%2d	type:%c, str:%s,\n", i, tokens[i].type, tokens[i].str);

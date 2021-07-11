@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/29 18:28:52 by mkamei            #+#    #+#             */
-/*   Updated: 2021/06/21 13:36:02 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/07/11 10:35:20 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,4 +42,10 @@ int	free_and_return(void *p, int status)
 {
 	free(p);
 	return (status);
+}
+
+void	free_and_fill_null(char **p)
+{
+	free(*p);
+	*p = NULL;
 }
