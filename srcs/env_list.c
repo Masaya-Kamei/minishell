@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/08 16:49:34 by mkamei            #+#    #+#             */
-/*   Updated: 2021/07/10 21:32:32 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/07/13 16:08:40 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,8 +37,7 @@ char	*get_env_from_env_list(t_list *env_list, char *env_name)
 	target_list = search_list_from_env_list(env_list, env_name, env_name_len);
 	if (target_list == NULL)
 		return (NULL);
-	if (((char *)target_list->content)[env_name_len] == '='
-		&& ((char *)target_list->content)[env_name_len + 1] != '\0')
+	if (((char *)target_list->content)[env_name_len] == '=')
 	{
 		return (&((char *)target_list->content)[env_name_len + 1]);
 	}
@@ -62,7 +61,7 @@ int	set_env_in_env_list(t_list *env_list, char *env)
 		last_list = ft_lstlast(env_list);
 		last_list->next = lstnew_with_strdup(env);
 		if (last_list->next == NULL)
-			return (ENOMEM);
+			return (ERR_MALLOC);
 		return (SUCCESS);
 	}
 	if (equal_pointer == NULL)
@@ -70,7 +69,7 @@ int	set_env_in_env_list(t_list *env_list, char *env)
 	free(target_list->content);
 	target_list->content = ft_strdup(env);
 	if (target_list->content == NULL)
-		return (ENOMEM);
+		return (ERR_MALLOC);
 	return (SUCCESS);
 }
 
@@ -85,7 +84,7 @@ int	delete_oldpwd_env_value(t_list *env_list)
 		last_list = ft_lstlast(env_list);
 		last_list->next = lstnew_with_strdup("OLDPWD");
 		if (last_list->next == NULL)
-			return (ENOMEM);
+			return (ERR_MALLOC);
 		return (SUCCESS);
 	}
 	((char *)target_list->content)[6] = '\0';
@@ -104,7 +103,7 @@ int	countup_shlvl_env(t_list *env_list)
 		last_list = ft_lstlast(env_list);
 		last_list->next = lstnew_with_strdup("SHLVL=1");
 		if (last_list->next == NULL)
-			return (ENOMEM);
+			return (ERR_MALLOC);
 		return (SUCCESS);
 	}
 	if (((char *)target_list->content)[5] == '\0')
@@ -112,11 +111,11 @@ int	countup_shlvl_env(t_list *env_list)
 	else
 		value = ft_itoa(ft_atoi(&((char *)target_list->content)[6]) + 1);
 	if (value == NULL)
-		return (ENOMEM);
+		return (ERR_MALLOC);
 	free(target_list->content);
 	target_list->content = ft_strjoin("SHLVL=", value);
 	free(value);
 	if (target_list->content == NULL)
-		return (ENOMEM);
+		return (ERR_MALLOC);
 	return (SUCCESS);
 }

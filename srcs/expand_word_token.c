@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/18 11:54:50 by mkamei            #+#    #+#             */
-/*   Updated: 2021/07/11 10:32:08 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/07/13 15:40:02 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -99,10 +99,10 @@ static int	loop_substr_and_strjoin_to_str(
 		{
 			sub = substr_with_expand(&word[start], i - start, type, env_list);
 			if (sub == NULL)
-				return (ENOMEM);
+				return (ERR_MALLOC);
 			*str = strjoin_with_free(*str, sub);
 			if (*str == NULL)
-				return (ENOMEM);
+				return (ERR_MALLOC);
 			if (type == RAW && (*str)[0] == '\0')
 				free_and_fill_null(str);
 			start = i + (word[i] == '\"' || word[i] == '\'');
@@ -120,8 +120,8 @@ int	expand_word_token(char **word, t_list *env_list)
 	start = 0;
 	str = NULL;
 	status = loop_substr_and_strjoin_to_str(*word, env_list, start, &str);
-	if (status == ENOMEM)
-		return (ENOMEM);
+	if (status == ERR_MALLOC)
+		return (ERR_MALLOC);
 	free(*word);
 	*word = str;
 	return (SUCCESS);

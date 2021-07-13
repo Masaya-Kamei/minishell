@@ -6,20 +6,38 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/07 14:33:37 by mkamei            #+#    #+#             */
-/*   Updated: 2021/07/11 10:40:58 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/07/13 12:25:38 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
+static int	write_env_err(char *word, int err_num, t_err_num_type type)
+{
+	int			i;
+	int			status;
+	const int	status_table[1][2] = {{ERR_INVALID_OP_ARG, 1}};
+
+	write(2, "minishell: env: ", 16);
+	write_err(word, err_num, type);
+	if (err_num == ERR_INVALID_OP)
+		write(2, "env: usage: env\n", 16);
+	if (type == ERRNO)
+		status = 1;
+	else
+	{
+		i = 0;
+		while (status_table[i][0] != err_num)
+			i++;
+		status = status_table[i][1];
+	}
+	return (status);
+}
+
 int	mini_env(char **argv, t_list *env_list)
 {
 	if (argv[1] != NULL)
-	{
-		write_msg(argv[0], argv[1], INVALID_OP_ARG, ORIGINAL);
-		write(2, "env: usage: env\n", 16);
-		return (1);
-	}
+		return (write_env_err(argv[1], ERR_INVALID_OP_ARG, ORIGINAL));
 	env_list = env_list->next;
 	while (env_list != NULL)
 	{
@@ -30,7 +48,7 @@ int	mini_env(char **argv, t_list *env_list)
 }
 
 // gcc -Wall -Werror -Wextra mini_env.c ../env.c ../env_list.c ../utils.c
-//	../write_msg.c -I ../../include -I ../../libft/ ../../libft/libft.a
+//	../write_err.c -I ../../include -I ../../libft/ ../../libft/libft.a
 
 // int	main(int argc, char **argv, char **envp)
 // {

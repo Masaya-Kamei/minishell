@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/05 14:03:48 by mkamei            #+#    #+#             */
-/*   Updated: 2021/07/11 10:00:56 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/07/13 12:19:55 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,7 +102,7 @@ void	set_command_status_env(t_list *env_list, int command_status)
 	}
 }
 
-// gcc -Wall -Werror -Wextra env.c env_list.c utils.c write_msg.c
+// gcc -Wall -Werror -Wextra env.c env_list.c utils.c write_err.c
 //		builtins/mini_env.c -I ../include -I ../libft/ ../libft/libft.a
 
 // int	main(int argc, char **argv, char **envp)

@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/28 15:30:07 by mkamei            #+#    #+#             */
-/*   Updated: 2021/07/11 10:34:37 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/07/13 15:33:17 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,10 +57,10 @@ static void	loop_minishell(t_list *env_list)
 			add_history(line);
 		status = lex_line(line, &tokens, &token_num);
 		free(line);
-		if (status == ENOMEM)
+		if (status == ERR_MALLOC)
 		{
-			write_msg(NULL, NULL, ENOMEM, ERRNO);
-			set_command_status_env(env_list, ENOMEM);
+			write_shell_err(NULL, ERR_MALLOC, ORIGINAL);
+			set_command_status_env(env_list, 1);
 			continue ;
 		}
 		else if (token_num == 0)
@@ -83,7 +83,7 @@ static void	loop_minishell(t_list *env_list)
 		// 	printf("Quit: 3\n");
 		// }
 		free_tokens(tokens);
-		// if (status == ENOMEM)
+		// if (status == ERR_MALLOC)
 		// 	exit(1);
 		// else if (status != SUCCESS)
 		// 	write_err_msg(status);
@@ -97,22 +97,22 @@ int	main(int argc, char **argv, char **envp)
 	(void)argc;
 	(void)**argv;
 	if (signal(SIGINT, handler) == SIG_ERR)
-		exit(write_msg(NULL, NULL, errno, ERRNO));
+		exit(write_shell_err(NULL, errno, ERRNO));
 	if (signal(SIGQUIT, handler) == SIG_ERR)
-		exit(write_msg(NULL, NULL, errno, ERRNO));
+		exit(write_shell_err(NULL, errno, ERRNO));
 	rl_signal_event_hook = &redisplay_prompt;
 	env_list = create_env_list_from_envp(envp);
 	if (env_list == NULL)
-		exit(write_msg(NULL, NULL, ENOMEM, ERRNO));
-	if (delete_oldpwd_env_value(env_list) == ENOMEM)
+		exit(write_shell_err(NULL, ERR_MALLOC, ORIGINAL));
+	if (delete_oldpwd_env_value(env_list) == ERR_MALLOC)
 	{
 		ft_lstclear(&env_list, free);
-		exit(write_msg(NULL, NULL, ENOMEM, ERRNO));
+		exit(write_shell_err(NULL, ERR_MALLOC, ORIGINAL));
 	}
-	if (countup_shlvl_env(env_list) == ENOMEM)
+	if (countup_shlvl_env(env_list) == ERR_MALLOC)
 	{
 		ft_lstclear(&env_list, free);
-		exit(write_msg(NULL, NULL, ENOMEM, ERRNO));
+		exit(write_shell_err(NULL, ERR_MALLOC, ORIGINAL));
 	}
 	loop_minishell(env_list);
 	return (0);

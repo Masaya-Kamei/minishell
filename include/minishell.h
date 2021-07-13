@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/28 09:39:27 by mkamei            #+#    #+#             */
-/*   Updated: 2021/07/11 10:33:51 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/07/13 15:31:26 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,14 @@
 # include <readline/history.h>
 
 # define SUCCESS 0
-# define INVALID_OP_ARG 1
+# define ERR_MALLOC 1
+# define ERR_INVALID_OP 2
+# define ERR_NOSET_HOME 3
+# define ERR_NOSET_OLDPWD 4
+# define ERR_NUM_ARG_REQ 5
+# define ERR_TOO_MANY_ARG 6
+# define ERR_INVALID_ID 7
+# define ERR_INVALID_OP_ARG 8
 
 typedef enum e_str_type{
 	RAW			= 'R',
@@ -63,9 +70,8 @@ char	*get_env_from_env_list(t_list *env_list, char *env_name);
 int		set_env_in_env_list(t_list *env_list, char *env);
 int		delete_oldpwd_env_value(t_list *env_list);
 int		countup_shlvl_env(t_list *env_list);
-int		write_msg(char *command, char *word, int err_num, t_err_num_type type);
-int		write_msg_about_invalid_identifier(char *command, char *word);
-int		write_msg_about_invalid_option(char *command, char *word);
+void	write_err(char *word, int err_num, t_err_num_type type);
+int		write_shell_err(char *word, int err_num, t_err_num_type type);
 void	free_double_pointer(char **strs);
 void	free_tokens(t_token *tokens);
 int		free_and_return(void *p, int status);

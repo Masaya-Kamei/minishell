@@ -6,11 +6,33 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/07 14:33:48 by mkamei            #+#    #+#             */
-/*   Updated: 2021/07/11 10:40:23 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/07/13 15:38:25 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
+
+static int	write_export_err(char *word, int err_num, t_err_num_type type)
+{
+	int			i;
+	int			status;
+	const int	status_table[2][2] = {{ERR_INVALID_OP, 2}, {ERR_INVALID_ID, 1}};
+
+	write(2, "minishell: export: ", 19);
+	write_err(word, err_num, type);
+	if (err_num == ERR_INVALID_OP)
+		write(2, "export: usage: export [name[=value] ...]\n", 41);
+	if (type == ERRNO)
+		status = 1;
+	else
+	{
+		i = 0;
+		while (status_table[i][0] != err_num)
+			i++;
+		status = status_table[i][1];
+	}
+	return (status);
+}
 
 static void	bubble_sort_envp(char **envp)
 {
@@ -49,7 +71,7 @@ static int	write_exported_env(t_list *env_list)
 
 	envp = create_envp_from_env_list(env_list);
 	if (envp == NULL)
-		return (write_msg(NULL, NULL, ENOMEM, ERRNO));
+		return (write_shell_err(NULL, ERR_MALLOC, ORIGINAL));
 	bubble_sort_envp(envp);
 	i = -1;
 	while (envp[++i] != NULL)
@@ -94,7 +116,7 @@ int	mini_export(char **argv, t_list *env_list)
 	int			env_name_len;
 
 	if (argv[1] != NULL && argv[1][0] == '-' && argv[1][1] != '\0')
-		return (write_msg_about_invalid_option(argv[0], argv[1]));
+		return (write_export_err(argv[1], ERR_INVALID_OP, ORIGINAL));
 	if (argv[1] == NULL)
 		return (write_exported_env(env_list));
 	i = 0;
@@ -107,16 +129,16 @@ int	mini_export(char **argv, t_list *env_list)
 		else
 			env_name_len = equal_pointer - argv[i];
 		if (check_valid_identifier(argv[i], env_name_len) == 0)
-			status = write_msg_about_invalid_identifier(argv[0], argv[i]);
+			status = write_export_err(argv[i], ERR_INVALID_ID, ORIGINAL);
 		else
-			if (set_env_in_env_list(env_list, argv[i]) == ENOMEM)
-				return (write_msg(NULL, NULL, ENOMEM, ERRNO));
+			if (set_env_in_env_list(env_list, argv[i]) == ERR_MALLOC)
+				return (write_shell_err(NULL, ERR_MALLOC, ORIGINAL));
 	}
 	return (status);
 }
 
 // gcc -Wall -Werror -Wextra mini_export.c ../env.c ../env_list.c ../utils.c
-//	../write_msg.c -I ../../include -I ../../libft/ ../../libft/libft.a
+//	../write_err.c -I ../../include -I ../../libft/ ../../libft/libft.a
 
 // int	main(int argc, char **argv, char **envp)
 // {

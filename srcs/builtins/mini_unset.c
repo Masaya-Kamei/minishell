@@ -6,11 +6,33 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/07 14:33:51 by mkamei            #+#    #+#             */
-/*   Updated: 2021/07/11 10:41:43 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/07/13 12:29:13 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
+
+static int	write_unset_err(char *word, int err_num, t_err_num_type type)
+{
+	int			i;
+	int			status;
+	const int	status_table[2][2] = {{ERR_INVALID_OP, 2}, {ERR_INVALID_ID, 1}};
+
+	write(2, "minishell: unset: ", 18);
+	write_err(word, err_num, type);
+	if (err_num == ERR_INVALID_OP)
+		write(2, "unset: usage: unset [name ...]\n", 31);
+	if (type == ERRNO)
+		status = 1;
+	else
+	{
+		i = 0;
+		while (status_table[i][0] != err_num)
+			i++;
+		status = status_table[i][1];
+	}
+	return (status);
+}
 
 static int	delete_env_from_env_list(t_list **env_list, char *env_name)
 {
@@ -48,14 +70,14 @@ int	mini_unset(char **argv, t_list *env_list)
 	int		status;
 
 	if (argv[1] != NULL && argv[1][0] == '-' && argv[1][1] != '\0')
-		return (write_msg_about_invalid_option(argv[0], argv[1]));
+		return (write_unset_err(argv[1], ERR_INVALID_OP, ORIGINAL));
 	i = 1;
 	status = 0;
 	while (argv[i] != NULL)
 	{
 		env_name_len = ft_strlen(argv[i]);
 		if (check_valid_identifier(argv[i], env_name_len) == 0)
-			status = write_msg_about_invalid_identifier(argv[0], argv[i]);
+			status = write_unset_err(argv[i], ERR_INVALID_ID, ORIGINAL);
 		else
 			delete_env_from_env_list(&env_list, argv[i]);
 		i++;
@@ -64,7 +86,7 @@ int	mini_unset(char **argv, t_list *env_list)
 }
 
 // gcc -Wall -Werror -Wextra mini_unset.c minit_export.c ../env.c ../env_list.c
-// ../utils.c ../write_msg.c -I ../../include -I ../../libft/ ../../libft/libft.a
+// ../utils.c ../write_err.c -I ../../include -I ../../libft/ ../../libft/libft.a
 
 // int	main(int argc, char **argv, char **envp)
 // {
