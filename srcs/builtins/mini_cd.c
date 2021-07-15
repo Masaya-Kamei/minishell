@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/07 20:10:11 by mkamei            #+#    #+#             */
-/*   Updated: 2021/07/15 15:55:54 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/07/15 16:53:04 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,25 +66,25 @@ int	mini_cd(char **argv, t_list *vars_list[3])
 // gcc -Wall -Werror -Wextra mini_cd.c ../env.c ../env_list.c ../utils.c
 //	../write_err.c -I ../../include -I ../../libft/ ../../libft/libft.a
 
-int	main(int argc, char **argv, char **envp)
-{
-	t_list	*env_list;
-	int		command_status;
-	char	path[100];
+// int	main(int argc, char **argv, char **envp)
+// {
+// 	t_list	*env_list;
+// 	int		command_status;
+// 	char	path[100];
 
-	(void)argc;
-	env_list = create_env_list_from_envp(envp);
-	argv[0] = "cd";
-	command_status = mini_cd(argv, env_list);
-	set_command_status_env(env_list, command_status);
-	printf("%s\n", get_env_from_env_list(env_list, "?"));
-	if (command_status == 0)
-	{
-		getcwd(path, 100);
-		write(1, path, ft_strlen(path));
-		write(1, "\n", 1);
-		printf("%s\n", get_env_from_env_list(env_list, "PWD"));
-		printf("%s\n", get_env_from_env_list(env_list, "OLDPWD"));
-	}
-	return (0);
-}
+// 	(void)argc;
+// 	env_list = create_env_list_from_envp(envp);
+// 	argv[0] = "cd";
+// 	command_status = mini_cd(argv, env_list);
+// 	set_command_status_env(env_list, command_status);
+// 	printf("%s\n", get_env_from_env_list(env_list, "?"));
+// 	if (command_status == 0)
+// 	{
+// 		getcwd(path, 100);
+// 		write(1, path, ft_strlen(path));
+// 		write(1, "\n", 1);
+// 		printf("%s\n", get_env_from_env_list(env_list, "PWD"));
+// 		printf("%s\n", get_env_from_env_list(env_list, "OLDPWD"));
+// 	}
+// 	return (0);
+// }

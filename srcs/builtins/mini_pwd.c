@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/07 20:11:20 by mkamei            #+#    #+#             */
-/*   Updated: 2021/07/13 15:39:09 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/07/15 16:53:00 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,28 +32,6 @@ static int	write_pwd_err(char *word, int err_num, t_err_num_type type)
 		status = status_table[i][1];
 	}
 	return (status);
-}
-
-char	*get_current_absolute_path(void)
-{
-	int		size;
-	char	*absolute_path;
-
-	size = 10;
-	absolute_path = NULL;
-	while (absolute_path == NULL)
-	{
-		absolute_path = (char *)malloc(sizeof(char) * (size + 1));
-		if (absolute_path == NULL)
-			return (NULL);
-		absolute_path = getcwd(absolute_path, size);
-		if (absolute_path == NULL)
-		{
-			free(absolute_path);
-			size *= 2;
-		}
-	}
-	return (absolute_path);
 }
 
 int	mini_pwd(char **argv)
