@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/07 14:33:48 by mkamei            #+#    #+#             */
-/*   Updated: 2021/07/13 15:38:25 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/07/15 13:23:35 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,13 +63,13 @@ static void	bubble_sort_envp(char **envp)
 	}
 }
 
-static int	write_exported_env(t_list *env_list)
+static int	write_exported_vars(t_list *env_list)
 {
 	int		i;
 	char	*equal_pointer;
 	char	**envp;
 
-	envp = create_envp_from_env_list(env_list);
+	envp = create_envp(env_list);
 	if (envp == NULL)
 		return (write_shell_err(NULL, ERR_MALLOC, ORIGINAL));
 	bubble_sort_envp(envp);
@@ -92,46 +92,46 @@ static int	write_exported_env(t_list *env_list)
 	return (0);
 }
 
-int	check_valid_identifier(char *env, int env_name_len)
+int	check_valid_identifier(char *var, int var_name_len)
 {
 	int		i;
 
-	if (ft_isalpha(env[0]) == 0 && env[0] != '_')
+	if (ft_isalpha(var[0]) == 0 && var[0] != '_')
 		return (0);
 	i = 0;
-	while (i < env_name_len)
+	while (i < var_name_len)
 	{
-		if (ft_isalnum(env[i]) == 0 && env[i] != '_')
+		if (ft_isalnum(var[i]) == 0 && var[i] != '_')
 			return (0);
 		i++;
 	}
 	return (1);
 }
 
-int	mini_export(char **argv, t_list *env_list)
+int	mini_export(char **argv, t_list *vars_list[3])
 {
 	int			i;
 	int			status;
 	char		*equal_pointer;
-	int			env_name_len;
+	int			var_name_len;
 
 	if (argv[1] != NULL && argv[1][0] == '-' && argv[1][1] != '\0')
 		return (write_export_err(argv[1], ERR_INVALID_OP, ORIGINAL));
 	if (argv[1] == NULL)
-		return (write_exported_env(env_list));
+		return (write_exported_vars(vars_list[ENV]));
 	i = 0;
 	status = 0;
 	while (argv[++i] != NULL)
 	{
 		equal_pointer = ft_strchr(argv[i], '=');
 		if (equal_pointer == NULL)
-			env_name_len = ft_strlen(argv[i]);
+			var_name_len = ft_strlen(argv[i]);
 		else
-			env_name_len = equal_pointer - argv[i];
-		if (check_valid_identifier(argv[i], env_name_len) == 0)
+			var_name_len = equal_pointer - argv[i];
+		if (check_valid_identifier(argv[i], var_name_len) == 0)
 			status = write_export_err(argv[i], ERR_INVALID_ID, ORIGINAL);
 		else
-			if (set_env_in_env_list(env_list, argv[i]) == ERR_MALLOC)
+			if (set_var(vars_list, argv[i], ENV) == ERR_MALLOC)
 				return (write_shell_err(NULL, ERR_MALLOC, ORIGINAL));
 	}
 	return (status);

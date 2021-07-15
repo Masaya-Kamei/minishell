@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/18 11:54:50 by mkamei            #+#    #+#             */
-/*   Updated: 2021/07/13 15:40:02 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/07/15 13:20:45 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@ static char	*strjoin_with_free(char *str, char *sub)
 }
 
 static char	*substr_with_expand(
-	char *substr_start, int len, t_str_type type, t_list *env_list)
+	char *substr_start, int len, t_str_type type, t_list *vars_list[3])
 {
 	char	*sub;
 	char	*tmp;
@@ -40,7 +40,7 @@ static char	*substr_with_expand(
 		return (NULL);
 	if (type != S_QUOTE && sub[0] == '$' && sub[1] != '\0')
 	{
-		tmp = get_env_from_env_list(env_list, &sub[1]);
+		tmp = get_var(vars_list, &sub[1]);
 		free(sub);
 		if (tmp == NULL)
 			sub = ft_strdup("");
@@ -82,7 +82,7 @@ static char	judge_str_type(char *word, int i, t_str_type type, int *start)
 }
 
 static int	loop_substr_and_strjoin_to_str(
-	char *word, t_list *env_list, int start, char **str)
+	char *word, t_list *vars_list[3], int start, char **str)
 {
 	int			i;
 	t_str_type	type;
@@ -97,7 +97,7 @@ static int	loop_substr_and_strjoin_to_str(
 			|| (type == S_QUOTE && ft_strchr("\'\0", word[i]) != NULL)
 			|| (type == D_QUOTE && ft_strchr("\" $\0", word[i]) != NULL))
 		{
-			sub = substr_with_expand(&word[start], i - start, type, env_list);
+			sub = substr_with_expand(&word[start], i - start, type, vars_list);
 			if (sub == NULL)
 				return (ERR_MALLOC);
 			*str = strjoin_with_free(*str, sub);
@@ -111,7 +111,7 @@ static int	loop_substr_and_strjoin_to_str(
 	return (SUCCESS);
 }
 
-int	expand_word_token(char **word, t_list *env_list)
+int	expand_word_token(char **word, t_list *vars_list[3])
 {
 	int		start;
 	char	*str;
@@ -119,7 +119,7 @@ int	expand_word_token(char **word, t_list *env_list)
 
 	start = 0;
 	str = NULL;
-	status = loop_substr_and_strjoin_to_str(*word, env_list, start, &str);
+	status = loop_substr_and_strjoin_to_str(*word, vars_list, start, &str);
 	if (status == ERR_MALLOC)
 		return (ERR_MALLOC);
 	free(*word);

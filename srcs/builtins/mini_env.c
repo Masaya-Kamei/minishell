@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/07 14:33:37 by mkamei            #+#    #+#             */
-/*   Updated: 2021/07/13 12:25:38 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/07/15 11:51:32 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,15 +34,17 @@ static int	write_env_err(char *word, int err_num, t_err_num_type type)
 	return (status);
 }
 
-int	mini_env(char **argv, t_list *env_list)
+int	mini_env(char **argv, t_list *vars_list[3])
 {
+	t_list	*current_list;
+
 	if (argv[1] != NULL)
 		return (write_env_err(argv[1], ERR_INVALID_OP_ARG, ORIGINAL));
-	env_list = env_list->next;
-	while (env_list != NULL)
+	current_list = vars_list[ENV];
+	while (current_list != NULL)
 	{
-		ft_putendl_fd(env_list->content, 1);
-		env_list = env_list->next;
+		ft_putendl_fd(current_list->content, 1);
+		current_list = current_list->next;
 	}
 	return (0);
 }

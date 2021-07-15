@@ -6,20 +6,12 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/09 10:48:30 by mkamei            #+#    #+#             */
-/*   Updated: 2021/07/13 15:42:35 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/07/15 11:49:04 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
-# define SUCCESS 0
-# define ERR_MALLOC 1
-# define ERR_INVALID_OP 2
-# define ERR_NOSET_HOME 3
-# define ERR_NOSET_OLDPWD 4
-# define ERR_NUM_ARG_REQ 5
-# define ERR_TOO_MANY_ARG 6
-# define ERR_INVALID_ID 7
-# define ERR_INVALID_OP_ARG 8
+
 void	write_err(char *word, int err_num, t_err_num_type type)
 {
 	const char	err_msgs[10][30] = {
