@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/08 16:49:34 by mkamei            #+#    #+#             */
-/*   Updated: 2021/07/15 12:31:57 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/07/15 16:15:43 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,15 +90,3 @@ void	delete_var(t_list *vars_list[3], char *var_name, int var_type)
 	if (var_type == SHELL)
 		delete_var(vars_list, var_name, ENV);
 }
-
-// unset 両方消すー＞環境変数になかったらシェル変数を消す。
-// export -n 環境変数のみ消すー＞環境変数になかったら、終わり。
-// シェル変数にないものは、環境変数にない。ー＞シェル変数を削除すれば、環境変数が消える。
-
-// set               PWD, OLDPWD, export
-//    export -> env_list のみ、新規作成もする。
-//     PWD -> env_list になければ、シェル変数新規作成、set_envとset_shell_var を分ける。
-// getenv            どちらも
-// delete(value)     OLDPWD(ENV) 今後valueだけ消すことは一切ないので、独自
-// delete            unset(どちらも)、シェル変数は残すこともある。
-// 					なので、any_list

@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/05 14:03:48 by mkamei            #+#    #+#             */
-/*   Updated: 2021/07/15 13:22:49 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/07/15 16:11:06 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -131,42 +131,3 @@ int	countup_shlvl_env(t_list **env_list)
 		return (ERR_MALLOC);
 	return (SUCCESS);
 }
-
-// gcc -Wall -Werror -Wextra env.c env_list.c utils.c write_err.c
-//		builtins/mini_env.c -I ../include -I ../libft/ ../libft/libft.a
-
-// int	main(int argc, char **argv, char **envp)
-// {
-// 	t_list	*env_list;
-// 	int		i;
-
-// 	(void)argc;
-// 	i = 0;
-// 	while (envp[i] != NULL)
-// 		ft_putendl_fd(envp[i++], 1);
-// 	write(1, "\n", 1);
-// 	env_list = create_env_list_from_envp(envp);
-// 	countup_shlvl_env(env_list);
-// 	delete_oldpwd_env_value(env_list);
-// 	argv[0] = "env";
-// 	mini_env(argv, env_list);
-// 	printf("\n%s\n", get_env_from_env_list(env_list, "?"));
-// 	set_command_status_env(env_list, 127);
-// 	printf("%s\n", get_env_from_env_list(env_list, "?"));
-// 	printf("%s\n", get_env_from_env_list(env_list, "SHELL"));
-// 	set_env_in_env_list(env_list, "AAA=a");
-// 	printf("%s\n", get_env_from_env_list(env_list, "AAA"));
-// 	set_env_in_env_list(env_list, "AAA");
-// 	printf("%s\n", get_env_from_env_list(env_list, "AAA"));
-// 	set_env_in_env_list(env_list, "BBB");
-// 	printf("%s\n", get_env_from_env_list(env_list, "BBB"));
-// 	set_env_in_env_list(env_list, "BBB=");
-// 	printf("%s\n", get_env_from_env_list(env_list, "BBB"));
-// 	set_env_in_env_list(env_list, "BBB=b");
-// 	printf("%s\n\n", get_env_from_env_list(env_list, "BBB"));
-// 	envp = create_envp_from_env_list(env_list);
-// 	i = 0;
-// 	while (envp[i] != NULL)
-// 		ft_putendl_fd(envp[i++], 1);
-// 	return (0);
-// }
