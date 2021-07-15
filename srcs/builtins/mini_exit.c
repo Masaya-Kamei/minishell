@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/07 20:12:35 by mkamei            #+#    #+#             */
-/*   Updated: 2021/07/15 18:25:12 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/07/15 22:08:20 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,11 +33,12 @@ static int	write_exit_err(char *word, int err_num, t_err_num_type type)
 	return (status);
 }
 
-int	mini_exit(char **argv)
+int	mini_exit(char **argv, t_list *vars_list[3])
 {
 	int		exit_num;
 	int		i;
 
+	(void)(**vars_list);
 	write(2, "exit\n", 5);
 	if (argv[1] == NULL)
 		exit(0);
@@ -75,7 +76,7 @@ int	mini_exit(char **argv)
 // 	vars_list[SPECIAL] = lstnew_with_strdup("?=0  ");
 // 	((char *)vars_list[SPECIAL]->content)[3] = '\0';
 // 	argv[0] = "exit";
-// 	exit_status = mini_exit(argv);
+// 	exit_status = mini_exit(argv, NULL);
 // 	set_exit_status(vars_list[SPECIAL], exit_status);
 // 	printf("%s\n", get_var(vars_list, "?"));
 // 	return (0);

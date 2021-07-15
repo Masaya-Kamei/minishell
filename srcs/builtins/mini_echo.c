@@ -6,17 +6,18 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/07 20:12:07 by mkamei            #+#    #+#             */
-/*   Updated: 2021/07/15 17:44:33 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/07/15 22:08:08 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-int	mini_echo(char **argv)
+int	mini_echo(char **argv, t_list *vars_list[3])
 {
 	int		i;
 	int		option_n;
 
+	(void)(**vars_list);
 	i = 1;
 	option_n = 0;
 	while (argv[i] != NULL && ft_strncmp(argv[i], "-n", 3) == 0)
@@ -49,7 +50,7 @@ int	mini_echo(char **argv)
 
 // 	(void)argc;
 // 	argv[0] = "echo";
-// 	exit_status = mini_echo(argv);
+// 	exit_status = mini_echo(argv, NULL);
 // 	printf("%d\n", exit_status);
 // 	return (0);
 // }

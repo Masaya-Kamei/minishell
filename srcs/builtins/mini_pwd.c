@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/07 20:11:20 by mkamei            #+#    #+#             */
-/*   Updated: 2021/07/15 18:35:34 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/07/15 22:08:29 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,10 +34,11 @@ static int	write_pwd_err(char *word, int err_num, t_err_num_type type)
 	return (status);
 }
 
-int	mini_pwd(char **argv)
+int	mini_pwd(char **argv, t_list *vars_list[3])
 {
 	char	*absolute_path;
 
+	(void)(**vars_list);
 	if (argv[1] != NULL && argv[1][0] == '-' && argv[1][1] != '\0')
 		return (write_pwd_err(argv[1], ERR_INVALID_OP, ORIGINAL));
 	absolute_path = get_current_absolute_path();
@@ -63,7 +64,7 @@ int	mini_pwd(char **argv)
 // 	vars_list[SPECIAL] = lstnew_with_strdup("?=0  ");
 // 	((char *)vars_list[SPECIAL]->content)[3] = '\0';
 // 	argv[0] = "pwd";
-// 	exit_status = mini_pwd(argv);
+// 	exit_status = mini_pwd(argv, NULL);
 // 	set_exit_status(vars_list[SPECIAL], exit_status);
 // 	printf("%s\n", get_var(vars_list, "?"));
 // 	return (0);
