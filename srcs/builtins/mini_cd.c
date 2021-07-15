@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/07 20:10:11 by mkamei            #+#    #+#             */
-/*   Updated: 2021/07/15 21:57:57 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/07/15 22:21:36 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,8 +63,8 @@ int	mini_cd(char **argv, t_list *vars_list[3])
 	return (0);
 }
 
-// gcc -Wall -Werror -Wextra mini_cd.c ../var_env.c ../var_ope.c
-//	../var_set_any.c ../var_utils.c ../free.c ../write_err.c
+// gcc -Wall -Werror -Wextra mini_cd.c mini_unset.c mini_export.c ../var_env.c
+//	../var_ope.c ../var_set_any.c ../var_utils.c ../free.c ../write_err.c
 //	-I ../../include -I ../../libft/ ../../libft/libft.a
 
 // int	main(int argc, char **argv, char **envp)
@@ -90,5 +90,19 @@ int	mini_cd(char **argv, t_list *vars_list[3])
 // 		printf("PWD=%s\n", get_var(vars_list, "PWD"));
 // 		printf("OLDPWD=%s\n", get_var(vars_list, "OLDPWD"));
 // 	}
+// 	argv[0] = "unset";
+// 	argv[1] = "PWD";
+// 	argv[2] = "OLDPWD";
+// 	argv[3] = NULL;
+// 	exit_status = mini_unset(argv, vars_list);
+// 	printf("%d\n", exit_status);
+// 	argv[0] = "cd";
+// 	argv[1] = NULL;
+// 	exit_status = mini_cd(argv, vars_list);
+// 	printf("%d\n", exit_status);
+// 	printf("OLDPWD=%s\n", get_var(vars_list, "OLDPWD"));
+// 	printf("PWD=%s\n", get_var(vars_list, "PWD"));
+// 	printf("%s\n", (char *)vars_list[SHELL]->content);
+// 	printf("%s\n", (char *)vars_list[SHELL]->next->content);
 // 	return (0);
 // }
