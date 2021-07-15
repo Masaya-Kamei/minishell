@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/28 15:30:07 by mkamei            #+#    #+#             */
-/*   Updated: 2021/07/15 13:22:02 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/07/15 16:45:36 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,7 +50,9 @@ static void	loop_minishell(t_list *vars_list[3])
 		if (line == NULL)
 		{
 			clear_vars_list(vars_list);
-			printf("\033[1A\033[11Cexit\n");
+			printf("\033[1A\033[11C");
+			rl_redisplay();
+			write(2, "exit\n", 5);
 			exit(0);
 		}
 		if (line[0] != '\0')
@@ -69,6 +71,7 @@ static void	loop_minishell(t_list *vars_list[3])
 			continue ;
 		}
 		print_tokens(tokens, vars_list);
+		test_vars_list(vars_list);
 		// status = process_pipeline(tokens, 0, token_num - 1);
 		// g_received_signal = 0;
 		// execve_sleep();

@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/28 09:39:27 by mkamei            #+#    #+#             */
-/*   Updated: 2021/07/15 12:42:07 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/07/15 16:46:00 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,6 +61,10 @@ typedef struct s_token
 
 int		lex_line(char *line, t_token **tokens, int *token_num);
 int		expand_word_token(char **word, t_list *vars_list[3]);
+int		mini_ehco(char **argv);
+int		mini_cd(char **argv, t_list *vars_list[3]);
+int		mini_pwd(char **argv);
+int		mini_exit(char **argv);
 int		mini_env(char **argv, t_list *vars_list[3]);
 int		mini_export(char **argv, t_list *vars_list[3]);
 int		mini_unset(char **argv, t_list *vars_list[3]);
@@ -88,6 +92,7 @@ void	clear_vars_list(t_list *vars_list[3]);
 void	print_line_and_word_start_array(char *line, int *word_start);
 void	print_tokens(t_token *tokens, t_list *vars_list[3]);
 void	execve_sleep(void);
+void	test_vars_list(t_list *vars_list[3]);
 
 int		g_received_signal;
 
