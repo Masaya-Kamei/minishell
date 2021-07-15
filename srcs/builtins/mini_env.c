@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/07 14:33:37 by mkamei            #+#    #+#             */
-/*   Updated: 2021/07/15 11:51:32 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/07/15 21:54:48 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@ static int	write_env_err(char *word, int err_num, t_err_num_type type)
 
 	write(2, "minishell: env: ", 16);
 	write_err(word, err_num, type);
-	if (err_num == ERR_INVALID_OP)
+	if (type == ORIGINAL && err_num == ERR_INVALID_OP_ARG)
 		write(2, "env: usage: env\n", 16);
 	if (type == ERRNO)
 		status = 1;
@@ -43,25 +43,30 @@ int	mini_env(char **argv, t_list *vars_list[3])
 	current_list = vars_list[ENV];
 	while (current_list != NULL)
 	{
-		ft_putendl_fd(current_list->content, 1);
+		if (ft_strchr(current_list->content, '=') != NULL)
+			ft_putendl_fd(current_list->content, 1);
 		current_list = current_list->next;
 	}
 	return (0);
 }
 
-// gcc -Wall -Werror -Wextra mini_env.c ../env.c ../env_list.c ../utils.c
-//	../write_err.c -I ../../include -I ../../libft/ ../../libft/libft.a
+// gcc -Wall -Werror -Wextra mini_env.c ../var_env.c ../var_ope.c
+//	../var_set_any.c ../var_utils.c ../free.c ../write_err.c
+//	-I ../../include -I ../../libft/ ../../libft/libft.a
 
 // int	main(int argc, char **argv, char **envp)
 // {
-// 	t_list	*env_list;
-// 	int		command_status;
+// 	t_list	*vars_list[3];
+// 	int		exit_status;
 
 // 	(void)argc;
-// 	env_list = create_env_list_from_envp(envp);
+// 	vars_list[ENV] = create_env_list(envp);
+// 	vars_list[SHELL] = NULL;
+// 	vars_list[SPECIAL] = lstnew_with_strdup("?=0  ");
+// 	((char *)vars_list[SPECIAL]->content)[3] = '\0';
 // 	argv[0] = "env";
-// 	command_status = mini_env(argv, env_list);
-// 	set_command_status_env(env_list, command_status);
-// 	printf("%s\n", get_env_from_env_list(env_list, "?"));
+// 	exit_status = mini_env(argv, vars_list);
+// 	set_exit_status(vars_list[SPECIAL], exit_status);
+// 	printf("%s\n", get_var(vars_list, "?"));
 // 	return (0);
 // }

@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/07 20:12:07 by mkamei            #+#    #+#             */
-/*   Updated: 2021/07/12 13:03:46 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/07/15 17:44:33 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,3 +39,17 @@ int	mini_echo(char **argv)
 		write(1, "\n", 1);
 	return (0);
 }
+
+// gcc -Wall -Werror -Wextra mini_echo.c ../write_err.c
+//	-I ../../include -I ../../libft/ ../../libft/libft.a
+
+// int	main(int argc, char **argv)
+// {
+// 	int		exit_status;
+
+// 	(void)argc;
+// 	argv[0] = "echo";
+// 	exit_status = mini_echo(argv);
+// 	printf("%d\n", exit_status);
+// 	return (0);
+// }

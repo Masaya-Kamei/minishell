@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/09 10:48:30 by mkamei            #+#    #+#             */
-/*   Updated: 2021/07/15 11:49:04 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/07/15 18:00:29 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,13 +21,13 @@ void	write_err(char *word, int err_num, t_err_num_type type)
 
 	if (word != NULL)
 	{
-		if (err_num == ERR_INVALID_ID)
+		if (type == ORIGINAL && err_num == ERR_INVALID_ID)
 			write(2, "`", 1);
-		if (err_num == ERR_INVALID_OP)
+		if (type == ORIGINAL && err_num == ERR_INVALID_OP)
 			write(2, word, 2);
 		else
 			write(2, word, ft_strlen(word));
-		if (err_num == ERR_INVALID_ID)
+		if (type == ORIGINAL && err_num == ERR_INVALID_ID)
 			write(2, "'", 1);
 		write(2, ": ", 2);
 	}

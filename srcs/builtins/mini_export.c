@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/07 14:33:48 by mkamei            #+#    #+#             */
-/*   Updated: 2021/07/15 13:23:35 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/07/15 18:33:05 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@ static int	write_export_err(char *word, int err_num, t_err_num_type type)
 
 	write(2, "minishell: export: ", 19);
 	write_err(word, err_num, type);
-	if (err_num == ERR_INVALID_OP)
+	if (type == ORIGINAL && err_num == ERR_INVALID_OP)
 		write(2, "export: usage: export [name[=value] ...]\n", 41);
 	if (type == ERRNO)
 		status = 1;
@@ -137,27 +137,37 @@ int	mini_export(char **argv, t_list *vars_list[3])
 	return (status);
 }
 
-// gcc -Wall -Werror -Wextra mini_export.c ../env.c ../env_list.c ../utils.c
-//	../write_err.c -I ../../include -I ../../libft/ ../../libft/libft.a
+// gcc -Wall -Werror -Wextra mini_export.c ../var_env.c ../var_ope.c
+//	../var_set_any.c ../var_utils.c ../free.c ../write_err.c
+//	-I ../../include -I ../../libft/ ../../libft/libft.a
 
 // int	main(int argc, char **argv, char **envp)
 // {
-// 	t_list	*env_list;
-// 	int		command_status;
+// 	t_list	*vars_list[3];
+// 	int		exit_status;
+// 	int		i;
 // 	char	*equal_pointer;
 
 // 	(void)argc;
-// 	env_list = create_env_list_from_envp(envp);
+// 	vars_list[ENV] = create_env_list(envp);
+// 	vars_list[SHELL] = NULL;
+// 	vars_list[SPECIAL] = lstnew_with_strdup("?=0  ");
+// 	((char *)vars_list[SPECIAL]->content)[3] = '\0';
 // 	argv[0] = "export";
-// 	command_status = mini_export(argv, env_list);
-// 	set_command_status_env(env_list, command_status);
-// 	printf("%s\n", get_env_from_env_list(env_list, "?"));
-// 	if (command_status == 0)
+// 	exit_status = mini_export(argv, vars_list);
+// 	set_exit_status(vars_list[SPECIAL], exit_status);
+// 	printf("%s\n", get_var(vars_list, "?"));
+// 	if (exit_status == 0)
 // 	{
-// 		equal_pointer = ft_strchr(argv[1], '=');
-// 		if (equal_pointer != NULL)
-// 			*equal_pointer = '\0';
-// 		printf("%s\n", get_env_from_env_list(env_list, argv[1]));
+// 		i = 1;
+// 		while (argv[i] != NULL)
+// 		{
+// 			equal_pointer = ft_strchr(argv[i], '=');
+// 			if (equal_pointer != NULL)
+// 				*equal_pointer = '\0';
+// 			printf("%s\n", get_var(vars_list, argv[i]));
+// 			i++;
+// 		}
 // 	}
 // 	return (0);
 // }

@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/28 15:30:07 by mkamei            #+#    #+#             */
-/*   Updated: 2021/07/15 16:45:36 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/07/15 17:51:44 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -111,8 +111,8 @@ int	main(int argc, char **argv, char **envp)
 	((char *)vars_list[SPECIAL]->content)[3] = '\0';
 	vars_list[ENV] = create_env_list(envp);
 	if (vars_list[ENV] == NULL
-		|| set_pwd_var(vars_list, 1) == ERR_MALLOC
 		|| set_oldpwd_var(vars_list, 1) == ERR_MALLOC
+		|| set_pwd_var(vars_list, 1) == ERR_MALLOC
 		|| countup_shlvl_env(&vars_list[ENV]) == ERR_MALLOC)
 	{
 		clear_vars_list(vars_list);
