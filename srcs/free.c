@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   utils.c                                            :+:      :+:    :+:   */
+/*   free.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/29 18:28:52 by mkamei            #+#    #+#             */
-/*   Updated: 2021/06/21 13:36:02 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/07/15 12:19:21 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,4 +42,17 @@ int	free_and_return(void *p, int status)
 {
 	free(p);
 	return (status);
+}
+
+void	free_and_fill_null(char **p)
+{
+	free(*p);
+	*p = NULL;
+}
+
+void	clear_vars_list(t_list *vars_list[3])
+{
+	ft_lstclear(&vars_list[ENV], free);
+	ft_lstclear(&vars_list[SHELL], free);
+	ft_lstclear(&vars_list[SPECIAL], free);
 }

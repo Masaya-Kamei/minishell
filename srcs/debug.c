@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/30 17:55:37 by mkamei            #+#    #+#             */
-/*   Updated: 2021/06/26 13:34:07 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/07/15 16:47:02 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@ void	print_line_and_word_start_array(char *line, int *word_start_array)
 	printf("%s\n", line);
 }
 
-void	print_tokens(t_token *tokens)
+void	print_tokens(t_token *tokens, t_list *vars_list[3])
 {
 	int	i;
 
@@ -43,7 +43,7 @@ void	print_tokens(t_token *tokens)
 	{
 		if (tokens[i].type == WORD)
 		{
-			if (expand_word_token(&tokens[i].str) == ERR_MALLOC)
+			if (expand_word_token(&tokens[i].str, vars_list) == ERR_MALLOC)
 				return ;
 		}
 		printf("%2d	type:%c, str:%s,\n", i, tokens[i].type, tokens[i].str);
@@ -72,4 +72,33 @@ void	execve_sleep(void)
 		wait(&status);
 	}
 	free_double_pointer(argv);
+}
+
+void	test_vars_list(t_list *vars_list[3])
+{
+	int		i;
+	t_list	*current_list;
+
+	i = 0;
+	while (i < 3)
+	{
+		current_list = vars_list[i++];
+		while (current_list != NULL)
+		{
+			printf("%s\n", (char *)current_list->content);
+			current_list = current_list->next;
+		}
+	}
+	set_exit_status(vars_list[SPECIAL], 127);
+	printf("\n%s\n", get_var(vars_list, "?"));
+	set_var(vars_list, "AAA", ENV);
+	printf("%s\n", get_var(vars_list, "AAA"));
+	set_var(vars_list, "AAA=", ENV);
+	printf("%s\n", get_var(vars_list, "AAA"));
+	set_var(vars_list, "AAA=b", ENV);
+	printf("%s\n", get_var(vars_list, "AAA"));
+	set_var(vars_list, "AAA", ENV);
+	printf("%s\n", get_var(vars_list, "AAA"));
+	delete_var(vars_list, "AAA", SHELL);
+	printf("%s\n", get_var(vars_list, "AAA"));
 }

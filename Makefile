@@ -1,9 +1,8 @@
-# Makefile for minishell, updated 2021年 6月26日 土曜日 13時32分40秒 JST
-
-SRCNAME	:= debug.c expand_word_token.c lex_line.c minishell.c utils.c
-
-# DO NOT ADD OR MODIFY ANY LINES ABOVE THIS -- run 'make source' to add files
-
+SRCNAME	:=	debug.c expand_word_token.c lex_line.c minishell.c free.c \
+			var_env.c var_ope.c var_set_any.c var_utils.c write_err.c \
+			builtins/mini_echo.c builtins/mini_cd.c builtins/mini_pwd.c \
+			builtins/mini_exit.c builtins/mini_env.c builtins/mini_export.c \
+			builtins/mini_unset.c
 SRC_DIR := ./srcs/
 SRCS	:= $(addprefix $(SRC_DIR), $(SRCNAME))
 OBJS	:= $(SRCS:.c=.o)
@@ -59,9 +58,4 @@ address	: CFLAGS += -g -fsanitize=address
 address	: LIBFTTARGET := address
 address	: re
 
-source:
-	@cp Makefile Makefile.bak
-	@sed -i "" -r -e "s/(^# Makefile .* updated).*/\1 `date`/" Makefile
-	@sed -i "" -r -e "s/(^SRCNAME\t:=).*/\1 `ls -1 srcs | grep .c | xargs`/" Makefile
-
-.PHONY:	all clean fclean re debug address source
+.PHONY:	all clean fclean re debug address

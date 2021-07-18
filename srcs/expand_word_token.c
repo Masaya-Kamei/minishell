@@ -6,97 +6,122 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/18 11:54:50 by mkamei            #+#    #+#             */
-/*   Updated: 2021/06/26 13:42:09 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/07/15 13:20:45 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-static int	strjoin_str_and_sub(char **str, char *sub)
+static char	*strjoin_with_free(char *str, char *sub)
 {
-	char	*tmp;
+	char	*new_str;
 
-	if (*str == NULL)
-		*str = sub;
+	if (str == NULL)
+		new_str = sub;
 	else
 	{
-		tmp = ft_strjoin(*str, sub);
-		free(*str);
+		new_str = ft_strjoin(str, sub);
+		free(str);
 		free(sub);
-		*str = tmp;
-		if (*str == NULL)
-			return (ERR_MALLOC);
+		if (new_str == NULL)
+			return (NULL);
 	}
-	return (SUCCESS);
+	return (new_str);
 }
 
-static int	substr_and_strjoin_to_str(
-	char *substr_start, int len, char str_type, char **str)
+static char	*substr_with_expand(
+	char *substr_start, int len, t_str_type type, t_list *vars_list[3])
 {
 	char	*sub;
 	char	*tmp;
 
-	if (len == 0 && str_type == *RAW)
-		return (SUCCESS);
 	sub = ft_substr(substr_start, 0, len);
 	if (sub == NULL)
-		return (ERR_MALLOC);
-	if (str_type != '\'' && sub[0] == '$' && sub[1] != '\0')
+		return (NULL);
+	if (type != S_QUOTE && sub[0] == '$' && sub[1] != '\0')
 	{
-		tmp = getenv(&sub[1]);
+		tmp = get_var(vars_list, &sub[1]);
 		free(sub);
-		if (tmp == NULL && str_type == *RAW)
-			return (SUCCESS);
-		else if (tmp == NULL && str_type == '\"')
+		if (tmp == NULL)
 			sub = ft_strdup("");
 		else
 			sub = ft_strdup(tmp);
 		if (sub == NULL)
-			return (ERR_MALLOC);
+			return (NULL);
 	}
-	return (strjoin_str_and_sub(str, sub));
+	return (sub);
 }
 
-static int	loop_substr_and_strjoin(char *word, int i, int start, char **str)
+static char	judge_str_type(char *word, int i, t_str_type type, int *start)
 {
-	char	*str_type;
+	static t_str_type	next_type = '\0';
 
-	str_type = RAW;
-	while (word[i] != '\0')
+	if (next_type != '\0')
 	{
-		if (*str_type == *RAW && (word[i] == '\'' || word[i] == '\"')
-			&& ft_strchr(&word[i + 1], word[i]) != NULL)
+		type = next_type;
+		next_type = '\0';
+	}
+	if (type == RAW && word[i] == '\'' && ft_strchr(&word[i + 1], '\''))
+	{
+		type = S_QUOTE;
+		if (i > 0 && word[i - 1] == '$')
+			(*start)++;
+	}
+	else if (type == RAW && word[i] == '\"' && ft_strchr(&word[i + 1], '\"'))
+	{
+		type = D_QUOTE;
+		if (i > 0 && word[i - 1] == '$')
+			(*start)++;
+	}
+	else if ((type == S_QUOTE && word[i] == '\'')
+		|| (type == D_QUOTE && word[i] == '\"'))
+	{
+		next_type = RAW;
+	}
+	return (type);
+}
+
+static int	loop_substr_and_strjoin_to_str(
+	char *word, t_list *vars_list[3], int start, char **str)
+{
+	int			i;
+	t_str_type	type;
+	char		*sub;
+
+	i = -1;
+	type = RAW;
+	while (word[start] != '\0' && (++i || 1))
+	{
+		type = judge_str_type(word, i, type, &start);
+		if ((type == RAW && ft_strchr("$\0", word[i]) != NULL)
+			|| (type == S_QUOTE && ft_strchr("\'\0", word[i]) != NULL)
+			|| (type == D_QUOTE && ft_strchr("\" $\0", word[i]) != NULL))
 		{
-			str_type = &word[i];
-			start += (i > 0 && word[i - 1] == '$');
-		}
-		if ((*str_type == *RAW && word[i] == '$')
-			|| (*str_type == '\"' && ft_strchr("\" $", word[i]) != NULL)
-			|| (*str_type == '\'' && word[i] == '\''))
-		{
-			if (substr_and_strjoin_to_str(
-					&word[start], i - start, *str_type, str) == ERR_MALLOC)
+			sub = substr_with_expand(&word[start], i - start, type, vars_list);
+			if (sub == NULL)
 				return (ERR_MALLOC);
+			*str = strjoin_with_free(*str, sub);
+			if (*str == NULL)
+				return (ERR_MALLOC);
+			if (type == RAW && (*str)[0] == '\0')
+				free_and_fill_null(str);
 			start = i + (word[i] == '\"' || word[i] == '\'');
 		}
-		if (*str_type == word[i] && str_type != &word[i])
-			str_type = RAW;
-		i++;
 	}
-	return (substr_and_strjoin_to_str(&word[start], i - start, *str_type, str));
+	return (SUCCESS);
 }
 
-int	expand_word_token(char **word)
+int	expand_word_token(char **word, t_list *vars_list[3])
 {
-	int		i;
 	int		start;
 	char	*str;
+	int		status;
 
-	i = 0;
 	start = 0;
 	str = NULL;
-	if (loop_substr_and_strjoin(*word, i, start, &str) == ERR_MALLOC)
-		return (free_and_return(str, ERR_MALLOC));
+	status = loop_substr_and_strjoin_to_str(*word, vars_list, start, &str);
+	if (status == ERR_MALLOC)
+		return (ERR_MALLOC);
 	free(*word);
 	*word = str;
 	return (SUCCESS);
