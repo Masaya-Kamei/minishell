@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/18 11:54:50 by mkamei            #+#    #+#             */
-/*   Updated: 2021/07/15 13:20:45 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/07/20 17:59:02 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,7 +52,8 @@ static char	*substr_with_expand(
 	return (sub);
 }
 
-static char	judge_str_type(char *word, int i, t_str_type type, int *start)
+static t_str_type	judge_str_type(
+	char *word, int i, t_str_type type, int *start)
 {
 	static t_str_type	next_type = '\0';
 
@@ -81,7 +82,7 @@ static char	judge_str_type(char *word, int i, t_str_type type, int *start)
 	return (type);
 }
 
-static int	loop_substr_and_strjoin_to_str(
+static t_status	loop_substr_and_strjoin_to_str(
 	char *word, t_list *vars_list[3], int start, char **str)
 {
 	int			i;
@@ -99,10 +100,10 @@ static int	loop_substr_and_strjoin_to_str(
 		{
 			sub = substr_with_expand(&word[start], i - start, type, vars_list);
 			if (sub == NULL)
-				return (ERR_MALLOC);
+				return (E_MALLOC);
 			*str = strjoin_with_free(*str, sub);
 			if (*str == NULL)
-				return (ERR_MALLOC);
+				return (E_MALLOC);
 			if (type == RAW && (*str)[0] == '\0')
 				free_and_fill_null(str);
 			start = i + (word[i] == '\"' || word[i] == '\'');
@@ -111,17 +112,17 @@ static int	loop_substr_and_strjoin_to_str(
 	return (SUCCESS);
 }
 
-int	expand_word_token(char **word, t_list *vars_list[3])
+t_status	expand_word_token(char **word, t_list *vars_list[3])
 {
-	int		start;
-	char	*str;
-	int		status;
+	int			start;
+	char		*str;
+	t_status	status;
 
 	start = 0;
 	str = NULL;
 	status = loop_substr_and_strjoin_to_str(*word, vars_list, start, &str);
-	if (status == ERR_MALLOC)
-		return (ERR_MALLOC);
+	if (status == E_MALLOC)
+		return (E_MALLOC);
 	free(*word);
 	*word = str;
 	return (SUCCESS);
