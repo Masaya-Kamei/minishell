@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/08 16:49:34 by mkamei            #+#    #+#             */
-/*   Updated: 2021/07/15 16:15:43 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/07/20 11:32:46 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@ char	*get_var(t_list *vars_list[3], char *var_name)
 	return (NULL);
 }
 
-int	set_var(t_list *vars_list[3], char *var, int var_type)
+t_status	set_var(t_list *vars_list[3], char *var, int var_type)
 {
 	const char	*equal_pointer = ft_strchr(var, '=');
 	int			var_name_len;
@@ -58,7 +58,7 @@ int	set_var(t_list *vars_list[3], char *var, int var_type)
 	free(target_list->content);
 	target_list->content = ft_strdup(var);
 	if (target_list->content == NULL)
-		return (ERR_MALLOC);
+		return (E_MALLOC);
 	return (SUCCESS);
 }
 

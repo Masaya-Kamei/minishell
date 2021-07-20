@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/15 12:40:46 by mkamei            #+#    #+#             */
-/*   Updated: 2021/07/15 12:41:40 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/07/20 11:26:11 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,6 +41,7 @@ char	**create_envp(t_list *env_list)
 {
 	int		i;
 	int		env_num;
+	t_list	*current_list;
 	char	**envp;
 
 	env_num = ft_lstsize(env_list);
@@ -48,15 +49,16 @@ char	**create_envp(t_list *env_list)
 	if (envp == NULL)
 		return (NULL);
 	i = 0;
-	while (env_list != NULL)
+	current_list = env_list;
+	while (current_list != NULL)
 	{
-		envp[i] = ft_strdup(env_list->content);
+		envp[i] = ft_strdup(current_list->content);
 		if (envp[i] == NULL)
 		{
 			free_double_pointer(envp);
 			return (NULL);
 		}
-		env_list = env_list->next;
+		current_list = current_list->next;
 		i++;
 	}
 	envp[i] = NULL;

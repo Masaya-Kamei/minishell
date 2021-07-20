@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/05 14:03:48 by mkamei            #+#    #+#             */
-/*   Updated: 2021/07/15 16:11:06 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/07/20 11:33:50 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@ char	*get_current_absolute_path(void)
 	int		size;
 	char	*absolute_path;
 
-	size = 10;
+	size = 128;
 	absolute_path = NULL;
 	while (absolute_path == NULL)
 	{
@@ -34,12 +34,12 @@ char	*get_current_absolute_path(void)
 	return (absolute_path);
 }
 
-int	set_pwd_var(t_list *vars_list[3], int init)
+t_status	set_pwd_var(t_list *vars_list[3], int init)
 {
-	char	*var;
-	char	*value;
-	int		var_type;
-	int		status;
+	char		*var;
+	char		*value;
+	int			var_type;
+	t_status	status;
 
 	if (init == 1)
 		var_type = ENV;
@@ -47,24 +47,24 @@ int	set_pwd_var(t_list *vars_list[3], int init)
 		var_type = SHELL;
 	value = get_current_absolute_path();
 	if (value == NULL)
-		return (ERR_MALLOC);
+		return (E_MALLOC);
 	var = ft_strjoin("PWD=", value);
 	free(value);
 	if (var == NULL)
-		return (ERR_MALLOC);
+		return (E_MALLOC);
 	status = set_var(vars_list, var, var_type);
 	free(var);
-	if (status == ERR_MALLOC)
-		return (ERR_MALLOC);
+	if (status == E_MALLOC)
+		return (E_MALLOC);
 	return (SUCCESS);
 }
 
-int	set_oldpwd_var(t_list *vars_list[3], int init)
+t_status	set_oldpwd_var(t_list *vars_list[3], int init)
 {
-	t_list	*target_list;
-	char	*var;
-	char	*value;
-	int		status;
+	t_list		*target_list;
+	char		*var;
+	char		*value;
+	t_status	status;
 
 	if (init == 1)
 	{
@@ -80,11 +80,11 @@ int	set_oldpwd_var(t_list *vars_list[3], int init)
 	else
 		var = ft_strjoin("OLDPWD=", value);
 	if (var == NULL)
-		return (ERR_MALLOC);
+		return (E_MALLOC);
 	status = set_var(vars_list, var, SHELL);
 	free(var);
-	if (status == ERR_MALLOC)
-		return (ERR_MALLOC);
+	if (status == E_MALLOC)
+		return (E_MALLOC);
 	return (SUCCESS);
 }
 
@@ -110,7 +110,7 @@ void	set_exit_status(t_list *special_list, int exit_status)
 	}
 }
 
-int	countup_shlvl_env(t_list **env_list)
+t_status	countup_shlvl_env(t_list **env_list)
 {
 	char	*value;
 	t_list	*target_list;
@@ -123,11 +123,11 @@ int	countup_shlvl_env(t_list **env_list)
 	else
 		value = ft_itoa(ft_atoi(&((char *)target_list->content)[6]) + 1);
 	if (value == NULL)
-		return (ERR_MALLOC);
+		return (E_MALLOC);
 	free(target_list->content);
 	target_list->content = ft_strjoin("SHLVL=", value);
 	free(value);
 	if (target_list->content == NULL)
-		return (ERR_MALLOC);
+		return (E_MALLOC);
 	return (SUCCESS);
 }
