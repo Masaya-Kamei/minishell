@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/29 18:33:43 by mkamei            #+#    #+#             */
-/*   Updated: 2021/07/13 15:40:14 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/07/20 11:37:50 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,7 +62,7 @@ static void	store_in_token_start_indexes(
 	token_start_indexes[*token_num] = -1;
 }
 
-static int	store_in_str_member_of_t_token(
+static t_status	store_in_str_member_of_t_token(
 	char *line, int *token_start_indexes, t_token *tokens)
 {
 	int		i;
@@ -81,7 +81,7 @@ static int	store_in_str_member_of_t_token(
 			len--;
 		tokens[i].str = ft_substr(line, start, len);
 		if (tokens[i].str == NULL)
-			return (ERR_MALLOC);
+			return (E_MALLOC);
 		i++;
 	}
 	tokens[i].str = NULL;
@@ -117,24 +117,24 @@ static void	store_in_type_member_of_t_token(t_token *tokens)
 	tokens[i].type = '\0';
 }
 
-int	lex_line(char *line, t_token **tokens, int *token_num)
+t_status	lex_line(char *line, t_token **tokens, int *token_num)
 {
-	int		*token_start_indexes;
-	int		status;
+	int			*token_start_indexes;
+	t_status	status;
 
 	token_start_indexes = (int *)malloc(sizeof(int) * (ft_strlen(line) + 1));
 	if (token_start_indexes == NULL)
-		return (ERR_MALLOC);
+		return (E_MALLOC);
 	store_in_token_start_indexes(line, token_start_indexes, token_num);
 	*tokens = (t_token *)malloc(sizeof(t_token) * (*token_num + 1));
 	if (*tokens == NULL)
-		return (free_and_return(token_start_indexes, ERR_MALLOC));
+		return (E_MALLOC);
 	status = store_in_str_member_of_t_token(line, token_start_indexes, *tokens);
 	free(token_start_indexes);
-	if (status == ERR_MALLOC)
+	if (status == E_MALLOC)
 	{
 		free_tokens(*tokens);
-		return (ERR_MALLOC);
+		return (E_MALLOC);
 	}
 	store_in_type_member_of_t_token(*tokens);
 	return (SUCCESS);
