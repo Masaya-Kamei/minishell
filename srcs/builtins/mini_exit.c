@@ -6,34 +6,13 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/07 20:12:35 by mkamei            #+#    #+#             */
-/*   Updated: 2021/07/15 22:08:20 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/07/20 19:01:21 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-static int	write_exit_err(char *word, int err_num, t_err_num_type type)
-{
-	int			i;
-	int			status;
-	const int	status_table[2][2] = {
-		{ERR_NUM_ARG_REQ, 255}, {ERR_TOO_MANY_ARG, 1}};
-
-	write(2, "minishell: exit: ", 17);
-	write_err(word, err_num, type);
-	if (type == ERRNO)
-		status = 1;
-	else
-	{
-		i = 0;
-		while (status_table[i][0] != err_num)
-			i++;
-		status = status_table[i][1];
-	}
-	return (status);
-}
-
-int	mini_exit(char **argv, t_list *vars_list[3])
+t_exit_status	mini_exit(char **argv, t_list *vars_list[3])
 {
 	int		exit_num;
 	int		i;
@@ -49,12 +28,12 @@ int	mini_exit(char **argv, t_list *vars_list[3])
 	while (argv[1][i] != '\0')
 	{
 		if (ft_isdigit(argv[1][i]) == 0)
-			exit(write_exit_err(argv[1], ERR_NUM_ARG_REQ, ORIGINAL));
+			exit(get_exit_status_with_errout(argv[1], E_NUM_ARG_REQ, P_EXIT));
 		exit_num = exit_num * 10 + argv[1][i] - '0';
 		i++;
 	}
 	if (argv[2] != NULL)
-		return (write_exit_err(NULL, ERR_TOO_MANY_ARG, ORIGINAL));
+		return (get_exit_status_with_errout(NULL, E_TOO_MANY_ARG, P_EXIT));
 	exit_num = exit_num % 256;
 	if (argv[1][0] == '-')
 		exit_num = 256 - exit_num;
@@ -62,7 +41,7 @@ int	mini_exit(char **argv, t_list *vars_list[3])
 }
 
 // gcc -Wall -Werror -Wextra mini_exit.c ../var_env.c ../var_ope.c
-//	../var_set_any.c ../var_utils.c ../free.c ../write_err.c
+//	../var_set_any.c ../var_utils.c ../free.c ../error.c
 //	-I ../../include -I ../../libft/ ../../libft/libft.a
 
 // int	main(int argc, char **argv, char **envp)
