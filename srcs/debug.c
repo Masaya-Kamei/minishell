@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/30 17:55:37 by mkamei            #+#    #+#             */
-/*   Updated: 2021/07/15 16:47:02 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/07/20 18:56:31 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,7 +43,7 @@ void	print_tokens(t_token *tokens, t_list *vars_list[3])
 	{
 		if (tokens[i].type == WORD)
 		{
-			if (expand_word_token(&tokens[i].str, vars_list) == ERR_MALLOC)
+			if (expand_word_token(&tokens[i].str, vars_list) == E_MALLOC)
 				return ;
 		}
 		printf("%2d	type:%c, str:%s,\n", i, tokens[i].type, tokens[i].str);
@@ -101,4 +101,33 @@ void	test_vars_list(t_list *vars_list[3])
 	printf("%s\n", get_var(vars_list, "AAA"));
 	delete_var(vars_list, "AAA", SHELL);
 	printf("%s\n", get_var(vars_list, "AAA"));
+}
+
+t_status	debug_process_command(
+	t_token *tokens, int start, int end, t_list *vars_list[3])
+{
+	char	*argv[10];
+	char	*path;
+	int		i;
+	int		j;
+	pid_t	pid;
+
+	(void)(**vars_list);
+	i = start;
+	j = 0;
+	while (i <= end)
+		argv[j++] = tokens[i++].str;
+	argv[j] = NULL;
+	pid = fork();
+	if (pid == 0)
+	{
+		if (ft_strncmp(tokens[start].str, "grep", 5) == 0)
+			path = "/usr/bin/grep";
+		else
+			path = "/bin/cat";
+		execve(path, argv, NULL);
+		exit(0);
+	}
+	wait(NULL);
+	return (SUCCESS);
 }

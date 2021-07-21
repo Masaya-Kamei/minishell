@@ -6,65 +6,42 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/07 20:10:11 by mkamei            #+#    #+#             */
-/*   Updated: 2021/07/15 22:21:36 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/07/20 19:00:49 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-static int	write_cd_err(char *word, int err_num, t_err_num_type type)
-{
-	int			i;
-	int			status;
-	const int	status_table[3][2] = {
-		{ERR_INVALID_OP, 1}, {ERR_NOSET_OLDPWD, 1}, {ERR_NOSET_HOME, 1}};
-
-	write(2, "minishell: cd: ", 15);
-	write_err(word, err_num, type);
-	if (type == ORIGINAL && err_num == ERR_INVALID_OP)
-		write(2, "cd: usage: cd [dir]\n", 20);
-	if (type == ERRNO)
-		status = 1;
-	else
-	{
-		i = 0;
-		while (status_table[i][0] != err_num)
-			i++;
-		status = status_table[i][1];
-	}
-	return (status);
-}
-
-int	mini_cd(char **argv, t_list *vars_list[3])
+t_exit_status	mini_cd(char **argv, t_list *vars_list[3])
 {
 	char	*target_dir;
 
 	if (argv[1] != NULL && argv[1][0] == '-' && argv[1][1] != '\0')
-		return (write_cd_err(argv[1], ERR_INVALID_OP, ORIGINAL));
+		return (get_exit_status_with_errout(argv[1], E_INVALID_OP, P_CD));
 	if (argv[1] == NULL)
 	{
 		target_dir = get_var(vars_list, "HOME");
 		if (target_dir == NULL)
-			return (write_cd_err(NULL, ERR_NOSET_HOME, ORIGINAL));
+			return (get_exit_status_with_errout("HOME", E_NOSET_VAR, P_CD));
 	}
 	else if (argv[1][0] == '-' && argv[1][1] == '\0')
 	{
 		target_dir = get_var(vars_list, "OLDPWD");
 		if (target_dir == NULL)
-			return (write_cd_err(NULL, ERR_NOSET_OLDPWD, ORIGINAL));
+			return (get_exit_status_with_errout("OLDPWD", E_NOSET_VAR, P_CD));
 	}
 	else
 		target_dir = argv[1];
 	if (chdir(target_dir) == -1)
-		return (write_cd_err(argv[1], errno, ERRNO));
-	if (set_oldpwd_var(vars_list, 0) == ERR_MALLOC
-		|| set_pwd_var(vars_list, 0) == ERR_MALLOC)
-		return (write_shell_err(NULL, ERR_MALLOC, ORIGINAL));
+		return (get_exit_status_with_errout(target_dir, E_CHDIR, P_CD));
+	if (set_oldpwd_var(vars_list, 0) == E_MALLOC
+		|| set_pwd_var(vars_list, 0) == E_MALLOC)
+		return (get_exit_status_with_errout(NULL, E_MALLOC, P_CD));
 	return (0);
 }
 
 // gcc -Wall -Werror -Wextra mini_cd.c mini_unset.c mini_export.c ../var_env.c
-//	../var_ope.c ../var_set_any.c ../var_utils.c ../free.c ../write_err.c
+//	../var_ope.c ../var_set_any.c ../var_utils.c ../free.c ../error.c
 //	-I ../../include -I ../../libft/ ../../libft/libft.a
 
 // int	main(int argc, char **argv, char **envp)

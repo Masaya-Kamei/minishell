@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/29 18:28:52 by mkamei            #+#    #+#             */
-/*   Updated: 2021/07/15 12:19:21 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/07/20 17:57:19 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,7 @@ void	free_tokens(t_token *tokens)
 	free(tokens);
 }
 
-int	free_and_return(void *p, int status)
+t_status	free_and_return(void *p, t_status status)
 {
 	free(p);
 	return (status);
