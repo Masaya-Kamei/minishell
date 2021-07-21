@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/17 15:32:00 by mkamei            #+#    #+#             */
-/*   Updated: 2021/07/20 19:14:34 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/07/21 16:38:39 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,7 +89,7 @@ t_status	start_process(
 	t_exit_status	exit_status;
 	char			err_word[10];
 
-	if (end == 0)
+	if (end == -1)
 		return (SUCCESS);
 	err_word[0] = '\0';
 	status = check_syntax_error(tokens, err_word);
