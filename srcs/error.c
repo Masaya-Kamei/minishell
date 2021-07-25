@@ -6,7 +6,7 @@
 /*   By: keguchi <keguchi@student.42tokyo.jp>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/09 10:48:30 by mkamei            #+#    #+#             */
-/*   Updated: 2021/07/25 13:01:34 by keguchi          ###   ########.fr       */
+/*   Updated: 2021/07/25 13:11:08 by keguchi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,6 +89,7 @@ t_exit_status	get_exit_status_with_errout(
 		, {{E_INVALID_OP_ARG, 1}}
 		, {{E_TOO_MANY_ARG, 1}, {E_NUM_ARG_REQ, 255}}
 		, {{E_EXTERNAL, 127}}};
+
 	write_err(word, status, is_errno, err_place);
 	if (is_errno == 1 && err_place == P_SHELL)
 		exit_status = errno;

@@ -6,7 +6,7 @@
 /*   By: keguchi <keguchi@student.42tokyo.jp>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/19 09:24:35 by keguchi           #+#    #+#             */
-/*   Updated: 2021/07/25 13:02:59 by keguchi          ###   ########.fr       */
+/*   Updated: 2021/07/25 13:12:39 by keguchi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,25 +46,24 @@ static t_exit_status	exec_builtin_command(char **command,
 	return (SUCCESS);
 }
 
-static t_exit_status	exec_external_command(char **command,
-	t_list *vars_list[3])
+static t_exit_status	exec_external_command(char **cmd, t_list *vars_list[3])
 {
 	int			count;
 	char		*cmd_path;
 	char		**envp;
 
 	count = 0;
-	cmd_path = get_command_path(command[0]);
+	cmd_path = get_command_path(cmd[0]);
 	if (cmd_path == NULL)
 		return (get_exit_status_with_errout(NULL, E_MALLOC, P_SHELL));
 	envp = create_envp(vars_list[ENV]);
 	if (envp == NULL)
 		return (get_exit_status_with_errout(NULL, E_MALLOC, P_SHELL));
 	if (ft_strncmp(cmd_path, "", 1) == 0)
-		return (get_exit_status_with_errout(command[0], E_EXTERNAL, P_EXTERNAL));
-	execve(cmd_path, command, envp);
+		return (get_exit_status_with_errout(cmd[0], E_EXTERNAL, P_EXTERNAL));
+	execve(cmd_path, cmd, envp);
 	free(cmd_path);
-	return (get_exit_status_with_errout(command[0], E_EXECVE, P_SHELL));
+	return (get_exit_status_with_errout(cmd[0], E_EXECVE, P_SHELL));
 }
 
 static t_status	set_save_fd(t_token *tokens, int ***save_fd,
