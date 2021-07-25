@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   debug.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
+/*   By: keguchi <keguchi@student.42tokyo.jp>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/30 17:55:37 by mkamei            #+#    #+#             */
-/*   Updated: 2021/07/20 18:56:31 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/07/23 09:15:18 by keguchi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,7 +71,7 @@ void	execve_sleep(void)
 	{
 		wait(&status);
 	}
-	free_double_pointer(argv);
+	free_double_pointer((void **)argv);
 }
 
 void	test_vars_list(t_list *vars_list[3])

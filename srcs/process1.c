@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   process1.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
+/*   By: keguchi <keguchi@student.42tokyo.jp>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/17 15:32:00 by mkamei            #+#    #+#             */
-/*   Updated: 2021/07/21 16:38:39 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/07/23 10:51:26 by keguchi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,13 +35,13 @@ static t_status	process_pipeline(
 			if (dup2(pipe_fd[0], 0) == -1 || dup2(backup_write_fd, 1) == -1
 				|| close(pipe_fd[0]) == -1 || close(backup_write_fd) == -1)
 				return (E_DUP_CLOSE);
-			// return (process_command(tokens, i + 1, end, vars_list));
-			return (debug_process_command(tokens, i + 1, end, vars_list));
+			return (process_command(tokens, i + 1, end, vars_list));
+			//return (debug_process_command(tokens, i + 1, end, vars_list));
 		}
 		i--;
 	}
-	// return (process_command(tokens, start, end, vars_list));
-	return (debug_process_command(tokens, start, end, vars_list));
+	return (process_command(tokens, start, end, vars_list));
+	//return (debug_process_command(tokens, start, end, vars_list));
 }
 
 static t_bool	is_redirect_token_type(t_token_type type)

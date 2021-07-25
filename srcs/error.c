@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   error.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
+/*   By: keguchi <keguchi@student.42tokyo.jp>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/09 10:48:30 by mkamei            #+#    #+#             */
-/*   Updated: 2021/07/20 19:14:10 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/07/25 13:01:34 by keguchi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,13 +39,14 @@ static void	write_err(
 	const char	usages[7][42] = {"", "cd: usage: cd [dir]\n"
 		, "pwd: usage: pwd\n", "export: usage: export [name[=value] ...]\n"
 		, "unset: usage: unset [name ...]\n", "env: usage: env\n", ""};
-	const char	err_msgs[10][36] = {"", "invalid option", " not set"
+	const char	err_msgs[17][36] = {"", "invalid option", " not set"
 		, "numeric argument required", "too many arguments"
 		, "not a valid identifier", "invalid option or argument"
-		, "syntax error near unexpected token "};
+		, "syntax error near unexpected token ", "", "", "", "", ""
+		, "", "", "", "command not found"};
 
 	write(2, "minishell: ", 11);
-	if (err_place != P_SHELL)
+	if ((err_place != P_SHELL) && (err_place != P_EXTERNAL))
 		write(2, commands[err_place - 1], ft_strlen(commands[err_place - 1]));
 	write_word(word, status);
 	if (is_errno == 0)
@@ -78,7 +79,7 @@ t_exit_status	get_exit_status_with_errout(
 	const t_bool	is_errno = (
 		status == E_SIGNAL || status == E_MALLOC || status == E_DUP_CLOSE
 		|| status == E_CHDIR);
-	const int		status_table[8][2][2] = {
+	const int		status_table[9][2][2] = {
 		{{E_SYNTAX, 258}}
 		, {}
 		, {{E_INVALID_OP, 1}, {E_NOSET_VAR, 1}}
@@ -86,8 +87,8 @@ t_exit_status	get_exit_status_with_errout(
 		, {{E_INVALID_ID, 1}, {E_INVALID_OP, 2}}
 		, {{E_INVALID_ID, 1}, {E_INVALID_OP, 2}}
 		, {{E_INVALID_OP_ARG, 1}}
-		, {{E_TOO_MANY_ARG, 1}, {E_NUM_ARG_REQ, 255}}};
-
+		, {{E_TOO_MANY_ARG, 1}, {E_NUM_ARG_REQ, 255}}
+		, {{E_EXTERNAL, 127}}};
 	write_err(word, status, is_errno, err_place);
 	if (is_errno == 1 && err_place == P_SHELL)
 		exit_status = errno;

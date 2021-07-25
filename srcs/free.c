@@ -3,16 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   free.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
+/*   By: keguchi <keguchi@student.42tokyo.jp>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/29 18:28:52 by mkamei            #+#    #+#             */
-/*   Updated: 2021/07/20 17:57:19 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/07/23 09:13:32 by keguchi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-void	free_double_pointer(char **strs)
+void	free_double_pointer(void **strs)
 {
 	int		i;
 

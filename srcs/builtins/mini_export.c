@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   mini_export.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
+/*   By: keguchi <keguchi@student.42tokyo.jp>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/07 14:33:48 by mkamei            #+#    #+#             */
-/*   Updated: 2021/07/20 19:01:31 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/07/23 09:15:07 by keguchi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,7 +66,7 @@ static t_exit_status	write_exported_vars(t_list *env_list)
 			write(1, "\"\n", 2);
 		}
 	}
-	free_double_pointer(envp);
+	free_double_pointer((void **)envp);
 	return (0);
 }
 

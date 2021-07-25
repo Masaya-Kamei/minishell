@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   var_env.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
+/*   By: keguchi <keguchi@student.42tokyo.jp>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/15 12:40:46 by mkamei            #+#    #+#             */
-/*   Updated: 2021/07/20 11:26:11 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/07/23 09:15:36 by keguchi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,7 +55,7 @@ char	**create_envp(t_list *env_list)
 		envp[i] = ft_strdup(current_list->content);
 		if (envp[i] == NULL)
 		{
-			free_double_pointer(envp);
+			free_double_pointer((void **)envp);
 			return (NULL);
 		}
 		current_list = current_list->next;

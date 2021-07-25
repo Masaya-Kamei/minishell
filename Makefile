@@ -2,7 +2,8 @@ SRCNAME	:=	debug.c expand_word.c lex_line.c minishell.c free.c \
 			process1.c error.c var/var_env.c var/var_ope.c \
 			var/var_set_any.c var/var_utils.c builtins/mini_echo.c \
 			builtins/mini_cd.c builtins/mini_pwd.c builtins/mini_exit.c \
-			builtins/mini_env.c builtins/mini_export.c builtins/mini_unset.c
+			builtins/mini_env.c builtins/mini_export.c builtins/mini_unset.c \
+			exec_command.c get_command_argv.c get_command_path.c redirect_list.c
 SRC_DIR := ./srcs/
 SRCS	:= $(addprefix $(SRC_DIR), $(SRCNAME))
 OBJS	:= $(SRCS:.c=.o)
