@@ -6,7 +6,7 @@
 /*   By: keguchi <keguchi@student.42tokyo.jp>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/19 09:24:35 by keguchi           #+#    #+#             */
-/*   Updated: 2021/07/25 13:12:39 by keguchi          ###   ########.fr       */
+/*   Updated: 2021/07/25 13:58:06 by keguchi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -166,7 +166,7 @@ static t_status	exec_command(char **command, int **save_fd,
 	else
 	{
 		wait(&status);
-		if (!(WIFEXITED(status)))
+		if ((WIFEXITED(status)))
 			set_exit_status(vars_list[SPECIAL], WEXITSTATUS(status));
 	}
 	restore_fd_and_free(save_fd, command);
