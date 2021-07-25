@@ -6,7 +6,7 @@
 /*   By: keguchi <keguchi@student.42tokyo.jp>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/19 09:25:38 by keguchi           #+#    #+#             */
-/*   Updated: 2021/07/25 12:44:52 by keguchi          ###   ########.fr       */
+/*   Updated: 2021/07/25 16:39:49 by keguchi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,9 @@ static t_status	redirect_greater(t_token *tokens,
 
 	redirect_fd = set_redirect_fd(tokens[redirect_index].str);
 	backup_fd = dup(redirect_fd);
-	if (backup_fd == -1)
+	if (backup_fd == -1 && errno == EBADF)
+		return (SUCCESS);
+	else if (backup_fd == -1)
 		return (E_DUP_CLOSE);
 	save_fd[0] = redirect_fd;
 	save_fd[1] = backup_fd;
@@ -55,7 +57,9 @@ static t_status	redirect_less(t_token *tokens, int redirect_index, int *save_fd)
 
 	redirect_fd = set_redirect_fd(tokens[redirect_index].str);
 	backup_fd = dup(redirect_fd);
-	if (backup_fd == -1)
+	if (backup_fd == -1 && errno == EBADF)
+		return (SUCCESS);
+	else if (backup_fd == -1)
 		return (E_DUP_CLOSE);
 	save_fd[0] = redirect_fd;
 	save_fd[1] = backup_fd;
@@ -76,7 +80,9 @@ static t_status	redirect_d_greater(t_token *tokens, int
 
 	redirect_fd = set_redirect_fd(tokens[redirect_index].str);
 	backup_fd = dup(redirect_fd);
-	if (backup_fd == -1)
+	if (backup_fd == -1 && errno == EBADF)
+		return (SUCCESS);
+	else if (backup_fd == -1)
 		return (E_DUP_CLOSE);
 	save_fd[0] = redirect_fd;
 	save_fd[1] = backup_fd;
@@ -169,7 +175,9 @@ static t_status	redirect_d_less(t_token *tokens,
 
 	redirect_fd = set_redirect_fd(tokens[redirect_index].str);
 	backup_fd = dup(redirect_fd);
-	if (backup_fd == -1)
+	if (backup_fd == -1 && errno == EBADF)
+		return (SUCCESS);
+	else if (backup_fd == -1)
 		return (E_DUP_CLOSE);
 	save_fd[0] = redirect_fd;
 	save_fd[1] = backup_fd;
