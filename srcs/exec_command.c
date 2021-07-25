@@ -6,7 +6,7 @@
 /*   By: keguchi <keguchi@student.42tokyo.jp>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/19 09:24:35 by keguchi           #+#    #+#             */
-/*   Updated: 2021/07/25 13:58:06 by keguchi          ###   ########.fr       */
+/*   Updated: 2021/07/25 15:28:53 by keguchi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,8 +103,8 @@ static void	restore_fd_and_free(int **save_fd, char **command)
 	i = 0;
 	while (save_fd[i] != NULL)
 	{
-		dup2(save_fd[i][0], save_fd[i][1]);
-		close(save_fd[i][0]);
+		dup2(save_fd[i][1], save_fd[i][0]);
+		close(save_fd[i][1]);
 		i++;
 	}
 	free_double_pointer((void **)command);
