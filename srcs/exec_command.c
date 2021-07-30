@@ -6,7 +6,7 @@
 /*   By: keguchi <keguchi@student.42tokyo.jp>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/19 09:24:35 by keguchi           #+#    #+#             */
-/*   Updated: 2021/07/25 15:28:53 by keguchi          ###   ########.fr       */
+/*   Updated: 2021/07/30 15:28:40 by keguchi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -111,6 +111,50 @@ static void	restore_fd_and_free(int **save_fd, char **command)
 	free_double_pointer((void **)save_fd);
 }
 
+// static t_status	check_file_name(char *file_name)
+// {
+// 	if (!file_name)
+// 		return (E_NULL_FILE);
+// 	else if ((ft_strncmp(file_name, "", 1) == 0))
+// 	{
+// 		errno = 2;
+// 		return (E_EMPTY_FILE);
+// 	}
+// 	else
+// 		return (SUCCESS);
+// }
+
+// static t_status	expand_tokens(t_token *tokens, t_list *vars_list[3],
+// 	int i, int end_index)
+// {
+// 	int			redirect_flag;
+// 	char		*save_word_token;
+// 	t_status	status;
+
+// 	redirect_flag = 0;
+// 	while (i <= end_index)
+// 	{
+// 		if (tokens[i].type == '<' || tokens[i].type == '>'
+// 			|| tokens[i].type == 'G' || tokens[i].type == 'L')
+// 			redirect_flag = 1;
+// 		if (tokens[i].type == 'W')
+// 		{
+// 			save_word_token = ft_strdup(tokens[i].str);
+// 			if (!save_word_token)
+// 				return (E_MALLOC);
+// 			status = expand_word_token(&tokens[i].str, vars_list);
+// 			if (redirect_flag && status == SUCCESS)
+// 				status = check_file_name(tokens[i].str);
+// 			redirect_flag = 0;
+// 		}
+// 		free(save_word_token);
+// 		if (status != SUCCESS)
+// 			return (status);
+// 		i++;
+// 	}
+// 	return (SUCCESS);
+// }
+
 static t_status	expand_tokens(t_token *tokens, t_list *vars_list[3],
 	int start_index, int end_index)
 {
@@ -129,48 +173,33 @@ static t_status	expand_tokens(t_token *tokens, t_list *vars_list[3],
 	return (SUCCESS);
 }
 
-static int	simple_builtin_command(char **command, int **save_fd,
-	int is_pipe, t_list *vars_list[3])
-{
-	t_exit_status	exit_status;
-
-	if (is_pipe == 0 && check_builtin(command))
-	{
-		exit_status = exec_builtin_command(command, vars_list);
-		set_exit_status(vars_list[SPECIAL], exit_status);
-		restore_fd_and_free(save_fd, command);
-		return (1);
-	}
-	else
-		return (0);
-}
-
-static t_status	exec_command(char **command, int **save_fd,
-	int is_pipe, t_list *vars_list[3])
+static t_status	exec_command(char **command, int is_pipe, t_list *vars_list[3])
 {
 	pid_t			pid;
 	int				status;
+	t_exit_status	exit_status;
 
-	if (simple_builtin_command(command, save_fd, is_pipe, vars_list))
-		return (SUCCESS);
-	pid = fork();
-	if (pid < 0)
-		return (E_FORK);
-	else if (pid == 0)
-	{
-		if (check_builtin(command))
-			exit(exec_builtin_command(command, vars_list));
-		else
-			exit(exec_external_command(command, vars_list));
-	}
+	if (is_pipe && check_builtin(command))
+		exit_status = exec_builtin_command(command, vars_list);
 	else
 	{
+		pid = fork();
+		if (pid < 0)
+			return (E_FORK);
+		else if (pid == 0)
+		{
+			if (check_builtin(command))
+				exit(exec_builtin_command(command, vars_list));
+			else
+				exit(exec_external_command(command, vars_list));
+		}
 		wait(&status);
 		if ((WIFEXITED(status)))
-			set_exit_status(vars_list[SPECIAL], WEXITSTATUS(status));
+			exit_status = WEXITSTATUS(status);
+		else
+			exit_status = get_exit_status_with_errout(NULL, E_CHILD, P_SHELL);
 	}
-	restore_fd_and_free(save_fd, command);
-	return (SUCCESS);
+	return (set_exit_status(vars_list[SPECIAL], exit_status));
 }
 
 t_status	process_command(t_token *tokens, int start_index,
@@ -179,15 +208,12 @@ t_status	process_command(t_token *tokens, int start_index,
 	t_status		status;
 	char			**command;
 	int				**save_fd;
-	int				is_pipe;
+	const t_bool	is_pipe = !(isatty(0) == 1 && isatty(1) == 1);
 
 	command = NULL;
-	is_pipe = 1;
 	status = expand_tokens(tokens, vars_list, start_index, end_index);
 	if (status != SUCCESS)
 		return (status);
-	if (isatty(0) == 1 && isatty(1) == 1)
-		is_pipe = 0;
 	status = set_save_fd(tokens, &save_fd, start_index, end_index);
 	if (status != SUCCESS)
 		return (status);
@@ -197,5 +223,7 @@ t_status	process_command(t_token *tokens, int start_index,
 	status = get_command_argv(tokens, &command, start_index, end_index);
 	if (status != SUCCESS)
 		return (status);
-	return (exec_command(command, save_fd, is_pipe, vars_list));
+	status = exec_command(command, is_pipe, vars_list);
+	restore_fd_and_free(save_fd, command);
+	return (status);
 }

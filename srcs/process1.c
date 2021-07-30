@@ -6,7 +6,7 @@
 /*   By: keguchi <keguchi@student.42tokyo.jp>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/17 15:32:00 by mkamei            #+#    #+#             */
-/*   Updated: 2021/07/23 10:51:26 by keguchi          ###   ########.fr       */
+/*   Updated: 2021/07/30 12:27:42 by keguchi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,8 +96,7 @@ t_status	start_process(
 	if (status == E_SYNTAX)
 	{
 		exit_status = get_exit_status_with_errout(err_word, E_SYNTAX, P_SHELL);
-		set_exit_status(vars_list[SPECIAL], exit_status);
-		return (SUCCESS);
+		return (set_exit_status(vars_list[SPECIAL], exit_status));
 	}
 	backup_read_fd = dup(0);
 	if (backup_read_fd == -1)

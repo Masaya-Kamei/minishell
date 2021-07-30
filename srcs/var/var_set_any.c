@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   var_set_any.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
+/*   By: keguchi <keguchi@student.42tokyo.jp>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/05 14:03:48 by mkamei            #+#    #+#             */
-/*   Updated: 2021/07/20 11:33:50 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/07/30 12:26:01 by keguchi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,7 +88,7 @@ t_status	set_oldpwd_var(t_list *vars_list[3], int init)
 	return (SUCCESS);
 }
 
-void	set_exit_status(t_list *special_list, int exit_status)
+t_status	set_exit_status(t_list *special_list, int exit_status)
 {
 	int		digit_num;
 	t_list	*target_list;
@@ -108,6 +108,7 @@ void	set_exit_status(t_list *special_list, int exit_status)
 		exit_status /= 10;
 		digit_num--;
 	}
+	return (SUCCESS);
 }
 
 t_status	countup_shlvl_env(t_list **env_list)

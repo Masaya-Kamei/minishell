@@ -6,7 +6,7 @@
 /*   By: keguchi <keguchi@student.42tokyo.jp>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/09 10:48:30 by mkamei            #+#    #+#             */
-/*   Updated: 2021/07/25 13:11:08 by keguchi          ###   ########.fr       */
+/*   Updated: 2021/07/30 14:25:15 by keguchi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,11 @@
 
 static void	write_word(char *word, t_status status)
 {
+	if (status == E_EMPTY_FILE)
+	{
+		write(2, ": ", 2);
+		return ;
+	}
 	if (word == NULL || status == E_SYNTAX)
 		return ;
 	if (status == E_INVALID_ID)
@@ -39,11 +44,11 @@ static void	write_err(
 	const char	usages[7][42] = {"", "cd: usage: cd [dir]\n"
 		, "pwd: usage: pwd\n", "export: usage: export [name[=value] ...]\n"
 		, "unset: usage: unset [name ...]\n", "env: usage: env\n", ""};
-	const char	err_msgs[17][36] = {"", "invalid option", " not set"
+	const char	err_msgs[20][36] = {"", "invalid option", " not set"
 		, "numeric argument required", "too many arguments"
 		, "not a valid identifier", "invalid option or argument"
 		, "syntax error near unexpected token ", "", "", "", "", ""
-		, "", "", "", "command not found"};
+		, "", "", "", "command not found", "", "ambiguous redirect", ""};
 
 	write(2, "minishell: ", 11);
 	if ((err_place != P_SHELL) && (err_place != P_EXTERNAL))
@@ -78,7 +83,8 @@ t_exit_status	get_exit_status_with_errout(
 	t_exit_status	exit_status;
 	const t_bool	is_errno = (
 		status == E_SIGNAL || status == E_MALLOC || status == E_DUP_CLOSE
-		|| status == E_CHDIR);
+		|| status == E_CHDIR || status == E_FORK || status == E_OPEN
+		|| status == E_UNLINK || status == E_EXECVE || status == E_EMPTY_FILE);
 	const int		status_table[9][2][2] = {
 		{{E_SYNTAX, 258}}
 		, {}

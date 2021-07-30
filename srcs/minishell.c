@@ -6,7 +6,7 @@
 /*   By: keguchi <keguchi@student.42tokyo.jp>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/28 15:30:07 by mkamei            #+#    #+#             */
-/*   Updated: 2021/07/25 13:04:31 by keguchi          ###   ########.fr       */
+/*   Updated: 2021/07/25 15:43:23 by keguchi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,6 +63,7 @@ static void	loop_minishell(t_list *vars_list[3])
 			add_history(line);
 		status = lex_line(line, &tokens, &token_num);
 		free(line);
+		print_tokens(tokens, vars_list);
 		if (status == E_MALLOC)
 			break ;
 		status = start_process(tokens, 0, token_num - 1, vars_list);

@@ -6,7 +6,7 @@
 /*   By: keguchi <keguchi@student.42tokyo.jp>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/28 09:39:27 by mkamei            #+#    #+#             */
-/*   Updated: 2021/07/25 12:53:39 by keguchi          ###   ########.fr       */
+/*   Updated: 2021/07/30 14:09:56 by keguchi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,7 +52,10 @@ typedef enum e_status
 	E_OPEN				= 13,
 	E_UNLINK			= 14,
 	E_EXECVE			= 15,
-	E_EXTERNAL			= 16
+	E_EXTERNAL			= 16,
+	E_CHILD				= 17,
+	E_NULL_FILE			= 18,
+	E_EMPTY_FILE		= 19
 }			t_status;
 
 typedef enum e_err_place
@@ -116,7 +119,7 @@ void			delete_var(t_list *vars_list[3], char *var_name, int var_type);
 char			*get_current_absolute_path(void);
 t_status		set_pwd_var(t_list *vars_list[3], int init);
 t_status		set_oldpwd_var(t_list *vars_list[3], int init);
-void			set_exit_status(t_list *special_list, int exit_status);
+t_status		set_exit_status(t_list *special_list, int exit_status);
 t_status		countup_shlvl_env(t_list **env_list);
 t_exit_status	get_exit_status_with_errout(
 					char *word, t_status status, t_err_place err_place);
