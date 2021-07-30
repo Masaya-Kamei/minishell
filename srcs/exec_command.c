@@ -6,7 +6,7 @@
 /*   By: keguchi <keguchi@student.42tokyo.jp>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/19 09:24:35 by keguchi           #+#    #+#             */
-/*   Updated: 2021/07/30 15:28:40 by keguchi          ###   ########.fr       */
+/*   Updated: 2021/07/30 16:59:21 by keguchi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,7 +46,7 @@ static t_exit_status	exec_builtin_command(char **command,
 	return (SUCCESS);
 }
 
-static t_exit_status	exec_external_command(char **cmd, t_list *vars_list[3])
+static void	exec_external_command(char **cmd, t_list *vars_list[3])
 {
 	int			count;
 	char		*cmd_path;
@@ -55,15 +55,15 @@ static t_exit_status	exec_external_command(char **cmd, t_list *vars_list[3])
 	count = 0;
 	cmd_path = get_command_path(cmd[0]);
 	if (cmd_path == NULL)
-		return (get_exit_status_with_errout(NULL, E_MALLOC, P_SHELL));
+		exit(get_exit_status_with_errout(NULL, E_MALLOC, P_SHELL));
 	envp = create_envp(vars_list[ENV]);
 	if (envp == NULL)
-		return (get_exit_status_with_errout(NULL, E_MALLOC, P_SHELL));
+		exit(get_exit_status_with_errout(NULL, E_MALLOC, P_SHELL));
 	if (ft_strncmp(cmd_path, "", 1) == 0)
-		return (get_exit_status_with_errout(cmd[0], E_EXTERNAL, P_EXTERNAL));
+		exit(get_exit_status_with_errout(cmd[0], E_EXTERNAL, P_SHELL));
 	execve(cmd_path, cmd, envp);
 	free(cmd_path);
-	return (get_exit_status_with_errout(cmd[0], E_EXECVE, P_SHELL));
+	exit(get_exit_status_with_errout(cmd[0], E_EXECVE, P_SHELL));
 }
 
 static t_status	set_save_fd(t_token *tokens, int ***save_fd,
@@ -165,9 +165,11 @@ static t_status	expand_tokens(t_token *tokens, t_list *vars_list[3],
 	while (i <= end_index)
 	{
 		if (tokens[i].type == 'W')
+		{
 			status = expand_word_token(&tokens[i].str, vars_list);
-		if (status != SUCCESS)
-			return (status);
+			if (status != SUCCESS)
+				return (status);
+		}
 		i++;
 	}
 	return (SUCCESS);
@@ -176,7 +178,6 @@ static t_status	expand_tokens(t_token *tokens, t_list *vars_list[3],
 static t_status	exec_command(char **command, int is_pipe, t_list *vars_list[3])
 {
 	pid_t			pid;
-	int				status;
 	t_exit_status	exit_status;
 
 	if (is_pipe && check_builtin(command))
@@ -191,11 +192,11 @@ static t_status	exec_command(char **command, int is_pipe, t_list *vars_list[3])
 			if (check_builtin(command))
 				exit(exec_builtin_command(command, vars_list));
 			else
-				exit(exec_external_command(command, vars_list));
+				exec_external_command(command, vars_list);
 		}
-		wait(&status);
-		if ((WIFEXITED(status)))
-			exit_status = WEXITSTATUS(status);
+		wait(&exit_status);
+		if ((WIFEXITED(exit_status)))
+			exit_status = WEXITSTATUS(exit_status);
 		else
 			exit_status = get_exit_status_with_errout(NULL, E_CHILD, P_SHELL);
 	}

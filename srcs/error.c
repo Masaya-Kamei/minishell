@@ -6,7 +6,7 @@
 /*   By: keguchi <keguchi@student.42tokyo.jp>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/09 10:48:30 by mkamei            #+#    #+#             */
-/*   Updated: 2021/07/30 14:25:15 by keguchi          ###   ########.fr       */
+/*   Updated: 2021/07/30 16:19:59 by keguchi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,7 @@ static void	write_err(
 		, "", "", "", "command not found", "", "ambiguous redirect", ""};
 
 	write(2, "minishell: ", 11);
-	if ((err_place != P_SHELL) && (err_place != P_EXTERNAL))
+	if (err_place != P_SHELL)
 		write(2, commands[err_place - 1], ft_strlen(commands[err_place - 1]));
 	write_word(word, status);
 	if (is_errno == 0)
@@ -86,15 +86,14 @@ t_exit_status	get_exit_status_with_errout(
 		|| status == E_CHDIR || status == E_FORK || status == E_OPEN
 		|| status == E_UNLINK || status == E_EXECVE || status == E_EMPTY_FILE);
 	const int		status_table[9][2][2] = {
-		{{E_SYNTAX, 258}}
+		{{E_SYNTAX, 258}, {E_EXTERNAL, 127}}
 		, {}
 		, {{E_INVALID_OP, 1}, {E_NOSET_VAR, 1}}
 		, {{E_INVALID_OP, 1}}
 		, {{E_INVALID_ID, 1}, {E_INVALID_OP, 2}}
 		, {{E_INVALID_ID, 1}, {E_INVALID_OP, 2}}
 		, {{E_INVALID_OP_ARG, 1}}
-		, {{E_TOO_MANY_ARG, 1}, {E_NUM_ARG_REQ, 255}}
-		, {{E_EXTERNAL, 127}}};
+		, {{E_TOO_MANY_ARG, 1}, {E_NUM_ARG_REQ, 255}}}
 
 	write_err(word, status, is_errno, err_place);
 	if (is_errno == 1 && err_place == P_SHELL)

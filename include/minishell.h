@@ -6,7 +6,7 @@
 /*   By: keguchi <keguchi@student.42tokyo.jp>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/28 09:39:27 by mkamei            #+#    #+#             */
-/*   Updated: 2021/07/30 14:09:56 by keguchi          ###   ########.fr       */
+/*   Updated: 2021/07/30 16:18:40 by keguchi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,8 +67,7 @@ typedef enum e_err_place
 	P_EXPORT	= 4,
 	P_UNSET		= 5,
 	P_ENV		= 6,
-	P_EXIT		= 7,
-	P_EXTERNAL	= 8
+	P_EXIT		= 7
 }			t_err_place;
 
 typedef enum e_vars_type{
