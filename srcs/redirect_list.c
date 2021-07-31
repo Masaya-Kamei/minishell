@@ -6,7 +6,7 @@
 /*   By: keguchi <keguchi@student.42tokyo.jp>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/19 09:25:38 by keguchi           #+#    #+#             */
-/*   Updated: 2021/07/31 17:06:52 by keguchi          ###   ########.fr       */
+/*   Updated: 2021/07/31 17:26:08 by keguchi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -160,27 +160,27 @@ static t_status	redirect_greater_and_less(t_token *tokens,
 	return (SUCCESS);
 }
 
-t_status	redirect_list(t_token *tokens, int start_index,
-	int end_index, int **save_fd, t_list *vars_list[3])
+t_status	redirect_list(t_token *tokens, int indexes[2],
+	int **save_fd, t_list *vars_list[3])
 {
 	t_status	status;
 	int			i;
 
 	status = 0;
 	i = 0;
-	while (start_index <= end_index)
+	while (indexes[0] <= indexes[1])
 	{
-		if (tokens[start_index].type == '<' || tokens[start_index].type == '>'
-			|| tokens[start_index].type == 'G')
-			status = redirect_greater_and_less(tokens, start_index + 1,
+		if (tokens[indexes[0]].type == '<' || tokens[indexes[0]].type == '>'
+			|| tokens[indexes[0]].type == 'G')
+			status = redirect_greater_and_less(tokens, indexes[0] + 1,
 					save_fd[i++], vars_list);
-		else if (tokens[start_index].type == 'L')
-			redirect_d_less(tokens, start_index + 1, save_fd[i++]);
+		else if (tokens[indexes[0]].type == 'L')
+			redirect_d_less(tokens, indexes[0] + 1, save_fd[i++]);
 		if (status == E_DUP_CLOSE && errno == EBADF)
 			status = SUCCESS;
 		if (status != SUCCESS)
 			return (status);
-		start_index++;
+		indexes[0]++;
 	}
 	return (status);
 }
