@@ -6,7 +6,7 @@
 /*   By: keguchi <keguchi@student.42tokyo.jp>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/19 09:25:38 by keguchi           #+#    #+#             */
-/*   Updated: 2021/07/31 17:01:08 by keguchi          ###   ########.fr       */
+/*   Updated: 2021/07/31 17:06:52 by keguchi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -150,7 +150,7 @@ static t_status	redirect_greater_and_less(t_token *tokens,
 		fd = open(tokens[file_index].str, O_RDWR | O_CREAT | O_APPEND, 0644);
 	if (fd < 0)
 	{
-		exit_status = get_exit_status_with_errout(tokens[file_index + 1].str,
+		exit_status = get_exit_status_with_errout(tokens[file_index].str,
 				E_OPEN, P_SHELL);
 		set_exit_status(vars_list[SPECIAL], exit_status);
 		return (E_OPEN);
