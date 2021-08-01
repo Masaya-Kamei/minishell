@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   process1.c                                         :+:      :+:    :+:   */
+/*   process_pipeline.c                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/17 15:32:00 by mkamei            #+#    #+#             */
-/*   Updated: 2021/08/01 12:58:59 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/08/01 16:52:36 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,7 +86,6 @@ t_status	start_process(
 {
 	int				backup_read_fd;
 	t_status		status;
-	t_exit_status	exit_status;
 	char			err_word[10];
 
 	if (end == -1)
@@ -95,8 +94,8 @@ t_status	start_process(
 	status = check_syntax_error(tokens, err_word);
 	if (status == E_SYNTAX)
 	{
-		exit_status = get_exit_status_with_errout(err_word, E_SYNTAX, P_SHELL);
-		return (set_exit_status(vars_list[SPECIAL], exit_status));
+		set_exit_status_with_errout(err_word, E_SYNTAX, vars_list);
+		return (SUCCESS);
 	}
 	backup_read_fd = dup(0);
 	if (backup_read_fd == -1)
