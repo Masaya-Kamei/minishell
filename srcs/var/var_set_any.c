@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/05 14:03:48 by mkamei            #+#    #+#             */
-/*   Updated: 2021/08/01 12:53:49 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/08/01 14:06:41 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,7 +88,7 @@ t_status	set_oldpwd_var(t_list *vars_list[3], t_bool init)
 	return (SUCCESS);
 }
 
-t_status	set_exit_status(t_list *special_list, t_exit_status exit_status)
+void	set_exit_status(t_list *special_list, t_exit_status exit_status)
 {
 	int		digit_num;
 	t_list	*target_list;
@@ -108,7 +108,6 @@ t_status	set_exit_status(t_list *special_list, t_exit_status exit_status)
 		exit_status /= 10;
 		digit_num--;
 	}
-	return (SUCCESS);
 }
 
 t_status	countup_shlvl_env(t_list **env_list)
