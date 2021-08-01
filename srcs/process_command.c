@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/19 09:24:35 by keguchi           #+#    #+#             */
-/*   Updated: 2021/08/01 19:13:42 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/08/01 19:19:50 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,7 +54,8 @@ static void	exec_external_command(char **command, t_list *vars_list[3])
 	exit(get_exit_status_with_errout(command[0], E_SYSTEM, P_SHELL));
 }
 
-static t_status	exec_command(char **command, int is_pipe, t_list *vars_list[3])
+static t_status	exec_command(
+	char **command, t_bool is_pipe, t_list *vars_list[3])
 {
 	pid_t					pid;
 	t_exit_status			exit_status;
@@ -62,7 +63,7 @@ static t_status	exec_command(char **command, int is_pipe, t_list *vars_list[3])
 
 	if (command[0] == NULL)
 		exit_status = 0;
-	else if (is_pipe && builtin_func != NULL)
+	else if (is_pipe == 0 && builtin_func != NULL)
 		exit_status = builtin_func(command, vars_list);
 	else
 	{
