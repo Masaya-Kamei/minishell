@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/19 09:24:35 by keguchi           #+#    #+#             */
-/*   Updated: 2021/08/01 17:40:22 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/08/01 19:13:42 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,14 +83,26 @@ static t_status	exec_command(char **command, int is_pipe, t_list *vars_list[3])
 	return (SUCCESS);
 }
 
-static t_status	clean_and_return(
+static t_status	finish_command(
 	char *cmd_str, char **command, int **save_fd, t_status status)
 {
+	int	i;
+
+	if (status == SUCCESS || status == E_OPEN || status == E_AMBIGUOUS)
+	{
+		i = 0;
+		status = SUCCESS;
+		while (status == SUCCESS && save_fd[i] != NULL)
+		{
+			if (dup2(save_fd[i][1], save_fd[i][0]) == -1
+				|| close(save_fd[i][1]) == -1)
+				status = E_SYSTEM;
+			i++;
+		}
+	}
 	free(cmd_str);
 	free_double_pointer((void **)command);
 	free_double_pointer((void **)save_fd);
-	if (status == E_OPEN || status == E_AMBIGUOUS)
-		status = SUCCESS;
 	return (status);
 }
 
@@ -115,11 +127,11 @@ t_status	process_command(
 	if (status == E_OPEN || status == E_AMBIGUOUS)
 		set_exit_status_with_errout(tokens[start].str, status, vars_list);
 	if (status != SUCCESS)
-		return (clean_and_return(cmd_str, NULL, save_fd, status));
+		return (finish_command(cmd_str, NULL, save_fd, status));
 	command = split_cmd_str(cmd_str);
-	if (command == NULL
-		|| exec_command(command, is_pipe, vars_list) == E_SYSTEM
-		|| restore_fd(save_fd) == E_SYSTEM)
-		return (clean_and_return(cmd_str, command, save_fd, E_SYSTEM));
-	return (clean_and_return(cmd_str, command, save_fd, SUCCESS));
+	if (command == NULL)
+		return (finish_command(cmd_str, command, save_fd, E_SYSTEM));
+	if (exec_command(command, is_pipe, vars_list) == E_SYSTEM)
+		return (finish_command(cmd_str, command, save_fd, E_SYSTEM));
+	return (finish_command(cmd_str, command, save_fd, SUCCESS));
 }

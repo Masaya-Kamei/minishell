@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/08/01 13:09:34 by mkamei            #+#    #+#             */
-/*   Updated: 2021/08/01 17:38:37 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/08/01 19:11:59 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,20 +97,5 @@ t_status	malloc_to_save_fd(
 		i++;
 	}
 	(*save_fd)[i] = NULL;
-	return (SUCCESS);
-}
-
-t_status	restore_fd(int **save_fd)
-{
-	int	i;
-
-	i = 0;
-	while (save_fd[i] != NULL)
-	{
-		if (dup2(save_fd[i][1], save_fd[i][0]) == -1
-			|| close(save_fd[i][1]) == -1)
-			return (E_SYSTEM);
-		i++;
-	}
 	return (SUCCESS);
 }
