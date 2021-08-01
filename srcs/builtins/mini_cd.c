@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/07 20:10:11 by mkamei            #+#    #+#             */
-/*   Updated: 2021/07/20 19:00:49 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/08/01 12:48:06 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,10 +33,10 @@ t_exit_status	mini_cd(char **argv, t_list *vars_list[3])
 	else
 		target_dir = argv[1];
 	if (chdir(target_dir) == -1)
-		return (get_exit_status_with_errout(target_dir, E_CHDIR, P_CD));
-	if (set_oldpwd_var(vars_list, 0) == E_MALLOC
-		|| set_pwd_var(vars_list, 0) == E_MALLOC)
-		return (get_exit_status_with_errout(NULL, E_MALLOC, P_CD));
+		return (get_exit_status_with_errout(target_dir, E_SYSTEM, P_CD));
+	if (set_oldpwd_var(vars_list, 0) == E_SYSTEM
+		|| set_pwd_var(vars_list, 0) == E_SYSTEM)
+		return (get_exit_status_with_errout(NULL, E_SYSTEM, P_CD));
 	return (0);
 }
 

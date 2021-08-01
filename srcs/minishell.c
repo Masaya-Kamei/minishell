@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: keguchi <keguchi@student.42tokyo.jp>       +#+  +:+       +#+        */
+/*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/28 15:30:07 by mkamei            #+#    #+#             */
-/*   Updated: 2021/07/30 16:03:15 by keguchi          ###   ########.fr       */
+/*   Updated: 2021/08/01 12:58:45 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,7 +63,7 @@ static void	loop_minishell(t_list *vars_list[3])
 			add_history(line);
 		status = lex_line(line, &tokens, &token_num);
 		free(line);
-		if (status == E_MALLOC)
+		if (status != SUCCESS)
 			break ;
 		status = start_process(tokens, 0, token_num - 1, vars_list);
 		free_tokens(tokens);
@@ -93,23 +93,23 @@ int	main(int argc, char **argv, char **envp)
 	(void)argc;
 	(void)**argv;
 	if (signal(SIGINT, handler) == SIG_ERR)
-		exit(get_exit_status_with_errout(NULL, E_SIGNAL, P_SHELL));
+		exit(get_exit_status_with_errout(NULL, E_SYSTEM, P_SHELL));
 	if (signal(SIGQUIT, handler) == SIG_ERR)
-		exit(get_exit_status_with_errout(NULL, E_SIGNAL, P_SHELL));
+		exit(get_exit_status_with_errout(NULL, E_SYSTEM, P_SHELL));
 	rl_signal_event_hook = &redisplay_prompt;
 	vars_list[SHELL] = NULL;
 	vars_list[SPECIAL] = lstnew_with_strdup("?=0  ");
 	if (vars_list[SPECIAL] == NULL)
-		exit(get_exit_status_with_errout(NULL, E_MALLOC, P_SHELL));
+		exit(get_exit_status_with_errout(NULL, E_SYSTEM, P_SHELL));
 	((char *)vars_list[SPECIAL]->content)[3] = '\0';
 	vars_list[ENV] = create_env_list(envp);
 	if (vars_list[ENV] == NULL
-		|| set_oldpwd_var(vars_list, 1) == E_MALLOC
-		|| set_pwd_var(vars_list, 1) == E_MALLOC
-		|| countup_shlvl_env(&vars_list[ENV]) == E_MALLOC)
+		|| set_oldpwd_var(vars_list, 1) == E_SYSTEM
+		|| set_pwd_var(vars_list, 1) == E_SYSTEM
+		|| countup_shlvl_env(&vars_list[ENV]) == E_SYSTEM)
 	{
 		clear_vars_list(vars_list);
-		exit(get_exit_status_with_errout(NULL, E_MALLOC, P_SHELL));
+		exit(get_exit_status_with_errout(NULL, E_SYSTEM, P_SHELL));
 	}
 	loop_minishell(vars_list);
 	return (0);

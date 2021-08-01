@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   redirect_list.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: keguchi <keguchi@student.42tokyo.jp>       +#+  +:+       +#+        */
+/*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/19 09:25:38 by keguchi           #+#    #+#             */
-/*   Updated: 2021/07/30 15:28:14 by keguchi          ###   ########.fr       */
+/*   Updated: 2021/08/01 13:00:15 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,11 +15,11 @@
 static t_status	check_file_name(char *file_name)
 {
 	if (!file_name)
-		return (E_NULL_FILE);
+		return (E_SYSTEM);
 	else if ((ft_strncmp(file_name, "", 1) == 0))
 	{
 		errno = 2;
-		return (E_EMPTY_FILE);
+		return (E_SYSTEM);
 	}
 	else
 		return (SUCCESS);
@@ -55,14 +55,14 @@ static t_status	redirect_greater(t_token *tokens,
 	if (backup_fd == -1 && errno == EBADF)
 		return (SUCCESS);
 	else if (backup_fd == -1)
-		return (E_DUP_CLOSE);
+		return (E_SYSTEM);
 	save_fd[0] = redirect_fd;
 	save_fd[1] = backup_fd;
 	fd = open(tokens[redirect_index + 1].str, O_RDWR | O_CREAT | O_TRUNC, 0644);
 	if (fd < 0)
 		return (E_OPEN);
 	if (dup2(fd, redirect_fd) == -1 || close(fd) == -1)
-		return (E_DUP_CLOSE);
+		return (E_SYSTEM);
 	return (SUCCESS);
 }
 
@@ -81,14 +81,14 @@ static t_status	redirect_less(t_token *tokens, int redirect_index, int *save_fd)
 	if (backup_fd == -1 && errno == EBADF)
 		return (SUCCESS);
 	else if (backup_fd == -1)
-		return (E_DUP_CLOSE);
+		return (E_SYSTEM);
 	save_fd[0] = redirect_fd;
 	save_fd[1] = backup_fd;
 	fd = open(tokens[redirect_index + 1].str, O_RDONLY);
 	if (fd < 0)
 		return (E_OPEN);
 	if (dup2(fd, redirect_fd) == -1 || close(fd) == -1)
-		return (E_DUP_CLOSE);
+		return (E_SYSTEM);
 	return (SUCCESS);
 }
 
@@ -108,7 +108,7 @@ static t_status	redirect_d_greater(t_token *tokens, int
 	if (backup_fd == -1 && errno == EBADF)
 		return (SUCCESS);
 	else if (backup_fd == -1)
-		return (E_DUP_CLOSE);
+		return (E_SYSTEM);
 	save_fd[0] = redirect_fd;
 	save_fd[1] = backup_fd;
 	fd = open(tokens[redirect_index + 1].str,
@@ -116,7 +116,7 @@ static t_status	redirect_d_greater(t_token *tokens, int
 	if (fd < 0)
 		return (E_OPEN);
 	if (dup2(fd, redirect_fd) == -1 || close(fd) == -1)
-		return (E_DUP_CLOSE);
+		return (E_SYSTEM);
 	return (SUCCESS);
 }
 
@@ -186,7 +186,7 @@ static t_status	remove_input_file(void)
 	ret = 0;
 	ret = unlink(";;input;;");
 	if (ret == -1)
-		ret = E_UNLINK;
+		ret = E_SYSTEM;
 	return (SUCCESS);
 }
 
@@ -206,7 +206,7 @@ static t_status	redirect_d_less(t_token *tokens,
 	if (backup_fd == -1 && errno == EBADF)
 		return (SUCCESS);
 	else if (backup_fd == -1)
-		return (E_DUP_CLOSE);
+		return (E_SYSTEM);
 	save_fd[0] = redirect_fd;
 	save_fd[1] = backup_fd;
 	status = wait_eof(tokens[redirect_index + 1].str);
@@ -216,7 +216,7 @@ static t_status	redirect_d_less(t_token *tokens,
 	if (fd < 0)
 		return (E_OPEN);
 	if (dup2(fd, redirect_fd) == -1 || close(fd) == -1)
-		return (E_DUP_CLOSE);
+		return (E_SYSTEM);
 	return (remove_input_file());
 }
 

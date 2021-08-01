@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/08 16:49:34 by mkamei            #+#    #+#             */
-/*   Updated: 2021/07/20 11:32:46 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/08/01 12:53:42 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@ char	*get_var(t_list *vars_list[3], char *var_name)
 	return (NULL);
 }
 
-t_status	set_var(t_list *vars_list[3], char *var, int var_type)
+t_status	set_var(t_list *vars_list[3], char *var, t_vars_type var_type)
 {
 	const char	*equal_pointer = ft_strchr(var, '=');
 	int			var_name_len;
@@ -58,11 +58,11 @@ t_status	set_var(t_list *vars_list[3], char *var, int var_type)
 	free(target_list->content);
 	target_list->content = ft_strdup(var);
 	if (target_list->content == NULL)
-		return (E_MALLOC);
+		return (E_SYSTEM);
 	return (SUCCESS);
 }
 
-void	delete_var(t_list *vars_list[3], char *var_name, int var_type)
+void	delete_var(t_list *vars_list[3], char *var_name, t_vars_type var_type)
 {
 	const int	var_name_len = ft_strlen(var_name);
 	t_list		*current_list;

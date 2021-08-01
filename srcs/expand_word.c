@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   expand_word_token.c                                :+:      :+:    :+:   */
+/*   expand_word.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/18 11:54:50 by mkamei            #+#    #+#             */
-/*   Updated: 2021/07/20 17:59:02 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/08/01 13:00:24 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -100,10 +100,10 @@ static t_status	loop_substr_and_strjoin_to_str(
 		{
 			sub = substr_with_expand(&word[start], i - start, type, vars_list);
 			if (sub == NULL)
-				return (E_MALLOC);
+				return (E_SYSTEM);
 			*str = strjoin_with_free(*str, sub);
 			if (*str == NULL)
-				return (E_MALLOC);
+				return (E_SYSTEM);
 			if (type == RAW && (*str)[0] == '\0')
 				free_and_fill_null(str);
 			start = i + (word[i] == '\"' || word[i] == '\'');
@@ -121,8 +121,8 @@ t_status	expand_word_token(char **word, t_list *vars_list[3])
 	start = 0;
 	str = NULL;
 	status = loop_substr_and_strjoin_to_str(*word, vars_list, start, &str);
-	if (status == E_MALLOC)
-		return (E_MALLOC);
+	if (status == E_SYSTEM)
+		return (E_SYSTEM);
 	free(*word);
 	*word = str;
 	return (SUCCESS);
