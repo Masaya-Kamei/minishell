@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/19 09:24:35 by keguchi           #+#    #+#             */
-/*   Updated: 2021/08/02 17:07:38 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/08/02 17:16:35 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -138,6 +138,6 @@ t_status	process_command(
 	if (status == SUCCESS)
 		status = exec_command(command, is_pipe, vars_list);
 	free(cmd_str);
-	free(command);
+	free_double_pointer((void **)command);
 	return (finish_command(save_fd, tokens[start].str, status, vars_list));
 }

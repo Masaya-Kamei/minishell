@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/29 18:28:52 by mkamei            #+#    #+#             */
-/*   Updated: 2021/08/01 12:17:35 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/08/02 17:17:41 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,8 @@ void	free_double_pointer(void **p)
 {
 	int		i;
 
+	if (p == NULL)
+		return ;
 	i = 0;
 	while (p[i] != NULL)
 	{
