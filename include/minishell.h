@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/28 09:39:27 by mkamei            #+#    #+#             */
-/*   Updated: 2021/08/02 17:10:18 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/08/02 17:46:10 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -128,8 +128,6 @@ void			set_exit_status(
 t_status		countup_shlvl_env(t_list **env_list);
 t_exit_status	get_exit_status_with_errout(
 					char *word, t_status status, t_err_place err_place);
-void			set_exit_status_with_errout(
-					char *word, t_status status, t_list *vars_list[3]);
 void			free_double_pointer(void **p);
 void			free_tokens(t_token *tokens);
 t_status		free_and_return(void *p, t_status status);
