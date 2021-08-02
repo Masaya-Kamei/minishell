@@ -6,96 +6,93 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/08/01 13:09:34 by mkamei            #+#    #+#             */
-/*   Updated: 2021/08/01 19:11:59 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/08/02 18:15:25 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
+char	*strjoin_with_null_support(char *s1, char *s2)
+{
+	if (s1 == NULL && s2 == NULL)
+		return (ft_strdup(""));
+	else if (s1 == NULL)
+		return (ft_strdup(s2));
+	else if (s2 == NULL)
+		return (ft_strdup(s1));
+	return (ft_strjoin(s1, s2));
+}
+
 t_status	strjoin_to_cmd_str(
 	t_token *tokens, int word_index, char **cmd_str, t_list *vars_list[3])
 {
-	t_status	status;
 	char		*tmp;
 
-	status = expand_word_token(&tokens[word_index].str, vars_list);
-	if (status == E_SYSTEM)
+	if (expand_word_token(&tokens[word_index].str, vars_list) == E_SYSTEM)
 		return (E_SYSTEM);
-	else if (tokens[word_index].str == NULL)
+	if (tokens[word_index].str == NULL)
 		return (SUCCESS);
-	if (*cmd_str == NULL)
-		*cmd_str = ft_strdup(tokens[word_index].str);
-	else
+	else if ((tokens[word_index].str)[0] == '\0')
 	{
-		tmp = *cmd_str;
-		*cmd_str = ft_strjoin(tmp, " ");
-		free(tmp);
-		if (*cmd_str == NULL)
+		free(tokens[word_index].str);
+		tokens[word_index].str = ft_strdup("\21");
+		if (tokens[word_index].str == NULL)
 			return (E_SYSTEM);
-		tmp = *cmd_str;
-		*cmd_str = ft_strjoin(tmp, tokens[word_index].str);
-		free(tmp);
 	}
+	tmp = *cmd_str;
+	*cmd_str = strjoin_with_null_support(tmp, " ");
+	free(tmp);
+	if (*cmd_str == NULL)
+		return (E_SYSTEM);
+	tmp = *cmd_str;
+	*cmd_str = strjoin_with_null_support(tmp, tokens[word_index].str);
+	free(tmp);
 	if (*cmd_str == NULL)
 		return (E_SYSTEM);
 	return (SUCCESS);
 }
 
-char	**split_cmd_str(char *cmd_str)
+t_status	split_cmd_str(char *cmd_str, char ***command)
 {
-	char	**command;
+	int		i;
 
 	if (cmd_str == NULL)
 	{
-		command = (char **)malloc(sizeof(char *) * 1);
-		if (command == NULL)
-			return (NULL);
-		command[0] = NULL;
-		return (command);
+		*command = (char **)malloc(sizeof(char *) * 1);
+		if (*command == NULL)
+			return (E_SYSTEM);
+		(*command)[0] = NULL;
+		return (SUCCESS);
 	}
-	command = ft_split(cmd_str, ' ');
-	return (command);
-}
-
-static int	count_redirect_token(t_token *tokens, int start, int end)
-{
-	int		i;
-	int		redirect_count;
-
-	redirect_count = 0;
-	i = start;
-	while (i <= end)
-	{
-		if (tokens[i].type == LESS || tokens[i].type == D_LESS
-			|| tokens[i].type == GREATER || tokens[i].type == D_GREATER)
-			redirect_count++;
-		i++;
-	}
-	return (redirect_count);
-}
-
-t_status	malloc_to_save_fd(
-	t_token *tokens, int start, int end, int ***save_fd)
-{
-	int		i;
-	int		redirect_num;
-
-	redirect_num = count_redirect_token(tokens, start, end);
-	*save_fd = (int **)malloc(sizeof(int *) * (redirect_num + 1));
-	if (*save_fd == NULL)
+	*command = ft_split(cmd_str, ' ');
+	if (*command == NULL)
 		return (E_SYSTEM);
 	i = 0;
-	while (i < redirect_num)
+	while ((*command)[i] != NULL)
 	{
-		(*save_fd)[i] = (int *)malloc(sizeof(int) * 2);
-		if ((*save_fd)[i] == NULL)
-		{
-			free_double_pointer((void **)*save_fd);
-			*save_fd = NULL;
-			return (E_SYSTEM);
-		}
+		if ((*command)[i][0] == '\21')
+			(*command)[i][0] = '\0';
 		i++;
 	}
-	(*save_fd)[i] = NULL;
 	return (SUCCESS);
+}
+
+t_exit_status	get_exit_status_when_signal(int signum)
+{
+	t_exit_status	exit_status;
+
+	if (signum == SIGINT)
+	{
+		printf("\n");
+		exit_status = 130;
+	}
+	else if (signum == SIGQUIT)
+	{
+		printf("Quit: 3\n");
+		exit_status = 131;
+	}
+	else
+		exit_status = 1;
+	g_received_signal = 0;
+	return (exit_status);
 }
