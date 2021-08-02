@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
+/*   By: keguchi <keguchi@student.42tokyo.jp>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/28 15:30:07 by mkamei            #+#    #+#             */
-/*   Updated: 2021/08/01 12:58:45 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/08/02 16:07:26 by keguchi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,20 +17,29 @@ static void	handler(int signum)
 	g_received_signal = signum;
 }
 
-static int	redisplay_prompt(void)
+int	redisplay_prompt(void)
 {
-	if (g_received_signal == SIGINT)
+	if (ft_strncmp(rl_prompt, "> ", 3) == 0
+		&& g_received_signal == SIGINT)
 	{
-		g_received_signal = 0;
+		printf("\033[%dC\033[K", 2 + rl_end);
+		rl_replace_line("\3", 1);
+		rl_done = 1;
+	}
+	else if (ft_strncmp(rl_prompt, "> ", 3) == 0
+		&& g_received_signal == SIGQUIT)
+		printf("\033[%dC\033[K", 2 + rl_end);
+	else if (g_received_signal == SIGINT)
+	{
 		printf("\033[%dC\033[K\n", 11 + rl_end);
 		rl_replace_line("", 1);
 		rl_on_new_line();
-		rl_redisplay();
 	}
 	else if (g_received_signal == SIGQUIT)
+		printf("\033[%dC\033[K", 11 + rl_end);
+	if (g_received_signal)
 	{
 		g_received_signal = 0;
-		printf("\033[%dC\033[K", 11 + rl_end);
 		rl_redisplay();
 	}
 	return (0);
