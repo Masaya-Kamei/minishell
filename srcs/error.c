@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   error.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: keguchi <keguchi@student.42tokyo.jp>       +#+  +:+       +#+        */
+/*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/09 10:48:30 by mkamei            #+#    #+#             */
-/*   Updated: 2021/07/30 16:19:59 by keguchi          ###   ########.fr       */
+/*   Updated: 2021/08/01 16:56:18 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,11 +14,6 @@
 
 static void	write_word(char *word, t_status status)
 {
-	if (status == E_EMPTY_FILE)
-	{
-		write(2, ": ", 2);
-		return ;
-	}
 	if (word == NULL || status == E_SYNTAX)
 		return ;
 	if (status == E_INVALID_ID)
@@ -44,11 +39,11 @@ static void	write_err(
 	const char	usages[7][42] = {"", "cd: usage: cd [dir]\n"
 		, "pwd: usage: pwd\n", "export: usage: export [name[=value] ...]\n"
 		, "unset: usage: unset [name ...]\n", "env: usage: env\n", ""};
-	const char	err_msgs[20][36] = {"", "invalid option", " not set"
+	const char	err_msgs[20][36] = {"", "", "invalid option", " not set"
 		, "numeric argument required", "too many arguments"
 		, "not a valid identifier", "invalid option or argument"
-		, "syntax error near unexpected token ", "", "", "", "", ""
-		, "", "", "", "command not found", "", "ambiguous redirect", ""};
+		, "syntax error near unexpected token ", "command not found"
+		, "ambiguous redirect", ""};
 
 	write(2, "minishell: ", 11);
 	if (err_place != P_SHELL)
@@ -81,19 +76,16 @@ t_exit_status	get_exit_status_with_errout(
 	char *word, t_status status, t_err_place err_place)
 {
 	t_exit_status	exit_status;
-	const t_bool	is_errno = (
-		status == E_SIGNAL || status == E_MALLOC || status == E_DUP_CLOSE
-		|| status == E_CHDIR || status == E_FORK || status == E_OPEN
-		|| status == E_UNLINK || status == E_EXECVE || status == E_EMPTY_FILE);
-	const int		status_table[9][2][2] = {
-		{{E_SYNTAX, 258}, {E_EXTERNAL, 127}}
+	const t_bool	is_errno = (status == E_SYSTEM || status == E_OPEN);
+	const int		status_table[8][3][2] = {
+		{{E_AMBIGUOUS, 1}, {E_NOCOMMAND, 127}, {E_SYNTAX, 258}}
 		, {}
 		, {{E_INVALID_OP, 1}, {E_NOSET_VAR, 1}}
 		, {{E_INVALID_OP, 1}}
 		, {{E_INVALID_ID, 1}, {E_INVALID_OP, 2}}
 		, {{E_INVALID_ID, 1}, {E_INVALID_OP, 2}}
 		, {{E_INVALID_OP_ARG, 1}}
-		, {{E_TOO_MANY_ARG, 1}, {E_NUM_ARG_REQ, 255}}}
+		, {{E_TOO_MANY_ARG, 1}, {E_NUM_ARG_REQ, 255}}};
 
 	write_err(word, status, is_errno, err_place);
 	if (is_errno == 1 && err_place == P_SHELL)
@@ -104,4 +96,13 @@ t_exit_status	get_exit_status_with_errout(
 		exit_status = get_value_from_status_table(
 				status, status_table[err_place]);
 	return (exit_status);
+}
+
+void	set_exit_status_with_errout(
+	char *word, t_status status, t_list *vars_list[3])
+{
+	t_exit_status	exit_status;
+
+	exit_status = get_exit_status_with_errout(word, status, P_SHELL);
+	set_exit_status(vars_list[SPECIAL], exit_status);
 }

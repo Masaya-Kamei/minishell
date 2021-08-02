@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   process1.c                                         :+:      :+:    :+:   */
+/*   process_pipeline.c                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: keguchi <keguchi@student.42tokyo.jp>       +#+  +:+       +#+        */
+/*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/17 15:32:00 by mkamei            #+#    #+#             */
-/*   Updated: 2021/07/30 12:27:42 by keguchi          ###   ########.fr       */
+/*   Updated: 2021/08/01 16:52:36 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,13 +28,13 @@ static t_status	process_pipeline(
 			backup_write_fd = dup(1);
 			if (backup_write_fd == -1 || pipe(pipe_fd) == -1
 				|| dup2(pipe_fd[1], 1) == -1 || close(pipe_fd[1]) == -1)
-				return (E_DUP_CLOSE);
+				return (E_SYSTEM);
 			status = process_pipeline(tokens, start, i - 1, vars_list);
 			if (status != SUCCESS)
 				return (status);
 			if (dup2(pipe_fd[0], 0) == -1 || dup2(backup_write_fd, 1) == -1
 				|| close(pipe_fd[0]) == -1 || close(backup_write_fd) == -1)
-				return (E_DUP_CLOSE);
+				return (E_SYSTEM);
 			return (process_command(tokens, i + 1, end, vars_list));
 			//return (debug_process_command(tokens, i + 1, end, vars_list));
 		}
@@ -86,7 +86,6 @@ t_status	start_process(
 {
 	int				backup_read_fd;
 	t_status		status;
-	t_exit_status	exit_status;
 	char			err_word[10];
 
 	if (end == -1)
@@ -95,16 +94,16 @@ t_status	start_process(
 	status = check_syntax_error(tokens, err_word);
 	if (status == E_SYNTAX)
 	{
-		exit_status = get_exit_status_with_errout(err_word, E_SYNTAX, P_SHELL);
-		return (set_exit_status(vars_list[SPECIAL], exit_status));
+		set_exit_status_with_errout(err_word, E_SYNTAX, vars_list);
+		return (SUCCESS);
 	}
 	backup_read_fd = dup(0);
 	if (backup_read_fd == -1)
-		return (E_DUP_CLOSE);
+		return (E_SYSTEM);
 	status = process_pipeline(tokens, start, end, vars_list);
 	if (status != SUCCESS)
 		return (status);
 	if (dup2(backup_read_fd, 0) == -1 || close(backup_read_fd) == -1)
-		return (E_DUP_CLOSE);
+		return (E_SYSTEM);
 	return (SUCCESS);
 }

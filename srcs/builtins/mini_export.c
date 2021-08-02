@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   mini_export.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: keguchi <keguchi@student.42tokyo.jp>       +#+  +:+       +#+        */
+/*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/07 14:33:48 by mkamei            #+#    #+#             */
-/*   Updated: 2021/07/23 09:15:07 by keguchi          ###   ########.fr       */
+/*   Updated: 2021/08/01 12:49:08 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,7 +49,7 @@ static t_exit_status	write_exported_vars(t_list *env_list)
 
 	envp = create_envp(env_list);
 	if (envp == NULL)
-		return (get_exit_status_with_errout(NULL, E_MALLOC, P_EXPORT));
+		return (get_exit_status_with_errout(NULL, E_SYSTEM, P_EXPORT));
 	bubble_sort_envp(envp);
 	i = -1;
 	while (envp[++i] != NULL)
@@ -109,8 +109,8 @@ t_exit_status	mini_export(char **argv, t_list *vars_list[3])
 		if (check_valid_identifier(argv[i], var_name_len) == 0)
 			exit_status = get_exit_status_with_errout(
 					argv[i], E_INVALID_ID, P_EXPORT);
-		else if (set_var(vars_list, argv[i], ENV) == E_MALLOC)
-			return (get_exit_status_with_errout(NULL, E_MALLOC, P_EXPORT));
+		else if (set_var(vars_list, argv[i], ENV) == E_SYSTEM)
+			return (get_exit_status_with_errout(NULL, E_SYSTEM, P_EXPORT));
 	}
 	return (exit_status);
 }

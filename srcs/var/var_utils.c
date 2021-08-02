@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/15 12:19:39 by mkamei            #+#    #+#             */
-/*   Updated: 2021/07/20 11:34:37 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/08/01 12:49:47 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,7 @@ t_status	add_new_var(t_list **any_list, char *var)
 
 	new_list = lstnew_with_strdup(var);
 	if (new_list == NULL)
-		return (E_MALLOC);
+		return (E_SYSTEM);
 	last_list = ft_lstlast(*any_list);
 	if (last_list == NULL)
 		*any_list = new_list;

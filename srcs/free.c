@@ -3,26 +3,26 @@
 /*                                                        :::      ::::::::   */
 /*   free.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: keguchi <keguchi@student.42tokyo.jp>       +#+  +:+       +#+        */
+/*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/29 18:28:52 by mkamei            #+#    #+#             */
-/*   Updated: 2021/07/23 09:13:32 by keguchi          ###   ########.fr       */
+/*   Updated: 2021/08/01 12:17:35 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-void	free_double_pointer(void **strs)
+void	free_double_pointer(void **p)
 {
 	int		i;
 
 	i = 0;
-	while (strs[i] != NULL)
+	while (p[i] != NULL)
 	{
-		free(strs[i]);
+		free(p[i]);
 		i++;
 	}
-	free(strs);
+	free(p);
 }
 
 void	free_tokens(t_token *tokens)
