@@ -6,53 +6,47 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/08/01 13:09:34 by mkamei            #+#    #+#             */
-/*   Updated: 2021/08/02 17:09:48 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/08/02 18:15:25 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-static t_status	expand_word_with_replace(char **word, t_list *vars_list[3])
+char	*strjoin_with_null_support(char *s1, char *s2)
 {
-	t_status	status;
-
-	status = expand_word_token(word, vars_list);
-	if (status == E_SYSTEM)
-		return (E_SYSTEM);
-	if ((*word)[0] == '\0')
-	{
-		free(*word);
-		*word = ft_strdup("\21");
-		if (*word == NULL)
-			return (E_SYSTEM);
-	}
-	return (SUCCESS);
+	if (s1 == NULL && s2 == NULL)
+		return (ft_strdup(""));
+	else if (s1 == NULL)
+		return (ft_strdup(s2));
+	else if (s2 == NULL)
+		return (ft_strdup(s1));
+	return (ft_strjoin(s1, s2));
 }
 
 t_status	strjoin_to_cmd_str(
 	t_token *tokens, int word_index, char **cmd_str, t_list *vars_list[3])
 {
-	t_status	status;
 	char		*tmp;
 
-	status = expand_word_with_replace(&tokens[word_index].str, vars_list);
-	if (status == E_SYSTEM)
+	if (expand_word_token(&tokens[word_index].str, vars_list) == E_SYSTEM)
 		return (E_SYSTEM);
-	else if (tokens[word_index].str == NULL)
+	if (tokens[word_index].str == NULL)
 		return (SUCCESS);
-	if (*cmd_str == NULL)
-		*cmd_str = ft_strdup(tokens[word_index].str);
-	else
+	else if ((tokens[word_index].str)[0] == '\0')
 	{
-		tmp = *cmd_str;
-		*cmd_str = ft_strjoin(tmp, " ");
-		free(tmp);
-		if (*cmd_str == NULL)
+		free(tokens[word_index].str);
+		tokens[word_index].str = ft_strdup("\21");
+		if (tokens[word_index].str == NULL)
 			return (E_SYSTEM);
-		tmp = *cmd_str;
-		*cmd_str = ft_strjoin(tmp, tokens[word_index].str);
-		free(tmp);
 	}
+	tmp = *cmd_str;
+	*cmd_str = strjoin_with_null_support(tmp, " ");
+	free(tmp);
+	if (*cmd_str == NULL)
+		return (E_SYSTEM);
+	tmp = *cmd_str;
+	*cmd_str = strjoin_with_null_support(tmp, tokens[word_index].str);
+	free(tmp);
 	if (*cmd_str == NULL)
 		return (E_SYSTEM);
 	return (SUCCESS);
