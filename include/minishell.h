@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/28 09:39:27 by mkamei            #+#    #+#             */
-/*   Updated: 2021/08/02 18:17:47 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/08/02 18:26:38 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -148,5 +148,6 @@ t_status		strjoin_to_cmd_str(t_token *tokens,
 					int word_index, char **cmd_str, t_list *vars_list[3]);
 t_status		split_cmd_str(char *cmd_str, char ***command);
 t_exit_status	get_exit_status_when_signal(int signum);
+int				redisplay_prompt(void);
 
 #endif
