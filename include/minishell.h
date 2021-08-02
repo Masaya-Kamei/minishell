@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
+/*   By: keguchi <keguchi@student.42tokyo.jp>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/28 09:39:27 by mkamei            #+#    #+#             */
-/*   Updated: 2021/08/01 19:12:22 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/08/02 15:20:01 by keguchi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -99,6 +99,7 @@ typedef t_exit_status	(*t_builtin_func)(char **, t_list **);
 
 int						g_received_signal;
 
+int				redisplay_prompt(void);
 t_status		lex_line(char *line, t_token **tokens, int *token_num);
 t_status		expand_word_token(char **word, t_list *vars_list[3]);
 t_status		start_process(
