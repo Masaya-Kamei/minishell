@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/19 09:24:35 by keguchi           #+#    #+#             */
-/*   Updated: 2021/08/02 17:45:24 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/08/02 18:18:26 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,7 +96,7 @@ static t_status	finish_command(
 
 	if (status == E_OPEN || status == E_AMBIGUOUS)
 	{
-		exit_status = get_exit_status_with_errout(err_word, status, vars_list);
+		exit_status = get_exit_status_with_errout(err_word, status, P_SHELL);
 		set_exit_status(vars_list[SPECIAL], exit_status);
 	}
 	if (status == SUCCESS || status == E_OPEN || status == E_AMBIGUOUS)
