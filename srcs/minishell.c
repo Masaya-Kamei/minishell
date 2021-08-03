@@ -6,7 +6,7 @@
 /*   By: keguchi <keguchi@student.42tokyo.jp>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/28 15:30:07 by mkamei            #+#    #+#             */
-/*   Updated: 2021/08/03 08:02:58 by keguchi          ###   ########.fr       */
+/*   Updated: 2021/08/03 08:16:18 by keguchi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@ int	redisplay_prompt(void)
 	if (g_received_signal == SIGINT)
 	{
 		g_received_signal = 0;
-		printf("\033[%dC\033[K", ft_strlen(rl_prompt) + rl_end);
+		printf("\033[%dC\033[K", (int)ft_strlen(rl_prompt) + rl_end);
 		if (ft_strncmp(rl_prompt, "> ", 3) == 0)
 		{
 			rl_redisplay();
@@ -40,7 +40,7 @@ int	redisplay_prompt(void)
 	else if (g_received_signal == SIGQUIT)
 	{
 		g_received_signal = 0;
-		printf("\033[%dC\033[K", ft_strlen(rl_prompt) + rl_end);
+		printf("\033[%dC\033[K", (int)ft_strlen(rl_prompt) + rl_end);
 		rl_redisplay();
 	}
 	return (0);

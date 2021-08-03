@@ -6,7 +6,7 @@
 /*   By: keguchi <keguchi@student.42tokyo.jp>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/19 09:25:38 by keguchi           #+#    #+#             */
-/*   Updated: 2021/08/02 18:11:20 by keguchi          ###   ########.fr       */
+/*   Updated: 2021/08/03 10:13:56 by keguchi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,13 +70,13 @@ static t_status	heredoc_loop(char *eof_word)
 		if (g_received_signal == SIGINT)
 			return (SIGINT);
 		tmp = str;
-		str = ft_strjoin(tmp, line);
-		//free(tmp);
-		//free(line);
+		str = strjoin_with_null_support(tmp, line);
+		free(tmp);
+		free(line);
 		if (str == NULL)
 			return (E_SYSTEM);
 		tmp = str;
-		str = ft_strjoin(tmp, "\n");
+		str = strjoin_with_null_support(tmp, "\n");
 		free(tmp);
 		if (str == NULL)
 			return (E_SYSTEM);
@@ -112,33 +112,38 @@ static t_status	remove_input_file(void)
 	return (SUCCESS);
 }
 
-static t_status	set_redirect_and_save_fd(char *type, int fd, int *save_fd)
+static t_status	set_redirect_and_save_fd(char *type, int fd, t_list **save_fd)
 {
-	int	redirect_fd;
-	int	backup_fd;
+	int		redirect_fd[2];
+	t_list	*new;
 
+	new = NULL;
 	if (ft_strncmp(type, "<", 2) == 0)
-		redirect_fd = STDIN_FILENO;
+		redirect_fd[0] = STDIN_FILENO;
 	else if (ft_strncmp(type, ">", 2) == 0)
-		redirect_fd = STDOUT_FILENO;
+		redirect_fd[0] = STDOUT_FILENO;
 	else if (ft_strncmp(type, "<<", 3) == 0)
-		redirect_fd = STDIN_FILENO;
+		redirect_fd[0] = STDIN_FILENO;
 	else if (ft_strncmp(type, ">>", 3) == 0)
-		redirect_fd = STDOUT_FILENO;
+		redirect_fd[0] = STDOUT_FILENO;
 	else
-		redirect_fd = ft_atoi(type);
-	backup_fd = dup(redirect_fd);
-	if (backup_fd == -1)
+		redirect_fd[0] = ft_atoi(type);
+	redirect_fd[1] = dup(redirect_fd[0]);
+	if (redirect_fd[1] == -1)
 		return (E_SYSTEM);
-	save_fd[0] = redirect_fd;
-	save_fd[1] = backup_fd;
-	if (dup2(fd, redirect_fd) == -1 || close(fd) == -1)
+	new->content = malloc(sizeof(int) * 2);
+	if (!new->content)
+		return (E_SYSTEM);
+	((int *)new->content)[0] = redirect_fd[0];
+	((int *)new->content)[1] = redirect_fd[1];
+	ft_lstadd_back(save_fd, new);
+	if (dup2(fd, redirect_fd[0]) == -1 || close(fd) == -1)
 		return (E_SYSTEM);
 	return (SUCCESS);
 }
 
-static t_status	redirect_greater_and_less(t_token *tokens,
-	int file_index, int *save_fd)
+static t_status	open_and_redirect_file(t_token *tokens,
+	int file_index, t_list *save_fd, char *original_token)
 {
 	int	fd;
 
@@ -166,18 +171,32 @@ static t_status	redirect_greater_and_less(t_token *tokens,
 	}
 	if (fd < 0)
 		return (E_OPEN);
-	return (set_redirect_and_save_fd(tokens[file_index - 1].str, fd, save_fd));
+	return (set_redirect_and_save_fd(tokens[file_index - 1].str, fd, &save_fd));
 }
 
 
-t_status	process_redirect(t_token *tokens, int i, int **save_fd)
+t_status	process_redirect(t_token *tokens, int i, t_list *save_fd, t_list *vars_list[3])
 {
 	t_status	status;
+	char		*original_token;
 
 	status = 0;
 	if (tokens[i].type == GREATER || tokens[i].type == D_GREATER
 		|| tokens[i].type == LESS || tokens[i].type == D_LESS)
-		status = redirect_greater_and_less(tokens, i + 1, save_fd[0]);
+	{
+		original_token = ft_strdup(tokens[i + 1].str);
+		if (!original_token)
+			return (E_SYSTEM);		
+		if (expand_word_token(&tokens[i + 1].str, vars_list) == E_SYSTEM)
+			return (E_SYSTEM);
+		if (!tokens[i + 1].str)
+		{
+			tokens[i + 1].str = original_token;
+			return (E_AMBIGUOUS);
+		}
+		status = open_and_redirect_file(tokens, i + 1, save_fd, original_token);
+		free(original_token);
+	}
 	if (status == E_SYSTEM && errno == EBADF)
 		status = SUCCESS;
 	return (status);
