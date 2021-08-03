@@ -6,7 +6,7 @@
 /*   By: keguchi <keguchi@student.42tokyo.jp>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/28 09:39:27 by mkamei            #+#    #+#             */
-/*   Updated: 2021/08/03 09:35:20 by keguchi          ###   ########.fr       */
+/*   Updated: 2021/08/03 15:40:33 by keguchi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -141,7 +141,7 @@ t_status		debug_process_command(
 					t_token *tokens, int start, int end, t_list *vars_list[3]);
 t_status		process_command(
 					t_token *tokens, int start, int end, t_list *vars_list[3]);
-t_status		process_redirect(t_token *tokens, int i, t_list *save_fd, t_list *vars_list[3]);
+t_status		process_redirect(t_token *tokens, int i, t_list **save_fd, t_list *vars_list[3]);
 char			*get_command_path(char *cmd);
 char			*strjoin_with_null_support(char *s1, char *s2);
 t_status		strjoin_to_cmd_str(t_token *tokens,

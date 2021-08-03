@@ -6,7 +6,7 @@
 /*   By: keguchi <keguchi@student.42tokyo.jp>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/19 09:25:38 by keguchi           #+#    #+#             */
-/*   Updated: 2021/08/03 10:13:56 by keguchi          ###   ########.fr       */
+/*   Updated: 2021/08/03 15:48:34 by keguchi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -114,28 +114,25 @@ static t_status	remove_input_file(void)
 
 static t_status	set_redirect_and_save_fd(char *type, int fd, t_list **save_fd)
 {
-	int		redirect_fd[2];
+	int		*redirect_fd;
 	t_list	*new;
 
+	redirect_fd = malloc(sizeof(int) * 2);
+	if (!redirect_fd)
+		return (E_SYSTEM);
 	new = NULL;
-	if (ft_strncmp(type, "<", 2) == 0)
+	if (ft_strncmp(type, "<", 2) == 0 || ft_strncmp(type, "<<", 3) == 0)
 		redirect_fd[0] = STDIN_FILENO;
-	else if (ft_strncmp(type, ">", 2) == 0)
-		redirect_fd[0] = STDOUT_FILENO;
-	else if (ft_strncmp(type, "<<", 3) == 0)
-		redirect_fd[0] = STDIN_FILENO;
-	else if (ft_strncmp(type, ">>", 3) == 0)
+	else if (ft_strncmp(type, ">", 2) == 0 || ft_strncmp(type, ">>", 3) == 0)
 		redirect_fd[0] = STDOUT_FILENO;
 	else
 		redirect_fd[0] = ft_atoi(type);
 	redirect_fd[1] = dup(redirect_fd[0]);
 	if (redirect_fd[1] == -1)
 		return (E_SYSTEM);
-	new->content = malloc(sizeof(int) * 2);
-	if (!new->content)
+	new = ft_lstnew(redirect_fd);
+	if (!new)
 		return (E_SYSTEM);
-	((int *)new->content)[0] = redirect_fd[0];
-	((int *)new->content)[1] = redirect_fd[1];
 	ft_lstadd_back(save_fd, new);
 	if (dup2(fd, redirect_fd[0]) == -1 || close(fd) == -1)
 		return (E_SYSTEM);
@@ -143,16 +140,16 @@ static t_status	set_redirect_and_save_fd(char *type, int fd, t_list **save_fd)
 }
 
 static t_status	open_and_redirect_file(t_token *tokens,
-	int file_index, t_list *save_fd, char *original_token)
+	int file_index, t_list **save_fd)
 {
 	int	fd;
 
 	fd = 0;
-	if (tokens[file_index].type == '>')
+	if (tokens[file_index - 1].type == '>')
 		fd = open(tokens[file_index].str, O_RDWR | O_CREAT | O_TRUNC, 0644);
-	else if (tokens[file_index].type == '<')
+	else if (tokens[file_index - 1].type == '<')
 		fd = open(tokens[file_index].str, O_RDONLY);
-	else if (tokens[file_index].type == 'G')
+	else if (tokens[file_index - 1].type == 'G')
 		fd = open(tokens[file_index].str, O_RDWR | O_CREAT | O_APPEND, 0644);
 	else
 	{
@@ -171,11 +168,11 @@ static t_status	open_and_redirect_file(t_token *tokens,
 	}
 	if (fd < 0)
 		return (E_OPEN);
-	return (set_redirect_and_save_fd(tokens[file_index - 1].str, fd, &save_fd));
+	return (set_redirect_and_save_fd(tokens[file_index - 1].str, fd, save_fd));
 }
 
 
-t_status	process_redirect(t_token *tokens, int i, t_list *save_fd, t_list *vars_list[3])
+t_status	process_redirect(t_token *tokens, int i, t_list **save_fd, t_list *vars_list[3])
 {
 	t_status	status;
 	char		*original_token;
@@ -194,7 +191,7 @@ t_status	process_redirect(t_token *tokens, int i, t_list *save_fd, t_list *vars_
 			tokens[i + 1].str = original_token;
 			return (E_AMBIGUOUS);
 		}
-		status = open_and_redirect_file(tokens, i + 1, save_fd, original_token);
+		status = open_and_redirect_file(tokens, i + 1, save_fd);
 		free(original_token);
 	}
 	if (status == E_SYSTEM && errno == EBADF)
