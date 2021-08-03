@@ -6,7 +6,7 @@
 /*   By: keguchi <keguchi@student.42tokyo.jp>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/19 09:25:38 by keguchi           #+#    #+#             */
-/*   Updated: 2021/08/03 17:00:02 by keguchi          ###   ########.fr       */
+/*   Updated: 2021/08/03 18:32:05 by keguchi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,7 +67,7 @@ static t_status	set_redirect_and_save_fd(char *type, int fd, t_list **save_fd)
 {
 	int		*redirect_fd;
 	t_list	*new;
-
+	
 	redirect_fd = malloc(sizeof(int) * 2);
 	if (!redirect_fd)
 		return (E_SYSTEM);
@@ -92,10 +92,12 @@ static t_status	set_redirect_and_save_fd(char *type, int fd, t_list **save_fd)
 	return (SUCCESS);
 }
 
-static t_status	wait_eof_loop(char *eof_word, char *str, char *tmp)
+static t_status	wait_eof_loop(char *eof_word)//, char *str, char *tmp)
 {
 	char	*line;
+	int		pipe_fd[2];
 
+	pipe(pipe_fd);
 	while (1)
 	{
 		line = readline("> ");
@@ -103,21 +105,35 @@ static t_status	wait_eof_loop(char *eof_word, char *str, char *tmp)
 			return (SUCCESS);
 		if (ft_strncmp(eof_word, line, ft_strlen(line) + 1) == 0)
 			break ;
-		tmp = str;
-		str = strjoin_with_null_support(tmp, line);
+		write(pipe_fd[1], line, ft_strlen(line));
 		line = NULL;
-		free(tmp);
-		if (str == NULL)
-			return (E_SYSTEM);
-		tmp = str;
-		str = strjoin_with_null_support(tmp, "\n");
-		free(tmp);
-		if (str == NULL)
-			return (E_SYSTEM);
+		write(pipe_fd[1], "\n", 1);
 	}
-	write(STDIN_FILENO, str, ft_strlen(str));
-	free(line);
-	free(str);
+	// while (1)
+	// {
+	// 	line = readline("> ");
+	// 	if (line == NULL || g_received_signal == SIGINT)
+	// 		return (SUCCESS);
+	// 	if (ft_strncmp(eof_word, line, ft_strlen(line) + 1) == 0)
+	// 		break ;
+	// 	tmp = str;
+	// 	str = strjoin_with_null_support(tmp, line);
+	// 	line = NULL;
+	// 	free(tmp);
+	// 	if (str == NULL)
+	// 		return (E_SYSTEM);
+	// 	tmp = str;
+	// 	str = strjoin_with_null_support(tmp, "\n");
+	// 	free(tmp);
+	// 	if (str == NULL)
+	// 		return (E_SYSTEM);
+	// }
+	// write(pipe_fd[1], str, ft_strlen(str));
+	close(pipe_fd[1]);
+	dup2(pipe_fd[0], STDIN_FILENO);
+	close(pipe_fd[0]);
+	// free(line);
+	// free(str);
 	return (SUCCESS);
 }	
 
@@ -141,7 +157,7 @@ static t_status	open_and_redirect_file(t_token *tokens,
 	else
 	{
 		rl_event_hook = &redisplay_prompt;
-		status = wait_eof_loop(tokens[file_index].str, str, tmp);
+		status = wait_eof_loop(tokens[file_index].str);//, str, tmp);
 		if (status != SUCCESS)
 			return (status);
 	}
