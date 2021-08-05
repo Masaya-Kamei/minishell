@@ -6,75 +6,22 @@
 /*   By: keguchi <keguchi@student.42tokyo.jp>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/19 09:25:38 by keguchi           #+#    #+#             */
-/*   Updated: 2021/08/03 18:32:05 by keguchi          ###   ########.fr       */
+/*   Updated: 2021/08/05 14:10:53 by keguchi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-// static int	heredoc_loop(char *line, char *eof_word, int fd, int status)
-// {
-// 	while (1)
-// 	{
-// 		line = readline("> ");
-// 		if (line == NULL)
-// 			break ;
-// 		if (ft_strncmp(eof_word, line, ft_strlen(line) + 1) == 0)
-// 			break ;
-// 		if (line[0] == '\3')
-// 		{
-// 			g_received_signal = 0;
-// 			status = SIGINT;
-// 			break ;
-// 		}
-// 		write(fd, line, ft_strlen(line));
-// 		write(fd, "\n", 1);
-// 		free(line);
-// 	}
-// 	return (status);
-// }
-
-// static int	wait_eof(char *eof_word)
-// {
-// 	int		status;
-// 	int		fd;
-// 	char	*line;
-
-// 	status = 0;
-// 	line = NULL;
-// 	fd = open(";;input;;", O_RDWR | O_CREAT | O_TRUNC, 0644);
-// 	if (fd < 0)
-// 		return (E_OPEN);
-// 	rl_event_hook = &redisplay_prompt;
-// 	status = heredoc_loop(line, eof_word, fd, status);
-// 	free(line);
-// 	close(fd);
-// 	return (status);
-// }
-
-// static t_status	remove_input_file(void)
-// {
-// 	int	ret;
-
-// 	ret = 0;
-// 	ret = unlink(";;input;;");
-// 	if (ret == -1)
-// 		ret = E_SYSTEM;
-// 	return (SUCCESS);
-// }
-
 static t_status	set_redirect_and_save_fd(char *type, int fd, t_list **save_fd)
 {
 	int		*redirect_fd;
 	t_list	*new;
-	
+
 	redirect_fd = malloc(sizeof(int) * 2);
 	if (!redirect_fd)
 		return (E_SYSTEM);
 	new = NULL;
-	if (ft_strncmp(type, "<<", 3) == 0)
-		return (SUCCESS);
-	if (ft_strncmp(type, "<", 2) == 0)// || ft_strncmp(type, "<<", 3) == 0)
+	if (ft_strncmp(type, "<", 2) == 0)
 		redirect_fd[0] = STDIN_FILENO;
 	else if (ft_strncmp(type, ">", 2) == 0 || ft_strncmp(type, ">>", 3) == 0)
 		redirect_fd[0] = STDOUT_FILENO;
@@ -92,7 +39,7 @@ static t_status	set_redirect_and_save_fd(char *type, int fd, t_list **save_fd)
 	return (SUCCESS);
 }
 
-static t_status	wait_eof_loop(char *eof_word)//, char *str, char *tmp)
+static t_status	wait_eof_loop(char *eof_word)
 {
 	char	*line;
 	int		pipe_fd[2];
@@ -100,40 +47,22 @@ static t_status	wait_eof_loop(char *eof_word)//, char *str, char *tmp)
 	pipe(pipe_fd);
 	while (1)
 	{
+		line = NULL;
 		line = readline("> ");
 		if (line == NULL || g_received_signal == SIGINT)
 			return (SUCCESS);
 		if (ft_strncmp(eof_word, line, ft_strlen(line) + 1) == 0)
+		{
+			free(line);
 			break ;
+		}
 		write(pipe_fd[1], line, ft_strlen(line));
-		line = NULL;
 		write(pipe_fd[1], "\n", 1);
+		free(line);
 	}
-	// while (1)
-	// {
-	// 	line = readline("> ");
-	// 	if (line == NULL || g_received_signal == SIGINT)
-	// 		return (SUCCESS);
-	// 	if (ft_strncmp(eof_word, line, ft_strlen(line) + 1) == 0)
-	// 		break ;
-	// 	tmp = str;
-	// 	str = strjoin_with_null_support(tmp, line);
-	// 	line = NULL;
-	// 	free(tmp);
-	// 	if (str == NULL)
-	// 		return (E_SYSTEM);
-	// 	tmp = str;
-	// 	str = strjoin_with_null_support(tmp, "\n");
-	// 	free(tmp);
-	// 	if (str == NULL)
-	// 		return (E_SYSTEM);
-	// }
-	// write(pipe_fd[1], str, ft_strlen(str));
-	close(pipe_fd[1]);
-	dup2(pipe_fd[0], STDIN_FILENO);
-	close(pipe_fd[0]);
-	// free(line);
-	// free(str);
+	if (close(pipe_fd[1]) == -1 || dup2(pipe_fd[0], STDIN_FILENO) == -1
+		|| close(pipe_fd[0]) == -1)
+		return (E_SYSTEM);
 	return (SUCCESS);
 }	
 
@@ -154,12 +83,11 @@ static t_status	open_and_redirect_file(t_token *tokens,
 		fd = open(tokens[file_index].str, O_RDONLY);
 	else if (tokens[file_index - 1].type == 'G')
 		fd = open(tokens[file_index].str, O_RDWR | O_CREAT | O_APPEND, 0644);
-	else
+	else if (tokens[file_index - 1].type == 'L')
 	{
 		rl_event_hook = &redisplay_prompt;
-		status = wait_eof_loop(tokens[file_index].str);//, str, tmp);
-		if (status != SUCCESS)
-			return (status);
+		status = wait_eof_loop(tokens[file_index].str);
+		return (status);
 	}
 	if (fd < 0)
 		return (E_OPEN);
