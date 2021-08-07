@@ -6,33 +6,11 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/05 14:03:48 by mkamei            #+#    #+#             */
-/*   Updated: 2021/08/01 14:06:41 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/08/06 17:41:47 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
-
-char	*get_current_absolute_path(void)
-{
-	int		size;
-	char	*absolute_path;
-
-	size = 128;
-	absolute_path = NULL;
-	while (absolute_path == NULL)
-	{
-		absolute_path = (char *)malloc(sizeof(char) * (size + 1));
-		if (absolute_path == NULL)
-			return (NULL);
-		absolute_path = getcwd(absolute_path, size);
-		if (absolute_path == NULL)
-		{
-			free(absolute_path);
-			size *= 2;
-		}
-	}
-	return (absolute_path);
-}
 
 t_status	set_pwd_var(t_list *vars_list[3], t_bool init)
 {
@@ -45,9 +23,9 @@ t_status	set_pwd_var(t_list *vars_list[3], t_bool init)
 		var_type = ENV;
 	else
 		var_type = SHELL;
-	value = get_current_absolute_path();
+	value = getcwd(NULL, 0);
 	if (value == NULL)
-		return (E_SYSTEM);
+		return (E_GETCWD);
 	var = ft_strjoin("PWD=", value);
 	free(value);
 	if (var == NULL)

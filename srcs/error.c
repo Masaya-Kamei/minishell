@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/09 10:48:30 by mkamei            #+#    #+#             */
-/*   Updated: 2021/08/01 16:56:18 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/08/07 10:42:54 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,12 @@
 
 static void	write_word(char *word, t_status status)
 {
+	if (status == E_GETCWD)
+	{
+		write(2, "error retrieving current directory: ", 36);
+		write(2, "getcwd: cannot access parent directories: ", 42);
+		return ;
+	}
 	if (word == NULL || status == E_SYNTAX)
 		return ;
 	if (status == E_INVALID_ID)
@@ -45,7 +51,8 @@ static void	write_err(
 		, "syntax error near unexpected token ", "command not found"
 		, "ambiguous redirect", ""};
 
-	write(2, "minishell: ", 11);
+	if (status != E_GETCWD)
+		write(2, "minishell: ", 11);
 	if (err_place != P_SHELL)
 		write(2, commands[err_place - 1], ft_strlen(commands[err_place - 1]));
 	write_word(word, status);
@@ -76,21 +83,22 @@ t_exit_status	get_exit_status_with_errout(
 	char *word, t_status status, t_err_place err_place)
 {
 	t_exit_status	exit_status;
-	const t_bool	is_errno = (status == E_SYSTEM || status == E_OPEN);
+	const t_bool	is_errno = (status == E_SYSTEM || status == E_OPEN
+		|| status == E_GETCWD || status == E_CHDIR);
 	const int		status_table[8][3][2] = {
 		{{E_AMBIGUOUS, 1}, {E_NOCOMMAND, 127}, {E_SYNTAX, 258}}
 		, {}
-		, {{E_INVALID_OP, 1}, {E_NOSET_VAR, 1}}
-		, {{E_INVALID_OP, 1}}
+		, {{E_GETCWD, 0}, {E_INVALID_OP, 1}, {E_NOSET_VAR, 1}}
+		, {{E_GETCWD, 0}, {E_INVALID_OP, 1}}
 		, {{E_INVALID_ID, 1}, {E_INVALID_OP, 2}}
 		, {{E_INVALID_ID, 1}, {E_INVALID_OP, 2}}
 		, {{E_INVALID_OP_ARG, 1}}
 		, {{E_TOO_MANY_ARG, 1}, {E_NUM_ARG_REQ, 255}}};
 
 	write_err(word, status, is_errno, err_place);
-	if (is_errno == 1 && err_place == P_SHELL)
-		exit_status = errno;
-	else if (is_errno == 1)
+	// if (is_errno == 1 && err_place == P_SHELL)
+	// 	exit_status = errno;
+	if (is_errno == 1 && status != E_GETCWD)
 		exit_status = 1;
 	else
 		exit_status = get_value_from_status_table(

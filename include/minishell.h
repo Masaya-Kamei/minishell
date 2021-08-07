@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: keguchi <keguchi@student.42tokyo.jp>       +#+  +:+       +#+        */
+/*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/28 09:39:27 by mkamei            #+#    #+#             */
-/*   Updated: 2021/08/02 15:20:01 by keguchi          ###   ########.fr       */
+/*   Updated: 2021/08/07 11:32:23 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,9 @@ typedef enum e_status
 	E_SYNTAX 			= 8,
 	E_NOCOMMAND			= 9,
 	E_AMBIGUOUS			= 10,
-	E_OPEN				= 11
+	E_OPEN				= 11,
+	E_GETCWD			= 12,
+	E_CHDIR				= 13
 	// E_SIGNAL			= 8,
 	// E_MALLOC			= 9,
 	// E_DUP_CLOSE			= 10,
@@ -121,7 +123,6 @@ char			*get_var(t_list *vars_list[3], char *var_name);
 t_status		set_var(t_list *vars_list[3], char *var, t_vars_type var_type);
 void			delete_var(
 					t_list *vars_list[3], char *var_name, t_vars_type var_type);
-char			*get_current_absolute_path(void);
 t_status		set_pwd_var(t_list *vars_list[3], t_bool init);
 t_status		set_oldpwd_var(t_list *vars_list[3], t_bool init);
 void			set_exit_status(
