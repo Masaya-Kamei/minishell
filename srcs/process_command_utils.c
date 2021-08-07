@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/08/01 13:09:34 by mkamei            #+#    #+#             */
-/*   Updated: 2021/08/02 18:15:25 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/08/07 11:41:34 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,6 +75,26 @@ t_status	split_cmd_str(char *cmd_str, char ***command)
 		i++;
 	}
 	return (SUCCESS);
+}
+
+t_status	restore_fd(t_list *save_fd)
+{
+	t_list		*list;
+	int			redirect_fd;
+	int			backup_fd;
+	t_status	status;
+
+	list = save_fd;
+	status = SUCCESS;
+	while (status == SUCCESS && list != NULL)
+	{
+		redirect_fd = ((int *)list->content)[0];
+		backup_fd = ((int *)list->content)[1];
+		if (dup2(backup_fd, redirect_fd) == -1 || close(backup_fd) == -1)
+			status = E_SYSTEM;
+		list = list->next;
+	}
+	return (status);
 }
 
 t_exit_status	get_exit_status_when_signal(int signum)

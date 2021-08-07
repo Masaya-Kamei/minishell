@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   process_command.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: keguchi <keguchi@student.42tokyo.jp>       +#+  +:+       +#+        */
+/*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/19 09:24:35 by keguchi           #+#    #+#             */
-/*   Updated: 2021/08/03 15:47:15 by keguchi          ###   ########.fr       */
+/*   Updated: 2021/08/07 11:42:21 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,9 +90,6 @@ static t_status	finish_command(
 	t_list *save_fd, char *err_word, t_status status, t_list *vars_list[3])
 {
 	t_exit_status	exit_status;
-	t_list			*list;
-	int				redirect_fd;
-	int				backup_fd;
 
 	if (status == E_OPEN || status == E_AMBIGUOUS)
 	{
@@ -101,16 +98,7 @@ static t_status	finish_command(
 	}
 	if (status == SUCCESS || status == E_OPEN || status == E_AMBIGUOUS)
 	{
-		list = save_fd;
-		status = SUCCESS;
-		while (status == SUCCESS && list != NULL)
-		{
-			redirect_fd = ((int *)list->content)[0];
-			backup_fd = ((int *)list->content)[1];
-			if (dup2(backup_fd, redirect_fd) == -1 || close(backup_fd) == -1)
-				status = E_SYSTEM;
-			list = list->next;
-		}
+		status = restore_fd(save_fd);
 	}
 	ft_lstclear(&save_fd, free);
 	return (status);
