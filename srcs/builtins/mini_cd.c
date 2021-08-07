@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/07 20:10:11 by mkamei            #+#    #+#             */
-/*   Updated: 2021/08/07 11:20:29 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/08/07 11:36:50 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -123,16 +123,6 @@ t_exit_status	mini_cd(char **argv, t_list *vars_list[3])
 	return (0);
 }
 
-	// target_dir = get_var(vars_list, var);
-	// if (target_dir == NULL)
-	// 	return (get_exit_status_with_errout(err_word, status, P_CD));
-	// if (chdir(target_dir) == -1)
-	// 	return (get_exit_status_with_errout(err_word, status, P_CD));
-	// if (set_oldpwd_var(vars_list, 0) == E_SYSTEM
-	// 	|| set_pwd_var(vars_list, 0) == E_SYSTEM)
-	// 	return (get_exit_status_with_errout(NULL, E_SYSTEM, P_CD));
-	// if (write_flag == 1)
-	// 	ft_putendl_fd(get_var(vars_list, "PWD"), 1);
 // gcc -Wall -Werror -Wextra mini_cd.c mini_unset.c mini_export.c ../var_env.c
 //	../var_ope.c ../var_set_any.c ../var_utils.c ../free.c ../error.c
 //	-I ../../include -I ../../libft/ ../../libft/libft.a
