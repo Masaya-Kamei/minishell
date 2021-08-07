@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   process_command.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
+/*   By: keguchi <keguchi@student.42tokyo.jp>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/19 09:24:35 by keguchi           #+#    #+#             */
-/*   Updated: 2021/08/01 19:19:50 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/08/03 15:47:15 by keguchi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,6 +39,8 @@ static void	exec_external_command(char **command, t_list *vars_list[3])
 	char		*cmd_path;
 	char		**envp;
 
+	if (command[0] == NULL)
+		exit(0);
 	cmd_path = get_command_path(command[0]);
 	if (cmd_path == NULL)
 		exit(get_exit_status_with_errout(NULL, E_SYSTEM, P_SHELL));
@@ -61,9 +63,7 @@ static t_status	exec_command(
 	t_exit_status			exit_status;
 	const t_builtin_func	builtin_func = check_builtin_command(command[0]);
 
-	if (command[0] == NULL)
-		exit_status = 0;
-	else if (is_pipe == 0 && builtin_func != NULL)
+	if (is_pipe == 0 && builtin_func != NULL)
 		exit_status = builtin_func(command, vars_list);
 	else
 	{
@@ -75,8 +75,10 @@ static t_status	exec_command(
 		else if (pid == 0)
 			exec_external_command(command, vars_list);
 		wait(&exit_status);
-		if ((WIFEXITED(exit_status)))
+		if (WIFEXITED(exit_status))
 			exit_status = WEXITSTATUS(exit_status);
+		else if (WIFSIGNALED(exit_status))
+			exit_status = get_exit_status_when_signal(WTERMSIG(exit_status));
 		else
 			exit_status = get_exit_status_with_errout(NULL, E_SYSTEM, P_SHELL);
 	}
@@ -85,25 +87,32 @@ static t_status	exec_command(
 }
 
 static t_status	finish_command(
-	char *cmd_str, char **command, int **save_fd, t_status status)
+	t_list *save_fd, char *err_word, t_status status, t_list *vars_list[3])
 {
-	int	i;
+	t_exit_status	exit_status;
+	t_list			*list;
+	int				redirect_fd;
+	int				backup_fd;
 
+	if (status == E_OPEN || status == E_AMBIGUOUS)
+	{
+		exit_status = get_exit_status_with_errout(err_word, status, P_SHELL);
+		set_exit_status(vars_list[SPECIAL], exit_status);
+	}
 	if (status == SUCCESS || status == E_OPEN || status == E_AMBIGUOUS)
 	{
-		i = 0;
+		list = save_fd;
 		status = SUCCESS;
-		while (status == SUCCESS && save_fd[i] != NULL)
+		while (status == SUCCESS && list != NULL)
 		{
-			if (dup2(save_fd[i][1], save_fd[i][0]) == -1
-				|| close(save_fd[i][1]) == -1)
+			redirect_fd = ((int *)list->content)[0];
+			backup_fd = ((int *)list->content)[1];
+			if (dup2(backup_fd, redirect_fd) == -1 || close(backup_fd) == -1)
 				status = E_SYSTEM;
-			i++;
+			list = list->next;
 		}
 	}
-	free(cmd_str);
-	free_double_pointer((void **)command);
-	free_double_pointer((void **)save_fd);
+	ft_lstclear(&save_fd, free);
 	return (status);
 }
 
@@ -111,28 +120,28 @@ t_status	process_command(
 	t_token *tokens, int start, int end, t_list *vars_list[3])
 {
 	t_status		status;
-	int				**save_fd;
+	t_list			*save_fd;
 	char			*cmd_str;
 	char			**command;
 	const t_bool	is_pipe = !(isatty(0) == 1 && isatty(1) == 1);
 
+	save_fd = NULL;
 	cmd_str = NULL;
-	status = malloc_to_save_fd(tokens, start--, end, &save_fd);
-	while (status == SUCCESS && ++start <= end)
+	command = NULL;
+	status = SUCCESS;
+	while (status == SUCCESS && start <= end)
 	{
 		if (tokens[start].type == WORD)
 			status = strjoin_to_cmd_str(tokens, start, &cmd_str, vars_list);
-		// else
-		// 	status = process_redirect(tokens, start++, save_fd);
+		else
+			status = process_redirect(tokens, start++, &save_fd, vars_list);
+		start++;
 	}
-	if (status == E_OPEN || status == E_AMBIGUOUS)
-		set_exit_status_with_errout(tokens[start].str, status, vars_list);
-	if (status != SUCCESS)
-		return (finish_command(cmd_str, NULL, save_fd, status));
-	command = split_cmd_str(cmd_str);
-	if (command == NULL)
-		return (finish_command(cmd_str, command, save_fd, E_SYSTEM));
-	if (exec_command(command, is_pipe, vars_list) == E_SYSTEM)
-		return (finish_command(cmd_str, command, save_fd, E_SYSTEM));
-	return (finish_command(cmd_str, command, save_fd, SUCCESS));
+	if (status == SUCCESS)
+		status = split_cmd_str(cmd_str, &command);
+	if (status == SUCCESS)
+		status = exec_command(command, is_pipe, vars_list);
+	free(cmd_str);
+	free_double_pointer((void **)command);
+	return (finish_command(save_fd, tokens[start].str, status, vars_list));
 }

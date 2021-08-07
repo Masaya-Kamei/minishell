@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/09 10:48:30 by mkamei            #+#    #+#             */
-/*   Updated: 2021/08/07 10:42:54 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/08/07 11:35:33 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -104,13 +104,4 @@ t_exit_status	get_exit_status_with_errout(
 		exit_status = get_value_from_status_table(
 				status, status_table[err_place]);
 	return (exit_status);
-}
-
-void	set_exit_status_with_errout(
-	char *word, t_status status, t_list *vars_list[3])
-{
-	t_exit_status	exit_status;
-
-	exit_status = get_exit_status_with_errout(word, status, P_SHELL);
-	set_exit_status(vars_list[SPECIAL], exit_status);
 }

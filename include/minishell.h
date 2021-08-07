@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/28 09:39:27 by mkamei            #+#    #+#             */
-/*   Updated: 2021/08/07 11:32:23 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/08/07 11:35:59 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,7 +101,6 @@ typedef t_exit_status	(*t_builtin_func)(char **, t_list **);
 
 int						g_received_signal;
 
-int				redisplay_prompt(void);
 t_status		lex_line(char *line, t_token **tokens, int *token_num);
 t_status		expand_word_token(char **word, t_list *vars_list[3]);
 t_status		start_process(
@@ -130,8 +129,6 @@ void			set_exit_status(
 t_status		countup_shlvl_env(t_list **env_list);
 t_exit_status	get_exit_status_with_errout(
 					char *word, t_status status, t_err_place err_place);
-void			set_exit_status_with_errout(
-					char *word, t_status status, t_list *vars_list[3]);
 void			free_double_pointer(void **p);
 void			free_tokens(t_token *tokens);
 t_status		free_and_return(void *p, t_status status);
@@ -145,12 +142,13 @@ t_status		debug_process_command(
 					t_token *tokens, int start, int end, t_list *vars_list[3]);
 t_status		process_command(
 					t_token *tokens, int start, int end, t_list *vars_list[3]);
-t_status		process_redirect(t_token *tokens, int start, int **save_fd);
+t_status		process_redirect(t_token *tokens, int i, t_list **save_fd, t_list *vars_list[3]);
 char			*get_command_path(char *cmd);
+char			*strjoin_with_null_support(char *s1, char *s2);
 t_status		strjoin_to_cmd_str(t_token *tokens,
 					int word_index, char **cmd_str, t_list *vars_list[3]);
-char			**split_cmd_str(char *cmd_str);
-t_status		malloc_to_save_fd(
-					t_token *tokens, int start, int end, int ***save_fd);
+t_status		split_cmd_str(char *cmd_str, char ***command);
+t_exit_status	get_exit_status_when_signal(int signum);
+int				redisplay_prompt(void);
 
 #endif

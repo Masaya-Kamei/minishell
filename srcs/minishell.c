@@ -6,7 +6,7 @@
 /*   By: keguchi <keguchi@student.42tokyo.jp>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/28 15:30:07 by mkamei            #+#    #+#             */
-/*   Updated: 2021/08/02 16:07:26 by keguchi          ###   ########.fr       */
+/*   Updated: 2021/08/03 08:16:18 by keguchi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,27 +19,28 @@ static void	handler(int signum)
 
 int	redisplay_prompt(void)
 {
-	if (ft_strncmp(rl_prompt, "> ", 3) == 0
-		&& g_received_signal == SIGINT)
-	{
-		printf("\033[%dC\033[K", 2 + rl_end);
-		rl_replace_line("\3", 1);
-		rl_done = 1;
-	}
-	else if (ft_strncmp(rl_prompt, "> ", 3) == 0
-		&& g_received_signal == SIGQUIT)
-		printf("\033[%dC\033[K", 2 + rl_end);
-	else if (g_received_signal == SIGINT)
-	{
-		printf("\033[%dC\033[K\n", 11 + rl_end);
-		rl_replace_line("", 1);
-		rl_on_new_line();
-	}
-	else if (g_received_signal == SIGQUIT)
-		printf("\033[%dC\033[K", 11 + rl_end);
-	if (g_received_signal)
+	if (g_received_signal == SIGINT)
 	{
 		g_received_signal = 0;
+		printf("\033[%dC\033[K", (int)ft_strlen(rl_prompt) + rl_end);
+		if (ft_strncmp(rl_prompt, "> ", 3) == 0)
+		{
+			rl_redisplay();
+			rl_replace_line("\3", 1);
+			rl_done = 1;
+		}
+		else
+		{
+			printf("\n");
+			rl_replace_line("", 1);
+			rl_on_new_line();
+			rl_redisplay();
+		}
+	}
+	else if (g_received_signal == SIGQUIT)
+	{
+		g_received_signal = 0;
+		printf("\033[%dC\033[K", (int)ft_strlen(rl_prompt) + rl_end);
 		rl_redisplay();
 	}
 	return (0);
