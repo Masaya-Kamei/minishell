@@ -6,99 +6,108 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/07 20:10:11 by mkamei            #+#    #+#             */
-/*   Updated: 2021/08/07 11:36:50 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/08/07 21:00:36 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-static t_status	set_var_and_write_dir(t_list *vars_list[3], t_bool write_flag)
+static char	*create_full_path(char *path, char *last_file)
 {
-	t_status	status;
+	const int	path_len = ft_strlen(path);
+	char		*full_path;
+	char		*tmp;
 
-	status = set_oldpwd_var(vars_list, 0);
-	if (status == E_SYSTEM)
-		return (E_SYSTEM);
-	status = set_pwd_var(vars_list, 0);
-	if (status != SUCCESS)
-		return (status);
-	if (write_flag == 1)
-		ft_putendl_fd(get_var(vars_list, "PWD"), 1);
-	return (SUCCESS);
-}
-
-static t_status	change_dir(char *arg, char *var, t_list *vars_list[3])
-{
-	char		*target_dir;
-	t_bool		write_flag;
-
-	if (var != NULL)
-	{
-		target_dir = get_var(vars_list, var);
-		if (target_dir == NULL)
-			return (E_NOSET_VAR);
-	}
-	else
-		target_dir = arg;
-	if (chdir(target_dir) == -1)
-		return (E_CHDIR);
-	if (var != NULL && ft_strncmp(var, "OLDPWD", 7) == 0)
-		write_flag = 1;
-	else
-		write_flag = 0;
-	return (set_var_and_write_dir(vars_list, write_flag));
-}
-
-static t_status	create_full_path(char *cdpath, char *arg, char **target_dir)
-{
-	char	*tmp;
-
-	*target_dir = ft_strjoin(cdpath, "/");
-	if (*target_dir == NULL)
-		return (E_SYSTEM);
-	tmp = *target_dir;
-	*target_dir = ft_strjoin(tmp, arg);
+	if (path[path_len - 1] == '/')
+		return (ft_strjoin(path, last_file));
+	full_path = ft_strjoin(path, "/");
+	if (full_path == NULL)
+		return (NULL);
+	tmp = full_path;
+	full_path = ft_strjoin(tmp, last_file);
 	free(tmp);
-	if (*target_dir == NULL)
-		return (E_SYSTEM);
-	return (SUCCESS);
+	if (full_path == NULL)
+		return (NULL);
+	return (full_path);
 }
 
-static t_status	change_dir_from_cdpath(
-	char *arg, const char *cdpath_var, t_list *vars_list[3])
+t_status	search_match_path_from_path_var(char *last_file
+	, char *path_value, t_path_check_func check_func, char **matched_path)
 {
-	char	**cdpaths;
-	char	*target_dir;
-	t_bool	changed_flag;
+	char	**paths;
+	char	*full_path;
 	int		i;
 
-	cdpaths = ft_split(cdpath_var, ':');
-	if (cdpaths == NULL)
+	paths = ft_split(path_value, ':');
+	if (paths == NULL)
 		return (E_SYSTEM);
 	i = -1;
-	changed_flag = 0;
-	while (changed_flag == 0 && cdpaths[++i] != NULL)
+	*matched_path = NULL;
+	while (*matched_path == NULL && paths[++i] != NULL)
 	{
-		if (create_full_path(cdpaths[i], arg, &target_dir) == E_SYSTEM)
+		full_path = create_full_path(paths[i], last_file);
+		if (full_path == NULL)
 		{
-			free_double_pointer((void **)cdpaths);
+			free_double_pointer((void **)paths);
 			return (E_SYSTEM);
 		}
-		if (chdir(target_dir) == 0)
-			changed_flag = 1;
-		free(target_dir);
+		if (check_func(full_path) == 1)
+			*matched_path = full_path;
+		else
+			free(full_path);
 	}
-	free_double_pointer((void **)cdpaths);
-	if (changed_flag == 1)
-		return (set_var_and_write_dir(vars_list, 1));
-	return (change_dir(arg, NULL, vars_list));
+	free_double_pointer((void **)paths);
+	return (SUCCESS);
+}
+
+static t_bool	check_directory_exist(char *path)
+{
+ 	struct stat	stat_buf;
+
+	if (stat(path, &stat_buf) == -1)
+		return (0);
+	if (S_ISDIR(stat_buf.st_mode))
+		return (1);
+	else
+		return (0);
+}
+
+static t_status	change_dir(
+	char **arg, char *var, char *matched_path, t_list *vars_list[3])
+{
+	char		*target_dir;
+	t_status	status;
+
+	if (var != NULL)
+		target_dir = get_var(vars_list, var);
+	else if (matched_path != NULL)
+	{
+		free(*arg);
+		*arg = matched_path;
+		target_dir = *arg;
+	}
+	else
+		target_dir = *arg;
+	if (target_dir == NULL)
+		return (get_exit_status_with_errout(var, E_NOSET_VAR, P_CD));
+	if (chdir(target_dir) == -1)
+		return (get_exit_status_with_errout(target_dir, E_CHDIR, P_CD));
+	if (set_oldpwd_var(vars_list, 0) == E_SYSTEM)
+		return (get_exit_status_with_errout(NULL, E_SYSTEM, P_CD));
+	status = set_pwd_var(vars_list, 0);
+	if (status != SUCCESS)
+		return (get_exit_status_with_errout(NULL, status, P_CD));
+	if ((var && ft_strncmp(var, "OLDPWD", 7) == 0) || matched_path != NULL)
+		ft_putendl_fd(get_var(vars_list, "PWD"), 1);
+	return (0);
 }
 
 t_exit_status	mini_cd(char **argv, t_list *vars_list[3])
 {
 	char		*var;
+	char		*cdpath_value;
+	char		*matched_path;
 	t_status	status;
-	const char	*cdpath_var = get_var(vars_list, "CDPATH");
 
 	if (argv[1] != NULL && argv[1][0] == '-' && argv[1][1] != '\0')
 		return (get_exit_status_with_errout(argv[1], E_INVALID_OP, P_CD));
@@ -107,20 +116,19 @@ t_exit_status	mini_cd(char **argv, t_list *vars_list[3])
 		var = "HOME";
 	else if (argv[1][0] == '-' && argv[1][1] == '\0')
 		var = "OLDPWD";
-	if (cdpath_var == NULL
-		|| ft_strncmp(argv[1], ".", 2) == 0 || ft_strncmp(argv[1], "..", 3) == 0
-		|| ft_strncmp(argv[1], "./", 2) == 0
-		|| ft_strncmp(argv[1], "../", 3) == 0)
-		status = change_dir(argv[1], var, vars_list);
-	else
-		status = change_dir_from_cdpath(argv[1], cdpath_var, vars_list);
-	if (status == E_NOSET_VAR)
-		return (get_exit_status_with_errout(var, E_NOSET_VAR, P_CD));
-	else if (status == E_CHDIR)
-		return (get_exit_status_with_errout(argv[1], E_CHDIR, P_CD));
-	else if (status != SUCCESS)
-		return (get_exit_status_with_errout(NULL, status, P_CD));
-	return (0);
+	matched_path = NULL;
+	cdpath_value = get_var(vars_list, "CDPATH");
+	if (cdpath_value != NULL && var == NULL
+		&& ft_strncmp(argv[1], ".", 2) != 0 && ft_strncmp(argv[1], "..", 3) != 0
+		&& ft_strncmp(argv[1], "./", 2) != 0
+		&& ft_strncmp(argv[1], "../", 3) != 0)
+	{
+		status = search_match_path_from_path_var(
+				argv[1], cdpath_value, check_directory_exist, &matched_path);
+		if (status == E_SYSTEM)
+			return (get_exit_status_with_errout(NULL, E_SYSTEM, P_CD));
+	}
+	return (change_dir(&argv[1], var, matched_path, vars_list));
 }
 
 // gcc -Wall -Werror -Wextra mini_cd.c mini_unset.c mini_export.c ../var_env.c
