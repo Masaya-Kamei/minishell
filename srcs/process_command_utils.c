@@ -6,22 +6,11 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/08/01 13:09:34 by mkamei            #+#    #+#             */
-/*   Updated: 2021/08/07 11:41:34 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/08/07 21:10:47 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
-
-char	*strjoin_with_null_support(char *s1, char *s2)
-{
-	if (s1 == NULL && s2 == NULL)
-		return (ft_strdup(""));
-	else if (s1 == NULL)
-		return (ft_strdup(s2));
-	else if (s2 == NULL)
-		return (ft_strdup(s1));
-	return (ft_strjoin(s1, s2));
-}
 
 t_status	strjoin_to_cmd_str(
 	t_token *tokens, int word_index, char **cmd_str, t_list *vars_list[3])
@@ -77,24 +66,42 @@ t_status	split_cmd_str(char *cmd_str, char ***command)
 	return (SUCCESS);
 }
 
-t_status	restore_fd(t_list *save_fd)
+static t_bool	check_regular_file_exist(char *path)
 {
-	t_list		*list;
-	int			redirect_fd;
-	int			backup_fd;
-	t_status	status;
+ 	struct stat	stat_buf;
 
-	list = save_fd;
-	status = SUCCESS;
-	while (status == SUCCESS && list != NULL)
+	if (stat(path, &stat_buf) == -1)
+		return (0);
+	if (S_ISREG(stat_buf.st_mode))
+		return (1);
+	else
+		return (0);
+}
+
+t_status	search_command_path(
+	char *cmd_name, t_list *vars_list[3], char **cmd_path)
+{
+	char		*path_value;
+	t_status	status;
+	char		*matched_path;
+
+	path_value = get_var(vars_list, "PATH");
+	if (path_value == NULL || ft_strchr(cmd_name, '/') != NULL)
 	{
-		redirect_fd = ((int *)list->content)[0];
-		backup_fd = ((int *)list->content)[1];
-		if (dup2(backup_fd, redirect_fd) == -1 || close(backup_fd) == -1)
-			status = E_SYSTEM;
-		list = list->next;
+		*cmd_path = ft_strdup(cmd_name);
+		if (*cmd_path == NULL)
+			return (E_SYSTEM);
+		return (SUCCESS);
 	}
-	return (status);
+	matched_path = NULL;
+	status = search_match_path_from_path_var(cmd_name, path_value
+				, check_regular_file_exist, &matched_path);
+	if (status == E_SYSTEM)
+		return (E_SYSTEM);
+	else if (matched_path == NULL)
+		return (E_NOCOMMAND);
+	*cmd_path = matched_path;
+	return (SUCCESS);
 }
 
 t_exit_status	get_exit_status_when_signal(int signum)

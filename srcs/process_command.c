@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/19 09:24:35 by keguchi           #+#    #+#             */
-/*   Updated: 2021/08/07 11:42:21 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/08/07 19:43:16 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,24 +36,22 @@ static t_builtin_func	check_builtin_command(char *cmd_name)
 
 static void	exec_external_command(char **command, t_list *vars_list[3])
 {
+	t_status	status;
 	char		*cmd_path;
 	char		**envp;
 
 	if (command[0] == NULL)
 		exit(0);
-	cmd_path = get_command_path(command[0]);
-	if (cmd_path == NULL)
+	status = search_command_path(command[0], vars_list, &cmd_path);
+	if (status == E_SYSTEM)
 		exit(get_exit_status_with_errout(NULL, E_SYSTEM, P_SHELL));
+	else if (status == E_NOCOMMAND)
+		exit(get_exit_status_with_errout(command[0], E_NOCOMMAND, P_SHELL));
 	envp = create_envp(vars_list[ENV]);
 	if (envp == NULL)
 		exit(get_exit_status_with_errout(NULL, E_SYSTEM, P_SHELL));
-	if (ft_strncmp(cmd_path, "", 1) == 0)
-		exit(get_exit_status_with_errout(command[0], E_NOCOMMAND, P_SHELL));
 	execve(cmd_path, command, envp);
-	free(cmd_path);
-	free_double_pointer((void **)envp);
-	free_double_pointer((void **)command);
-	exit(get_exit_status_with_errout(command[0], E_SYSTEM, P_SHELL));
+	exit(get_exit_status_with_errout(cmd_path, E_SYSTEM, P_SHELL));
 }
 
 static t_status	exec_command(
@@ -89,6 +87,9 @@ static t_status	exec_command(
 static t_status	finish_command(
 	t_list *save_fd, char *err_word, t_status status, t_list *vars_list[3])
 {
+	t_list			*list;
+	int				redirect_fd;
+	int				backup_fd;
 	t_exit_status	exit_status;
 
 	if (status == E_OPEN || status == E_AMBIGUOUS)
@@ -98,7 +99,16 @@ static t_status	finish_command(
 	}
 	if (status == SUCCESS || status == E_OPEN || status == E_AMBIGUOUS)
 	{
-		status = restore_fd(save_fd);
+		list = save_fd;
+		status = SUCCESS;
+		while (status == SUCCESS && list != NULL)
+		{
+			redirect_fd = ((int *)list->content)[0];
+			backup_fd = ((int *)list->content)[1];
+			if (dup2(backup_fd, redirect_fd) == -1 || close(backup_fd) == -1)
+				status = E_SYSTEM;
+			list = list->next;
+		}
 	}
 	ft_lstclear(&save_fd, free);
 	return (status);
