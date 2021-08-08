@@ -6,26 +6,29 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/05 14:03:48 by mkamei            #+#    #+#             */
-/*   Updated: 2021/08/08 13:18:37 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/08/08 13:43:46 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-t_status	set_pwd_var(t_list *vars_list[3], t_bool init)
+t_status	set_pwd_var(t_list *vars_list[3], t_place place)
 {
 	char		*var;
 	char		*value;
-	int			var_type;
+	t_vars_type	var_type;
 	t_status	status;
 
-	if (init == 1)
+	if (place == P_SHELL)
 		var_type = ENV;
 	else
 		var_type = SHELL;
 	value = getcwd(NULL, 0);
 	if (value == NULL)
-		return (E_GETCWD);
+	{
+		write_err(NULL, E_GETCWD, 1, place);
+		return (SUCCESS);
+	}
 	var = ft_strjoin("PWD=", value);
 	free(value);
 	if (var == NULL)
@@ -37,14 +40,14 @@ t_status	set_pwd_var(t_list *vars_list[3], t_bool init)
 	return (SUCCESS);
 }
 
-t_status	set_oldpwd_var(t_list *vars_list[3], t_bool init)
+t_status	set_oldpwd_var(t_list *vars_list[3], t_place place)
 {
 	t_list		*target_list;
 	char		*var;
 	char		*value;
 	t_status	status;
 
-	if (init == 1)
+	if (place == P_SHELL)
 	{
 		target_list = get_target_list(vars_list[ENV], "OLDPWD", 6);
 		if (target_list == NULL)
@@ -88,7 +91,7 @@ void	set_exit_status(t_list *special_list, t_exit_status exit_status)
 	}
 }
 
-static t_status	countup_shlvl_env(t_list **env_list)
+t_status	countup_shlvl_env(t_list **env_list)
 {
 	char	*value;
 	t_list	*target_list;
@@ -106,29 +109,6 @@ static t_status	countup_shlvl_env(t_list **env_list)
 	target_list->content = ft_strjoin("SHLVL=", value);
 	free(value);
 	if (target_list->content == NULL)
-		return (E_SYSTEM);
-	return (SUCCESS);
-}
-
-t_status	init_env(t_list *vars_list[3])
-{
-	const t_bool	init = 1;
-	t_status		status;
-	t_exit_status	exit_status;
-
-	status = set_pwd_var(vars_list, init);
-	if (status == E_GETCWD)
-	{
-		exit_status = get_exit_status_with_errout(NULL, E_GETCWD, P_SHELL);
-		set_exit_status(vars_list[SPECIAL], exit_status);
-	}
-	else if (status == E_SYSTEM)
-		return (E_SYSTEM);
-	status = set_oldpwd_var(vars_list, init);
-	if (status == E_SYSTEM)
-		return (E_SYSTEM);
-	status = countup_shlvl_env(&vars_list[ENV]);
-	if (status == E_SYSTEM)
 		return (E_SYSTEM);
 	return (SUCCESS);
 }

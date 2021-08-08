@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/28 09:39:27 by mkamei            #+#    #+#             */
-/*   Updated: 2021/08/08 13:15:49 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/08/08 13:42:32 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,7 +53,7 @@ typedef enum e_status
 	E_CHDIR				= 13
 }			t_status;
 
-typedef enum e_err_place
+typedef enum e_place
 {
 	P_SHELL		= 0,
 	P_ECHO		= 1,
@@ -63,7 +63,7 @@ typedef enum e_err_place
 	P_UNSET		= 5,
 	P_ENV		= 6,
 	P_EXIT		= 7
-}			t_err_place;
+}			t_place;
 
 typedef enum e_vars_type{
 	ENV			= 0,
@@ -118,11 +118,11 @@ void			delete_var(
 					t_list *vars_list[3], char *var_name, t_vars_type var_type);
 t_list			*create_env_list(char **envp);
 char			**create_envp(t_list *env_list);
-t_status		set_pwd_var(t_list *vars_list[3], t_bool init);
-t_status		set_oldpwd_var(t_list *vars_list[3], t_bool init);
+t_status		set_pwd_var(t_list *vars_list[3], t_place place);
+t_status		set_oldpwd_var(t_list *vars_list[3], t_place place);
 void			set_exit_status(
 					t_list *special_list, t_exit_status exit_status);
-t_status		init_env(t_list *vars_list[3]);
+t_status		countup_shlvl_env(t_list **env_list);
 t_list			*lstnew_with_strdup(char *str);
 t_list			*get_target_list(t_list *any_list, char *var, int var_name_len);
 t_status		add_new_var(t_list **any_list, char *var);
@@ -140,8 +140,10 @@ t_status		search_match_path_from_path_var(
 					char *last_file, char *path_value,
 					t_path_check_func check_func, char **matched_path);
 t_bool			check_valid_identifier(char *var, int var_name_len);
+void			write_err(char *word,
+					t_status status, t_bool is_errno, t_place place);
 t_exit_status	get_exit_status_with_errout(
-					char *word, t_status status, t_err_place err_place);
+					char *word, t_status status, t_place place);
 void			free_double_pointer(void **p);
 void			free_tokens(t_token *tokens);
 t_status		free_and_return(void *p, t_status status);

@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/07 20:10:11 by mkamei            #+#    #+#             */
-/*   Updated: 2021/08/08 13:16:54 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/08/08 13:47:34 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,11 +75,14 @@ static t_bool	check_directory_exist(char *path)
 static t_status	change_dir(
 	char **arg, char *var, char *matched_path, t_list *vars_list[3])
 {
-	char		*target_dir;
-	t_status	status;
+	char	*target_dir;
 
 	if (var != NULL)
+	{
 		target_dir = get_var(vars_list, var);
+		if (target_dir == NULL)
+			return (get_exit_status_with_errout(var, E_NOSET_VAR, P_CD));
+	}
 	else if (matched_path != NULL)
 	{
 		free(*arg);
@@ -88,15 +91,11 @@ static t_status	change_dir(
 	}
 	else
 		target_dir = *arg;
-	if (target_dir == NULL)
-		return (get_exit_status_with_errout(var, E_NOSET_VAR, P_CD));
 	if (chdir(target_dir) == -1)
 		return (get_exit_status_with_errout(target_dir, E_CHDIR, P_CD));
-	if (set_oldpwd_var(vars_list, 0) == E_SYSTEM)
+	if (set_oldpwd_var(vars_list, P_CD) == E_SYSTEM
+		|| set_pwd_var(vars_list, P_CD) == E_SYSTEM)
 		return (get_exit_status_with_errout(NULL, E_SYSTEM, P_CD));
-	status = set_pwd_var(vars_list, 0);
-	if (status != SUCCESS)
-		return (get_exit_status_with_errout(NULL, status, P_CD));
 	if ((var && ft_strncmp(var, "OLDPWD", 7) == 0) || matched_path != NULL)
 		ft_putendl_fd(get_var(vars_list, "PWD"), 1);
 	return (0);
