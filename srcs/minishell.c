@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/28 15:30:07 by mkamei            #+#    #+#             */
-/*   Updated: 2021/08/08 13:19:28 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/08/08 13:45:06 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,20 +81,6 @@ static void	loop_minishell(t_list *vars_list[3])
 	clear_vars_list(vars_list);
 	exit(get_exit_status_with_errout(NULL, status, P_SHELL));
 }
-		// print_tokens(tokens, vars_list);
-		// test_vars_list(vars_list);
-		// g_received_signal = 0;
-		// execve_sleep();
-		// if (g_received_signal == SIGINT)
-		// {
-		// 	g_received_signal = 0;
-		// 	printf("\n");
-		// }
-		// else if (g_received_signal == SIGQUIT)
-		// {
-		// 	g_received_signal = 0;
-		// 	printf("Quit: 3\n");
-		// }
 
 int	main(int argc, char **argv, char **envp)
 {

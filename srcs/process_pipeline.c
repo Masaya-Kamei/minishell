@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/17 15:32:00 by mkamei            #+#    #+#             */
-/*   Updated: 2021/08/02 18:20:14 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/08/08 13:26:48 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,12 +36,10 @@ static t_status	process_pipeline(
 				|| close(pipe_fd[0]) == -1 || close(backup_write_fd) == -1)
 				return (E_SYSTEM);
 			return (process_command(tokens, i + 1, end, vars_list));
-			//return (debug_process_command(tokens, i + 1, end, vars_list));
 		}
 		i--;
 	}
 	return (process_command(tokens, start, end, vars_list));
-	//return (debug_process_command(tokens, start, end, vars_list));
 }
 
 static t_bool	is_redirect_token_type(t_token_type type)
