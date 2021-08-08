@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/07 20:10:11 by mkamei            #+#    #+#             */
-/*   Updated: 2021/08/07 21:00:36 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/08/08 13:16:54 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,7 +62,7 @@ t_status	search_match_path_from_path_var(char *last_file
 
 static t_bool	check_directory_exist(char *path)
 {
- 	struct stat	stat_buf;
+	struct stat	stat_buf;
 
 	if (stat(path, &stat_buf) == -1)
 		return (0);

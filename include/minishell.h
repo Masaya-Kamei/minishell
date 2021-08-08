@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/28 09:39:27 by mkamei            #+#    #+#             */
-/*   Updated: 2021/08/07 19:41:01 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/08/08 13:15:49 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@
 # include <errno.h>
 # include <fcntl.h>
 # include <dirent.h>
-#include <sys/stat.h>
+# include <sys/stat.h>
 # include "libft.h"
 # include <readline/readline.h>
 # include <readline/history.h>
@@ -122,7 +122,7 @@ t_status		set_pwd_var(t_list *vars_list[3], t_bool init);
 t_status		set_oldpwd_var(t_list *vars_list[3], t_bool init);
 void			set_exit_status(
 					t_list *special_list, t_exit_status exit_status);
-t_status		countup_shlvl_env(t_list **env_list);
+t_status		init_env(t_list *vars_list[3]);
 t_list			*lstnew_with_strdup(char *str);
 t_list			*get_target_list(t_list *any_list, char *var, int var_name_len);
 t_status		add_new_var(t_list **any_list, char *var);
@@ -137,8 +137,8 @@ t_status		search_command_path(
 					char *cmd_name, t_list *vars_list[3], char **cmd_path);
 t_exit_status	get_exit_status_when_signal(int signum);
 t_status		search_match_path_from_path_var(
-					char *last_file, char *path_value
-					, t_path_check_func check_func, char **matched_path);
+					char *last_file, char *path_value,
+					t_path_check_func check_func, char **matched_path);
 t_bool			check_valid_identifier(char *var, int var_name_len);
 t_exit_status	get_exit_status_with_errout(
 					char *word, t_status status, t_err_place err_place);

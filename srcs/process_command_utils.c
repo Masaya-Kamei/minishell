@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/08/01 13:09:34 by mkamei            #+#    #+#             */
-/*   Updated: 2021/08/07 21:10:47 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/08/08 13:18:17 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,7 +68,7 @@ t_status	split_cmd_str(char *cmd_str, char ***command)
 
 static t_bool	check_regular_file_exist(char *path)
 {
- 	struct stat	stat_buf;
+	struct stat	stat_buf;
 
 	if (stat(path, &stat_buf) == -1)
 		return (0);
@@ -94,8 +94,8 @@ t_status	search_command_path(
 		return (SUCCESS);
 	}
 	matched_path = NULL;
-	status = search_match_path_from_path_var(cmd_name, path_value
-				, check_regular_file_exist, &matched_path);
+	status = search_match_path_from_path_var(cmd_name,
+			path_value, check_regular_file_exist, &matched_path);
 	if (status == E_SYSTEM)
 		return (E_SYSTEM);
 	else if (matched_path == NULL)
