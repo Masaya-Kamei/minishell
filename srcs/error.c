@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/09 10:48:30 by mkamei            #+#    #+#             */
-/*   Updated: 2021/08/07 11:35:33 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/08/08 13:08:54 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,8 +40,8 @@ static void	write_word(char *word, t_status status)
 static void	write_err(
 	char *word, t_status status, t_bool is_errno, t_err_place err_place)
 {
-	const char	commands[7][9] = {
-		"echo: ", "cd: ", "pwd: ", "export: ", "unset: ", "env: ", "exit: "};
+	const char	commands[8][13] = {"shell-init: "
+		, "echo: ", "cd: ", "pwd: ", "export: ", "unset: ", "env: ", "exit: "};
 	const char	usages[7][42] = {"", "cd: usage: cd [dir]\n"
 		, "pwd: usage: pwd\n", "export: usage: export [name[=value] ...]\n"
 		, "unset: usage: unset [name ...]\n", "env: usage: env\n", ""};
@@ -53,8 +53,8 @@ static void	write_err(
 
 	if (status != E_GETCWD)
 		write(2, "minishell: ", 11);
-	if (err_place != P_SHELL)
-		write(2, commands[err_place - 1], ft_strlen(commands[err_place - 1]));
+	if (status == E_GETCWD || err_place != P_SHELL)
+		write(2, commands[err_place], ft_strlen(commands[err_place]));
 	write_word(word, status);
 	if (is_errno == 0)
 		write(2, err_msgs[status], ft_strlen(err_msgs[status]));
@@ -83,13 +83,14 @@ t_exit_status	get_exit_status_with_errout(
 	char *word, t_status status, t_err_place err_place)
 {
 	t_exit_status	exit_status;
-	const t_bool	is_errno = (status == E_SYSTEM || status == E_OPEN
-		|| status == E_GETCWD || status == E_CHDIR);
-	const int		status_table[8][3][2] = {
-		{{E_AMBIGUOUS, 1}, {E_NOCOMMAND, 127}, {E_SYNTAX, 258}}
+	const t_bool	is_errno = (
+		status == E_SYSTEM || status == E_OPEN || status == E_GETCWD
+		|| status == E_CHDIR);
+	const int		status_table[8][4][2] = {
+		{{E_GETCWD, 0}, {E_AMBIGUOUS, 1}, {E_NOCOMMAND, 127}, {E_SYNTAX, 258}}
 		, {}
 		, {{E_GETCWD, 0}, {E_INVALID_OP, 1}, {E_NOSET_VAR, 1}}
-		, {{E_GETCWD, 0}, {E_INVALID_OP, 1}}
+		, {{E_GETCWD, 1}, {E_INVALID_OP, 1}}
 		, {{E_INVALID_ID, 1}, {E_INVALID_OP, 2}}
 		, {{E_INVALID_ID, 1}, {E_INVALID_OP, 2}}
 		, {{E_INVALID_OP_ARG, 1}}

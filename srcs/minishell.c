@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: keguchi <keguchi@student.42tokyo.jp>       +#+  +:+       +#+        */
+/*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/28 15:30:07 by mkamei            #+#    #+#             */
-/*   Updated: 2021/08/03 08:16:18 by keguchi          ###   ########.fr       */
+/*   Updated: 2021/08/08 13:19:28 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,9 +102,8 @@ int	main(int argc, char **argv, char **envp)
 
 	(void)argc;
 	(void)**argv;
-	if (signal(SIGINT, handler) == SIG_ERR)
-		exit(get_exit_status_with_errout(NULL, E_SYSTEM, P_SHELL));
-	if (signal(SIGQUIT, handler) == SIG_ERR)
+	if (signal(SIGINT, handler) == SIG_ERR
+		|| signal(SIGQUIT, handler) == SIG_ERR)
 		exit(get_exit_status_with_errout(NULL, E_SYSTEM, P_SHELL));
 	rl_signal_event_hook = &redisplay_prompt;
 	vars_list[SHELL] = NULL;
@@ -114,9 +113,7 @@ int	main(int argc, char **argv, char **envp)
 	((char *)vars_list[SPECIAL]->content)[3] = '\0';
 	vars_list[ENV] = create_env_list(envp);
 	if (vars_list[ENV] == NULL
-		|| set_oldpwd_var(vars_list, 1) == E_SYSTEM
-		|| set_pwd_var(vars_list, 1) == E_SYSTEM
-		|| countup_shlvl_env(&vars_list[ENV]) == E_SYSTEM)
+		|| init_env(vars_list) == E_SYSTEM)
 	{
 		clear_vars_list(vars_list);
 		exit(get_exit_status_with_errout(NULL, E_SYSTEM, P_SHELL));
