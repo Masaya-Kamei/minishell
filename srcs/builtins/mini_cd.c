@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/07 20:10:11 by mkamei            #+#    #+#             */
-/*   Updated: 2021/08/08 13:47:34 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/08/08 14:27:20 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,7 @@ static char	*create_full_path(char *path, char *last_file)
 }
 
 t_status	search_match_path_from_path_var(char *last_file
-	, char *path_value, t_path_check_func check_func, char **matched_path)
+	, char *path_value, t_file_check_func check_func, char **matched_path)
 {
 	char	**paths;
 	char	*full_path;

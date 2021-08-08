@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/28 09:39:27 by mkamei            #+#    #+#             */
-/*   Updated: 2021/08/08 13:42:32 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/08/08 14:27:39 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,7 +88,7 @@ typedef struct s_token
 
 typedef int				t_exit_status;
 typedef t_exit_status	(*t_builtin_func)(char **, t_list **);
-typedef t_bool			(*t_path_check_func)(char *);
+typedef t_bool			(*t_file_check_func)(char *);
 
 int						g_received_signal;
 
@@ -138,7 +138,7 @@ t_status		search_command_path(
 t_exit_status	get_exit_status_when_signal(int signum);
 t_status		search_match_path_from_path_var(
 					char *last_file, char *path_value,
-					t_path_check_func check_func, char **matched_path);
+					t_file_check_func check_func, char **matched_path);
 t_bool			check_valid_identifier(char *var, int var_name_len);
 void			write_err(char *word,
 					t_status status, t_bool is_errno, t_place place);
