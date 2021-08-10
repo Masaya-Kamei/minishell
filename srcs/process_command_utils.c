@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/08/01 13:09:34 by mkamei            #+#    #+#             */
-/*   Updated: 2021/08/08 13:18:17 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/08/10 15:27:19 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -104,22 +104,27 @@ t_status	search_command_path(
 	return (SUCCESS);
 }
 
-t_exit_status	get_exit_status_when_signal(int signum)
+t_status	add_pid_list(t_list **pid_list, pid_t pid)
 {
-	t_exit_status	exit_status;
+	int		digit_num;
+	int		nbr;
+	pid_t	*pid_copy;
+	t_list	*new_list;
 
-	if (signum == SIGINT)
+	nbr = pid;
+	digit_num = 0;
+	while (++digit_num && nbr / 10 != 0)
+		nbr = nbr / 10;
+	pid_copy = (pid_t *)malloc(sizeof(pid_t) * digit_num);
+	if (pid_copy == NULL)
+		return (E_SYSTEM);
+	ft_memcpy(pid_copy, &pid, sizeof(pid_t) * digit_num);
+	new_list = ft_lstnew(pid_copy);
+	if (new_list == NULL)
 	{
-		printf("\n");
-		exit_status = 130;
+		free(pid_copy);
+		return (E_SYSTEM);
 	}
-	else if (signum == SIGQUIT)
-	{
-		printf("Quit: 3\n");
-		exit_status = 131;
-	}
-	else
-		exit_status = 1;
-	g_received_signal = 0;
-	return (exit_status);
+	ft_lstadd_back(pid_list, new_list);
+	return (SUCCESS);
 }

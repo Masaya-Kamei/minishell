@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/19 09:24:35 by keguchi           #+#    #+#             */
-/*   Updated: 2021/08/07 19:43:16 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/08/10 15:29:52 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,49 +54,44 @@ static void	exec_external_command(char **command, t_list *vars_list[3])
 	exit(get_exit_status_with_errout(cmd_path, E_SYSTEM, P_SHELL));
 }
 
-static t_status	exec_command(
-	char **command, t_bool is_pipe, t_list *vars_list[3])
+static t_status	exec_command(t_data *d, char **command, t_bool is_pipe)
 {
 	pid_t					pid;
+	t_status				status;
 	t_exit_status			exit_status;
 	const t_builtin_func	builtin_func = check_builtin_command(command[0]);
 
 	if (is_pipe == 0 && builtin_func != NULL)
-		exit_status = builtin_func(command, vars_list);
-	else
 	{
-		pid = fork();
-		if (pid < 0)
-			return (E_SYSTEM);
-		else if (pid == 0 && builtin_func != NULL)
-			exit(builtin_func(command, vars_list));
-		else if (pid == 0)
-			exec_external_command(command, vars_list);
-		wait(&exit_status);
-		if (WIFEXITED(exit_status))
-			exit_status = WEXITSTATUS(exit_status);
-		else if (WIFSIGNALED(exit_status))
-			exit_status = get_exit_status_when_signal(WTERMSIG(exit_status));
-		else
-			exit_status = get_exit_status_with_errout(NULL, E_SYSTEM, P_SHELL);
+		exit_status = builtin_func(d, command);
+		set_exit_status(d->vars_list[SPECIAL], exit_status);
+		return (SUCCESS);
 	}
-	set_exit_status(vars_list[SPECIAL], exit_status);
+	pid = fork();
+	if (pid < 0)
+		return (E_SYSTEM);
+	else if (pid == 0)
+	{
+		if (builtin_func != NULL)
+			exit(builtin_func(d, command));
+		else
+			exec_external_command(command, d->vars_list);
+	}
+	status = add_pid_list(&d->pid_list, pid);
+	if (status == E_SYSTEM)
+		return (E_SYSTEM);
 	return (SUCCESS);
 }
 
-static t_status	finish_command(
-	t_list *save_fd, char *err_word, t_status status, t_list *vars_list[3])
+static t_status	edit_status_with_restore_fd(
+	t_data *d, t_list *save_fd, char *err_word, t_status status)
 {
 	t_list			*list;
 	int				redirect_fd;
 	int				backup_fd;
-	t_exit_status	exit_status;
 
 	if (status == E_OPEN || status == E_AMBIGUOUS)
-	{
-		exit_status = get_exit_status_with_errout(err_word, status, P_SHELL);
-		set_exit_status(vars_list[SPECIAL], exit_status);
-	}
+		set_exit_status_with_errout(err_word, status, P_SHELL, d->vars_list);
 	if (status == SUCCESS || status == E_OPEN || status == E_AMBIGUOUS)
 	{
 		list = save_fd;
@@ -114,8 +109,7 @@ static t_status	finish_command(
 	return (status);
 }
 
-t_status	process_command(
-	t_token *tokens, int start, int end, t_list *vars_list[3])
+t_status	process_command(t_data *d, t_token *tokens, int start, int end)
 {
 	t_status		status;
 	t_list			*save_fd;
@@ -130,16 +124,16 @@ t_status	process_command(
 	while (status == SUCCESS && start <= end)
 	{
 		if (tokens[start].type == WORD)
-			status = strjoin_to_cmd_str(tokens, start, &cmd_str, vars_list);
+			status = strjoin_to_cmd_str(tokens, start, &cmd_str, d->vars_list);
 		else
-			status = process_redirect(tokens, start++, &save_fd, vars_list);
+			status = process_redirect(tokens, start++, &save_fd, d->vars_list);
 		start++;
 	}
 	if (status == SUCCESS)
 		status = split_cmd_str(cmd_str, &command);
 	if (status == SUCCESS)
-		status = exec_command(command, is_pipe, vars_list);
+		status = exec_command(d, command, is_pipe);
 	free(cmd_str);
 	free_double_pointer((void **)command);
-	return (finish_command(save_fd, tokens[start].str, status, vars_list));
+	return (edit_status_with_restore_fd(d, save_fd, tokens[start].str, status));
 }
