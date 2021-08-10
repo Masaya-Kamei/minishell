@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/04 10:45:21 by keguchi           #+#    #+#             */
-/*   Updated: 2021/08/10 15:51:24 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/08/10 19:06:38 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,14 +25,15 @@ char	*strjoin_with_null_support(char *s1, char *s2)
 
 char	*create_full_path(char *path, char *last_file)
 {
-	const int	path_len = ft_strlen(path);
-	char		*full_path;
-	char		*tmp;
+	int		path_len;
+	char	*full_path;
+	char	*tmp;
 
 	if (path == NULL)
 		return (ft_strdup(last_file));
 	else if (last_file == NULL)
 		return (ft_strdup(path));
+	path_len = ft_strlen(path);
 	if (path[path_len - 1] == '/')
 		return (ft_strjoin(path, last_file));
 	full_path = ft_strjoin(path, "/");
