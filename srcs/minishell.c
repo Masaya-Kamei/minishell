@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/28 15:30:07 by mkamei            #+#    #+#             */
-/*   Updated: 2021/08/08 13:50:00 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/08/10 15:05:55 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,16 +46,18 @@ int	redisplay_prompt(void)
 	return (0);
 }
 
-static void	exit_by_eof(t_list *vars_list[3])
+static void	exit_by_eof(t_data *d)
 {
-	clear_vars_list(vars_list);
+	free(d->pwd);
+	ft_lstclear(&d->pid_list, free);
+	clear_vars_list(d->vars_list);
 	printf("\033[1A\033[11C");
 	rl_redisplay();
 	write(2, "exit\n", 5);
 	exit(0);
 }
 
-static void	loop_minishell(t_list *vars_list[3])
+static void	loop_minishell(t_data *d)
 {
 	char		*line;
 	t_token		*tokens;
@@ -68,23 +70,25 @@ static void	loop_minishell(t_list *vars_list[3])
 		g_received_signal = 0;
 		line = readline("minishell$ ");
 		if (line == NULL)
-			exit_by_eof(vars_list);
+			exit_by_eof(d);
 		if (line[0] != '\0')
 			add_history(line);
 		status = lex_line(line, &tokens, &token_num);
 		free(line);
 		if (status != SUCCESS)
 			break ;
-		status = start_process(tokens, 0, token_num - 1, vars_list);
+		status = start_process(d, tokens, 0, token_num - 1);
 		free_tokens(tokens);
 	}
-	clear_vars_list(vars_list);
+	free(d->pwd);
+	ft_lstclear(&d->pid_list, free);
+	clear_vars_list(d->vars_list);
 	exit(get_exit_status_with_errout(NULL, status, P_SHELL));
 }
 
 int	main(int argc, char **argv, char **envp)
 {
-	t_list		*vars_list[3];
+	t_data		d;
 
 	(void)argc;
 	(void)**argv;
@@ -92,20 +96,21 @@ int	main(int argc, char **argv, char **envp)
 		|| signal(SIGQUIT, handler) == SIG_ERR)
 		exit(get_exit_status_with_errout(NULL, E_SYSTEM, P_SHELL));
 	rl_signal_event_hook = &redisplay_prompt;
-	vars_list[SHELL] = NULL;
-	vars_list[SPECIAL] = lstnew_with_strdup("?=0  ");
-	if (vars_list[SPECIAL] == NULL)
+	d.pwd = NULL;
+	d.pid_list = NULL;
+	d.vars_list[SHELL] = NULL;
+	d.vars_list[SPECIAL] = lstnew_with_strdup("?=0  ");
+	if (d.vars_list[SPECIAL] == NULL)
 		exit(get_exit_status_with_errout(NULL, E_SYSTEM, P_SHELL));
-	((char *)vars_list[SPECIAL]->content)[3] = '\0';
-	vars_list[ENV] = create_env_list(envp);
-	if (vars_list[ENV] == NULL
-		|| set_oldpwd_var(vars_list, P_SHELL) == E_SYSTEM
-		|| set_pwd_var(vars_list, P_SHELL) == E_SYSTEM
-		|| countup_shlvl_env(&vars_list[ENV]) == E_SYSTEM)
+	((char *)d.vars_list[SPECIAL]->content)[3] = '\0';
+	d.vars_list[ENV] = create_env_list(envp);
+	if (d.vars_list[ENV] == NULL
+		|| countup_shlvl_env(&d.vars_list[ENV]) == E_SYSTEM
+		|| set_pwd(&d, P_SHELL, NULL) == E_SYSTEM)
 	{
-		clear_vars_list(vars_list);
+		clear_vars_list(d.vars_list);
 		exit(get_exit_status_with_errout(NULL, E_SYSTEM, P_SHELL));
 	}
-	loop_minishell(vars_list);
+	loop_minishell(&d);
 	return (0);
 }
