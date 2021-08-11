@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/08/09 16:54:39 by mkamei            #+#    #+#             */
-/*   Updated: 2021/08/11 18:58:46 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/08/11 19:07:51 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,7 +64,7 @@ static t_status	wait_child_process(t_list **pid_list, t_list *vars_list[3])
 		status = get_exit_status_with_errout(NULL, E_SYSTEM, P_SHELL);
 	set_exit_status(vars_list[SPECIAL], status);
 	write(1, "\n", sigint_flag);
-	write(1, "Quit: 3\n", (status == 131) * 8);
+	write(1, "Quit: 3\n", (status == (SIGQUIT + 128)) * 8);
 	ft_lstclear(pid_list, free);
 	*pid_list = NULL;
 	return (SUCCESS);
