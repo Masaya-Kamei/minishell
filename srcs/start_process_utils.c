@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/08/10 15:31:42 by mkamei            #+#    #+#             */
-/*   Updated: 2021/08/10 15:36:32 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/08/11 18:01:15 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,7 +43,7 @@ t_status	wait_child_process(t_list **pid_list, t_list *vars_list[3])
 			write_flag = 1;
 			if (WTERMSIG(status) == SIGINT)
 				write(1, "\n", 1);
-			else if (WTERMSIG(status) == SIGQUIT)
+			else if (WTERMSIG(status) == SIGQUIT && current_list->next == NULL)
 				write(1, "Quit: 3\n", 9);
 		}
 		current_list = current_list->next;
