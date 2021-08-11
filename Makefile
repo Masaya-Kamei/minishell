@@ -1,5 +1,5 @@
 SRCNAME	:=	minishell.c lex_line.c expand_word.c \
-			start_process.c start_process_utils.c process_pipeline.c \
+			start_process.c process_pipeline.c \
 			process_command.c process_command_utils.c process_redirect.c \
 			var/var_env.c var/var_ope.c var/var_set_any.c var/var_utils.c \
 			builtins/mini_echo.c builtins/mini_cd.c builtins/mini_pwd.c \
