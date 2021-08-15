@@ -6,22 +6,11 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/08/01 13:09:34 by mkamei            #+#    #+#             */
-/*   Updated: 2021/08/02 18:15:25 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/08/10 15:27:19 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
-
-char	*strjoin_with_null_support(char *s1, char *s2)
-{
-	if (s1 == NULL && s2 == NULL)
-		return (ft_strdup(""));
-	else if (s1 == NULL)
-		return (ft_strdup(s2));
-	else if (s2 == NULL)
-		return (ft_strdup(s1));
-	return (ft_strjoin(s1, s2));
-}
 
 t_status	strjoin_to_cmd_str(
 	t_token *tokens, int word_index, char **cmd_str, t_list *vars_list[3])
@@ -77,22 +66,65 @@ t_status	split_cmd_str(char *cmd_str, char ***command)
 	return (SUCCESS);
 }
 
-t_exit_status	get_exit_status_when_signal(int signum)
+static t_bool	check_regular_file_exist(char *path)
 {
-	t_exit_status	exit_status;
+	struct stat	stat_buf;
 
-	if (signum == SIGINT)
-	{
-		printf("\n");
-		exit_status = 130;
-	}
-	else if (signum == SIGQUIT)
-	{
-		printf("Quit: 3\n");
-		exit_status = 131;
-	}
+	if (stat(path, &stat_buf) == -1)
+		return (0);
+	if (S_ISREG(stat_buf.st_mode))
+		return (1);
 	else
-		exit_status = 1;
-	g_received_signal = 0;
-	return (exit_status);
+		return (0);
+}
+
+t_status	search_command_path(
+	char *cmd_name, t_list *vars_list[3], char **cmd_path)
+{
+	char		*path_value;
+	t_status	status;
+	char		*matched_path;
+
+	path_value = get_var(vars_list, "PATH");
+	if (path_value == NULL || ft_strchr(cmd_name, '/') != NULL)
+	{
+		*cmd_path = ft_strdup(cmd_name);
+		if (*cmd_path == NULL)
+			return (E_SYSTEM);
+		return (SUCCESS);
+	}
+	matched_path = NULL;
+	status = search_match_path_from_path_var(cmd_name,
+			path_value, check_regular_file_exist, &matched_path);
+	if (status == E_SYSTEM)
+		return (E_SYSTEM);
+	else if (matched_path == NULL)
+		return (E_NOCOMMAND);
+	*cmd_path = matched_path;
+	return (SUCCESS);
+}
+
+t_status	add_pid_list(t_list **pid_list, pid_t pid)
+{
+	int		digit_num;
+	int		nbr;
+	pid_t	*pid_copy;
+	t_list	*new_list;
+
+	nbr = pid;
+	digit_num = 0;
+	while (++digit_num && nbr / 10 != 0)
+		nbr = nbr / 10;
+	pid_copy = (pid_t *)malloc(sizeof(pid_t) * digit_num);
+	if (pid_copy == NULL)
+		return (E_SYSTEM);
+	ft_memcpy(pid_copy, &pid, sizeof(pid_t) * digit_num);
+	new_list = ft_lstnew(pid_copy);
+	if (new_list == NULL)
+	{
+		free(pid_copy);
+		return (E_SYSTEM);
+	}
+	ft_lstadd_back(pid_list, new_list);
+	return (SUCCESS);
 }

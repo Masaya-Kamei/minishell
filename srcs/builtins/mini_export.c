@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/07 14:33:48 by mkamei            #+#    #+#             */
-/*   Updated: 2021/08/01 12:49:08 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/08/09 14:01:47 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,7 +86,7 @@ t_bool	check_valid_identifier(char *var, int var_name_len)
 	return (1);
 }
 
-t_exit_status	mini_export(char **argv, t_list *vars_list[3])
+t_exit_status	mini_export(t_data *d, char **argv)
 {
 	int				i;
 	t_exit_status	exit_status;
@@ -96,7 +96,7 @@ t_exit_status	mini_export(char **argv, t_list *vars_list[3])
 	if (argv[1] != NULL && argv[1][0] == '-' && argv[1][1] != '\0')
 		return (get_exit_status_with_errout(argv[1], E_INVALID_OP, P_EXPORT));
 	if (argv[1] == NULL)
-		return (write_exported_vars(vars_list[ENV]));
+		return (write_exported_vars(d->vars_list[ENV]));
 	i = 0;
 	exit_status = 0;
 	while (argv[++i] != NULL)
@@ -109,7 +109,7 @@ t_exit_status	mini_export(char **argv, t_list *vars_list[3])
 		if (check_valid_identifier(argv[i], var_name_len) == 0)
 			exit_status = get_exit_status_with_errout(
 					argv[i], E_INVALID_ID, P_EXPORT);
-		else if (set_var(vars_list, argv[i], ENV) == E_SYSTEM)
+		else if (set_var(d->vars_list, argv[i], ENV) == E_SYSTEM)
 			return (get_exit_status_with_errout(NULL, E_SYSTEM, P_EXPORT));
 	}
 	return (exit_status);

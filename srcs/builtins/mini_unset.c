@@ -6,13 +6,13 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/07 14:33:51 by mkamei            #+#    #+#             */
-/*   Updated: 2021/07/20 19:01:47 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/08/09 14:02:24 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-t_exit_status	mini_unset(char **argv, t_list *vars_list[3])
+t_exit_status	mini_unset(t_data *d, char **argv)
 {
 	int				i;
 	int				var_name_len;
@@ -29,7 +29,7 @@ t_exit_status	mini_unset(char **argv, t_list *vars_list[3])
 			exit_status = get_exit_status_with_errout(
 					argv[i], E_INVALID_ID, P_UNSET);
 		else
-			delete_var(vars_list, argv[i], SHELL);
+			delete_var(d->vars_list, argv[i], SHELL);
 		i++;
 	}
 	return (exit_status);

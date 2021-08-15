@@ -6,19 +6,19 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/07 14:33:37 by mkamei            #+#    #+#             */
-/*   Updated: 2021/07/20 19:01:11 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/08/09 14:00:58 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-t_exit_status	mini_env(char **argv, t_list *vars_list[3])
+t_exit_status	mini_env(t_data *d, char **argv)
 {
 	t_list	*current_list;
 
 	if (argv[1] != NULL)
 		return (get_exit_status_with_errout(argv[1], E_INVALID_OP_ARG, P_ENV));
-	current_list = vars_list[ENV];
+	current_list = d->vars_list[ENV];
 	while (current_list != NULL)
 	{
 		if (ft_strchr(current_list->content, '=') != NULL)

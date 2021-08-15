@@ -6,38 +6,78 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/07 20:10:11 by mkamei            #+#    #+#             */
-/*   Updated: 2021/08/01 12:48:06 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/08/10 15:51:18 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-t_exit_status	mini_cd(char **argv, t_list *vars_list[3])
+static t_bool	check_directory_exist(char *path)
+{
+	struct stat	stat_buf;
+
+	if (stat(path, &stat_buf) == -1)
+		return (0);
+	if (S_ISDIR(stat_buf.st_mode))
+		return (1);
+	else
+		return (0);
+}
+
+static t_status	change_dir(t_data *d, char **arg, char *var, char *matched_path)
 {
 	char	*target_dir;
 
-	if (argv[1] != NULL && argv[1][0] == '-' && argv[1][1] != '\0')
-		return (get_exit_status_with_errout(argv[1], E_INVALID_OP, P_CD));
-	if (argv[1] == NULL)
+	if (var != NULL)
 	{
-		target_dir = get_var(vars_list, "HOME");
+		target_dir = get_var(d->vars_list, var);
 		if (target_dir == NULL)
-			return (get_exit_status_with_errout("HOME", E_NOSET_VAR, P_CD));
+			return (get_exit_status_with_errout(var, E_NOSET_VAR, P_CD));
 	}
-	else if (argv[1][0] == '-' && argv[1][1] == '\0')
+	else if (matched_path != NULL)
 	{
-		target_dir = get_var(vars_list, "OLDPWD");
-		if (target_dir == NULL)
-			return (get_exit_status_with_errout("OLDPWD", E_NOSET_VAR, P_CD));
+		free(*arg);
+		*arg = matched_path;
+		target_dir = *arg;
 	}
 	else
-		target_dir = argv[1];
+		target_dir = *arg;
 	if (chdir(target_dir) == -1)
-		return (get_exit_status_with_errout(target_dir, E_SYSTEM, P_CD));
-	if (set_oldpwd_var(vars_list, 0) == E_SYSTEM
-		|| set_pwd_var(vars_list, 0) == E_SYSTEM)
+		return (get_exit_status_with_errout(target_dir, E_CHDIR, P_CD));
+	if (set_pwd(d, P_CD, target_dir) == E_SYSTEM)
 		return (get_exit_status_with_errout(NULL, E_SYSTEM, P_CD));
+	if ((var && ft_strncmp(var, "OLDPWD", 7) == 0) || matched_path != NULL)
+		ft_putendl_fd(get_var(d->vars_list, "PWD"), 1);
 	return (0);
+}
+
+t_exit_status	mini_cd(t_data *d, char **argv)
+{
+	char		*var;
+	char		*cdpath_value;
+	char		*matched_path;
+	t_status	status;
+
+	if (argv[1] != NULL && argv[1][0] == '-' && argv[1][1] != '\0')
+		return (get_exit_status_with_errout(argv[1], E_INVALID_OP, P_CD));
+	var = NULL;
+	if (argv[1] == NULL)
+		var = "HOME";
+	else if (argv[1][0] == '-' && argv[1][1] == '\0')
+		var = "OLDPWD";
+	matched_path = NULL;
+	cdpath_value = get_var(d->vars_list, "CDPATH");
+	if (cdpath_value != NULL && var == NULL
+		&& ft_strncmp(argv[1], ".", 2) != 0 && ft_strncmp(argv[1], "..", 3) != 0
+		&& ft_strncmp(argv[1], "./", 2) != 0
+		&& ft_strncmp(argv[1], "../", 3) != 0)
+	{
+		status = search_match_path_from_path_var(
+				argv[1], cdpath_value, check_directory_exist, &matched_path);
+		if (status == E_SYSTEM)
+			return (get_exit_status_with_errout(NULL, E_SYSTEM, P_CD));
+	}
+	return (change_dir(d, &argv[1], var, matched_path));
 }
 
 // gcc -Wall -Werror -Wextra mini_cd.c mini_unset.c mini_export.c ../var_env.c

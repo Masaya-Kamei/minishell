@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/18 11:54:50 by mkamei            #+#    #+#             */
-/*   Updated: 2021/08/01 13:00:24 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/08/07 21:04:00 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,9 +94,9 @@ static t_status	loop_substr_and_strjoin_to_str(
 	while (word[start] != '\0' && (++i || 1))
 	{
 		type = judge_str_type(word, i, type, &start);
-		if ((type == RAW && ft_strchr("$\0", word[i]) != NULL)
+		if ((type == RAW && ft_strchr(":$\0", word[i]) != NULL)
 			|| (type == S_QUOTE && ft_strchr("\'\0", word[i]) != NULL)
-			|| (type == D_QUOTE && ft_strchr("\" $\0", word[i]) != NULL))
+			|| (type == D_QUOTE && ft_strchr("\" :$\0", word[i]) != NULL))
 		{
 			sub = substr_with_expand(&word[start], i - start, type, vars_list);
 			if (sub == NULL)

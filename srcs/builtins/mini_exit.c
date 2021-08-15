@@ -6,18 +6,18 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/07 20:12:35 by mkamei            #+#    #+#             */
-/*   Updated: 2021/07/20 19:01:21 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/08/09 14:01:22 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-t_exit_status	mini_exit(char **argv, t_list *vars_list[3])
+t_exit_status	mini_exit(t_data *d, char **argv)
 {
 	int		exit_num;
 	int		i;
 
-	(void)(**vars_list);
+	(void)*d;
 	write(2, "exit\n", 5);
 	if (argv[1] == NULL)
 		exit(0);
