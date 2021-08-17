@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/19 09:24:35 by keguchi           #+#    #+#             */
-/*   Updated: 2021/08/17 16:30:06 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/08/17 16:57:50 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -121,13 +121,13 @@ t_status	process_command(t_data *d, t_token *tokens, int start, int end)
 	cmd_str = NULL;
 	command = NULL;
 	status = SUCCESS;
-	while (status == SUCCESS && start <= end)
+	start -= 1;
+	while (status == SUCCESS && ++start <= end)
 	{
 		if (tokens[start].type == WORD)
 			status = strjoin_to_cmd_str(tokens, start, &cmd_str, d->vars_list);
 		else
 			status = process_redirect(tokens, start++, &save_fd, d->vars_list);
-		start++;
 	}
 	if (status == SUCCESS)
 		status = split_cmd_str(cmd_str, &command);
