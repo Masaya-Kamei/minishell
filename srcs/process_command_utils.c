@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/08/01 13:09:34 by mkamei            #+#    #+#             */
-/*   Updated: 2021/08/17 12:16:58 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/08/17 16:29:54 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -104,7 +104,7 @@ t_status	search_command_path(
 	return (SUCCESS);
 }
 
-t_status	add_pid_list(t_list **pid_list, pid_t pid)
+t_status	add_to_pid_list(t_list **pid_list, pid_t pid)
 {
 	pid_t	*pid_copy;
 	t_list	*new_list;

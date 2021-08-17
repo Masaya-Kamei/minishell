@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/19 09:24:35 by keguchi           #+#    #+#             */
-/*   Updated: 2021/08/10 15:29:52 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/08/17 16:30:06 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,7 +77,7 @@ static t_status	exec_command(t_data *d, char **command, t_bool is_pipe)
 		else
 			exec_external_command(command, d->vars_list);
 	}
-	status = add_pid_list(&d->pid_list, pid);
+	status = add_to_pid_list(&d->pid_list, pid);
 	if (status == E_SYSTEM)
 		return (E_SYSTEM);
 	return (SUCCESS);

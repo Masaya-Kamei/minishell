@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/28 09:39:27 by mkamei            #+#    #+#             */
-/*   Updated: 2021/08/17 16:01:15 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/08/17 16:30:46 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -136,17 +136,17 @@ t_status		add_new_var(t_list **any_list, char *var);
 // utils
 int				redisplay_prompt(void);
 char			*strjoin_with_null_support(char *s1, char *s2);
-char			*create_full_path(char *path, char *last_file);
-t_status		search_match_path_from_path_var(
-					char *last_file, char *path_value,
-					t_file_check_func check_func, char **matched_path);
 t_bool			is_redirect_token(t_token token);
 t_status		strjoin_to_cmd_str(t_token *tokens,
 					int word_index, char **cmd_str, t_list *vars_list[3]);
 t_status		split_cmd_str(char *cmd_str, char ***command);
 t_status		search_command_path(
 					char *cmd_name, t_list *vars_list[3], char **cmd_path);
-t_status		add_pid_list(t_list **pid_list, pid_t pid);
+t_status		add_to_pid_list(t_list **pid_list, pid_t pid);
+char			*create_full_path(char *path, char *last_file);
+t_status		search_match_path_from_path_var(
+					char *last_file, char *path_value,
+					t_file_check_func check_func, char **matched_path);
 t_bool			check_valid_identifier(char *var, int var_name_len);
 void			write_err(char *word,
 					t_status status, t_bool is_errno, t_place place);
