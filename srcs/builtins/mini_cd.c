@@ -6,11 +6,64 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/07 20:10:11 by mkamei            #+#    #+#             */
-/*   Updated: 2021/08/10 15:51:18 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/08/16 12:02:54 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
+
+char	*create_full_path(char *path, char *last_file)
+{
+	int		path_len;
+	char	*full_path;
+	char	*tmp;
+
+	if (path == NULL)
+		return (ft_strdup(last_file));
+	else if (last_file == NULL)
+		return (ft_strdup(path));
+	path_len = ft_strlen(path);
+	if (path[path_len - 1] == '/')
+		return (ft_strjoin(path, last_file));
+	full_path = ft_strjoin(path, "/");
+	if (full_path == NULL)
+		return (NULL);
+	tmp = full_path;
+	full_path = ft_strjoin(tmp, last_file);
+	free(tmp);
+	if (full_path == NULL)
+		return (NULL);
+	return (full_path);
+}
+
+t_status	search_match_path_from_path_var(char *last_file
+	, char *path_value, t_file_check_func check_func, char **matched_path)
+{
+	char	**paths;
+	char	*full_path;
+	int		i;
+
+	paths = ft_split(path_value, ':');
+	if (paths == NULL)
+		return (E_SYSTEM);
+	i = -1;
+	*matched_path = NULL;
+	while (*matched_path == NULL && paths[++i] != NULL)
+	{
+		full_path = create_full_path(paths[i], last_file);
+		if (full_path == NULL)
+		{
+			free_double_pointer((void **)paths);
+			return (E_SYSTEM);
+		}
+		if (check_func(full_path) == 1)
+			*matched_path = full_path;
+		else
+			free(full_path);
+	}
+	free_double_pointer((void **)paths);
+	return (SUCCESS);
+}
 
 static t_bool	check_directory_exist(char *path)
 {

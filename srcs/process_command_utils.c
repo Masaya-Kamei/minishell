@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/08/01 13:09:34 by mkamei            #+#    #+#             */
-/*   Updated: 2021/08/10 15:27:19 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/08/17 12:16:58 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -106,19 +106,13 @@ t_status	search_command_path(
 
 t_status	add_pid_list(t_list **pid_list, pid_t pid)
 {
-	int		digit_num;
-	int		nbr;
 	pid_t	*pid_copy;
 	t_list	*new_list;
 
-	nbr = pid;
-	digit_num = 0;
-	while (++digit_num && nbr / 10 != 0)
-		nbr = nbr / 10;
-	pid_copy = (pid_t *)malloc(sizeof(pid_t) * digit_num);
+	pid_copy = (pid_t *)malloc(sizeof(pid_t));
 	if (pid_copy == NULL)
 		return (E_SYSTEM);
-	ft_memcpy(pid_copy, &pid, sizeof(pid_t) * digit_num);
+	ft_memcpy(pid_copy, &pid, sizeof(pid_t));
 	new_list = ft_lstnew(pid_copy);
 	if (new_list == NULL)
 	{
