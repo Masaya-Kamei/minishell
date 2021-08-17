@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/28 09:39:27 by mkamei            #+#    #+#             */
-/*   Updated: 2021/08/11 18:57:29 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/08/17 16:01:15 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -140,7 +140,7 @@ char			*create_full_path(char *path, char *last_file);
 t_status		search_match_path_from_path_var(
 					char *last_file, char *path_value,
 					t_file_check_func check_func, char **matched_path);
-t_bool			is_redirect_token(t_token_type type);
+t_bool			is_redirect_token(t_token token);
 t_status		strjoin_to_cmd_str(t_token *tokens,
 					int word_index, char **cmd_str, t_list *vars_list[3]);
 t_status		split_cmd_str(char *cmd_str, char ***command);
@@ -158,7 +158,7 @@ void			free_double_pointer(void **p);
 void			free_tokens(t_token *tokens);
 t_status		free_and_return(void *p, t_status status);
 void			free_and_fill_null(char **p);
-void			clear_vars_list(t_list *vars_list[3]);
+void			clear_shell_data(t_data *d);
 
 // debug
 void			print_line_and_word_start_array(char *line, int *word_start);

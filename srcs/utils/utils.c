@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/04 10:45:21 by keguchi           #+#    #+#             */
-/*   Updated: 2021/08/16 12:02:45 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/08/17 16:01:49 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,9 +23,10 @@ char	*strjoin_with_null_support(char *s1, char *s2)
 	return (ft_strjoin(s1, s2));
 }
 
-t_bool	is_redirect_token(t_token_type type)
+t_bool	is_redirect_token(t_token token)
 {
-	if (type == GREATER || type == D_GREATER || type == LESS || type == D_LESS)
+	if (token.type == GREATER || token.type == D_GREATER
+		|| token.type == LESS || token.type == D_LESS)
 		return (1);
 	else
 		return (0);

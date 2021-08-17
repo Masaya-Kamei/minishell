@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/08/09 16:54:39 by mkamei            #+#    #+#             */
-/*   Updated: 2021/08/11 19:07:51 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/08/17 16:06:55 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,25 +17,25 @@ static t_status	check_syntax_error(t_token *tokens, char **err_word)
 	int		i;
 
 	i = -1;
+	*err_word = NULL;
 	while (*err_word == NULL && tokens[++i].type != '\0')
 	{
-		if (tokens[i].type == PIPE && (i == 0 || tokens[i - 1].type != WORD))
-			*err_word = "`|'";
-		else if (is_redirect_token(tokens[i].type) == 1
-			&& i != 0 && is_redirect_token(tokens[i - 1].type) == 1)
+		if (is_redirect_token(tokens[i]) && is_redirect_token(tokens[i + 1]))
 		{
-			if (tokens[i].type == GREATER)
+			if (tokens[i + 1].type == GREATER)
 				*err_word = "`>'";
-			else if (tokens[i].type == D_GREATER)
+			if (tokens[i + 1].type == D_GREATER)
 				*err_word = "`>>'";
-			else if (tokens[i].type == LESS)
+			else if (tokens[i + 1].type == LESS)
 				*err_word = "`<'";
-			else if (tokens[i].type == D_LESS)
+			else if (tokens[i + 1].type == D_LESS)
 				*err_word = "`<<'";
 		}
+		else if (tokens[i].type != WORD && tokens[i + 1].type == PIPE)
+			*err_word = "`|'";
+		else if (tokens[i].type != WORD && tokens[i + 1].type == '\0')
+			*err_word = "`newline'";
 	}
-	if (tokens[i].type == '\0' && tokens[i - 1].type != WORD)
-		*err_word = "`newline'";
 	if (*err_word != NULL)
 		return (E_SYNTAX);
 	return (SUCCESS);
@@ -76,16 +76,16 @@ t_status	start_process(t_data *d, t_token *tokens, int start, int end)
 	t_status	status;
 	char		*err_word;
 
-	if (end == -1)
-		return (SUCCESS);
-	err_word = NULL;
 	if (check_syntax_error(tokens, &err_word) == E_SYNTAX)
 	{
 		set_exit_status_with_errout(err_word, E_SYNTAX, P_SHELL, d->vars_list);
 		return (SUCCESS);
 	}
-	// if (heredocument() == E_SYSTEM)
+	// status = heredocument();
+	// if (status == E_SYSTEM)
 	// 	return (E_SYSTEM);
+	// else if (status == E_HEREDOC)
+	// 	return (SUCCESS);
 	backup_read_fd = dup(0);
 	if (backup_read_fd == -1)
 		return (E_SYSTEM);
