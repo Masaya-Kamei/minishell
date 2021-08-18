@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/19 09:24:35 by keguchi           #+#    #+#             */
-/*   Updated: 2021/08/17 16:57:50 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/08/18 17:24:18 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,7 +91,7 @@ static t_status	edit_status_with_restore_fd(
 	int				backup_fd;
 
 	if (status == E_OPEN || status == E_AMBIGUOUS)
-		set_exit_status_with_errout(err_word, status, P_SHELL, d->vars_list);
+		set_exit_status_with_errout(err_word, status, d->vars_list);
 	if (status == SUCCESS || status == E_OPEN || status == E_AMBIGUOUS)
 	{
 		list = save_fd;

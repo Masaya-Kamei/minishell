@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/28 09:39:27 by mkamei            #+#    #+#             */
-/*   Updated: 2021/08/17 16:30:46 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/08/18 17:36:34 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,8 +49,7 @@ typedef enum e_status
 	E_NOCOMMAND			= 9,
 	E_AMBIGUOUS			= 10,
 	E_OPEN				= 11,
-	E_GETCWD			= 12,
-	E_CHDIR				= 13
+	E_GETCWD			= 12
 }			t_status;
 
 typedef enum e_place
@@ -134,7 +133,6 @@ t_list			*get_target_list(t_list *any_list, char *var, int var_name_len);
 t_status		add_new_var(t_list **any_list, char *var);
 
 // utils
-int				redisplay_prompt(void);
 char			*strjoin_with_null_support(char *s1, char *s2);
 t_bool			is_redirect_token(t_token token);
 t_status		strjoin_to_cmd_str(t_token *tokens,
@@ -151,9 +149,9 @@ t_bool			check_valid_identifier(char *var, int var_name_len);
 void			write_err(char *word,
 					t_status status, t_bool is_errno, t_place place);
 t_exit_status	get_exit_status_with_errout(
-					char *word, t_status status, t_place place);
-void			set_exit_status_with_errout(char *word,
-					t_status status, t_place place, t_list *vars_list[3]);
+					char *err_word, t_status status, t_place place);
+t_status		set_exit_status_with_errout(
+					char *err_word, t_status status, t_list *vars_list[3]);
 void			free_double_pointer(void **p);
 void			free_tokens(t_token *tokens);
 t_status		free_and_return(void *p, t_status status);
