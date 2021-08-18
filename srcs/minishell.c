@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/28 15:30:07 by mkamei            #+#    #+#             */
-/*   Updated: 2021/08/17 16:11:26 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/08/18 17:36:01 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,21 +17,13 @@ static void	handler(int signum)
 	g_received_signal = signum;
 }
 
-int	redisplay_prompt(void)
+static int	interrupt_by_signal(void)
 {
 	if (g_received_signal == SIGINT)
 	{
 		g_received_signal = 0;
-		printf("\033[%dC\033[K", (int)ft_strlen(rl_prompt) + rl_end);
-		rl_redisplay();
 		rl_replace_line("\3", 1);
 		rl_done = 1;
-	}
-	else if (g_received_signal == SIGQUIT)
-	{
-		g_received_signal = 0;
-		printf("\033[%dC\033[K", (int)ft_strlen(rl_prompt) + rl_end);
-		rl_redisplay();
 	}
 	return (0);
 }
@@ -44,8 +36,6 @@ static t_bool	check_interrupt(t_data *d, char *line)
 	{
 		exit_status = ft_atoi(get_var(d->vars_list, "?"));
 		clear_shell_data(d);
-		printf("\033[1A\033[11C");
-		rl_redisplay();
 		write(2, "exit\n", 5);
 		exit(exit_status);
 	}
@@ -93,9 +83,9 @@ int	main(int argc, char **argv, char **envp)
 	(void)argc;
 	(void)**argv;
 	if (signal(SIGINT, handler) == SIG_ERR
-		|| signal(SIGQUIT, handler) == SIG_ERR)
+		|| signal(SIGQUIT, SIG_IGN) == SIG_ERR)
 		exit(get_exit_status_with_errout(NULL, E_SYSTEM, P_SHELL));
-	rl_event_hook = &redisplay_prompt;
+	rl_event_hook = &interrupt_by_signal;
 	d.pwd = NULL;
 	d.pid_list = NULL;
 	d.vars_list[SHELL] = NULL;
