@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/07 20:10:11 by mkamei            #+#    #+#             */
-/*   Updated: 2021/08/16 12:02:54 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/08/18 17:31:50 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,11 +96,11 @@ static t_status	change_dir(t_data *d, char **arg, char *var, char *matched_path)
 	else
 		target_dir = *arg;
 	if (chdir(target_dir) == -1)
-		return (get_exit_status_with_errout(target_dir, E_CHDIR, P_CD));
+		return (get_exit_status_with_errout(target_dir, E_SYSTEM, P_CD));
 	if (set_pwd(d, P_CD, target_dir) == E_SYSTEM)
 		return (get_exit_status_with_errout(NULL, E_SYSTEM, P_CD));
 	if ((var && ft_strncmp(var, "OLDPWD", 7) == 0) || matched_path != NULL)
-		ft_putendl_fd(get_var(d->vars_list, "PWD"), 1);
+		ft_putendl_fd(d->pwd, 1);
 	return (0);
 }
 
