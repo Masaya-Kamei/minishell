@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/19 09:25:38 by keguchi           #+#    #+#             */
-/*   Updated: 2021/08/18 17:39:36 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/08/20 17:31:32 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -107,8 +107,9 @@ t_status	process_redirect(t_token *tokens, int i,
 		original_token = ft_strdup(tokens[i + 1].str);
 		if (!original_token)
 			return (E_SYSTEM);
-		if (expand_word_token(&tokens[i + 1].str, vars_list) == E_SYSTEM)
-			return (E_SYSTEM);
+		(void)(**vars_list);
+		// if (expand_word_token(&tokens[i + 1].str, vars_list) == E_SYSTEM)
+		// 	return (E_SYSTEM);
 		if (!tokens[i + 1].str)
 		{
 			tokens[i + 1].str = original_token;
