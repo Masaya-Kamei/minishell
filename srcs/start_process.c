@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/08/09 16:54:39 by mkamei            #+#    #+#             */
-/*   Updated: 2021/08/18 17:28:09 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/08/20 17:08:58 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,6 +38,64 @@ static t_status	check_syntax_error(t_token *tokens, char **err_word)
 	}
 	if (*err_word != NULL)
 		return (E_SYNTAX);
+	return (SUCCESS);
+}
+
+static t_status	strjoin_to_heredoc(t_data *d, char *line, char **heredoc)
+{
+	char	*tmp;
+
+	if (line[0] == '\3')
+	{
+		free(*heredoc);
+		free(line);
+		set_exit_status(d->vars_list[SPECIAL], 1);
+		return (E_SIG_INTERRUPT);
+	}
+	tmp = *heredoc;
+	*heredoc = strjoin_with_null_support(tmp, line);
+	free(line);
+	free(tmp);
+	if (!*heredoc)
+		return (E_SYSTEM);
+	tmp = *heredoc;
+	*heredoc = strjoin_with_null_support(tmp, "\n");
+	free(tmp);
+	if (!*heredoc)
+		return (E_SYSTEM);
+	return (SUCCESS);
+}
+
+static t_status	read_heredocument(
+	t_data *d, t_token *tokens, int start, int end)
+{
+	char	*line;
+	char	*heredoc;
+	int		i;
+
+	i = start;
+	while (i <= end)
+	{
+		if (tokens[i++].type != D_LESS)
+			continue ;
+		heredoc = ft_strdup("");
+		while (heredoc != NULL)
+		{
+			line = readline("> ");
+			if (!line || !ft_strncmp(tokens[i].str, line, ft_strlen(line) + 1))
+				break ;
+			if (strjoin_to_heredoc(d, line, &heredoc) == E_SIG_INTERRUPT)
+				return (E_SIG_INTERRUPT);
+		}
+		if (heredoc == NULL)
+			return (E_SYSTEM);
+		free(line);
+		free(tokens[i].str);
+		tokens[i].str = heredoc;
+		// debug
+		expand_word_token(heredoc, d->vars_list, 1, &heredoc);
+		printf("%s", heredoc);
+	}
 	return (SUCCESS);
 }
 
@@ -78,11 +136,11 @@ t_status	start_process(t_data *d, t_token *tokens, int start, int end)
 
 	if (check_syntax_error(tokens, &err_word) == E_SYNTAX)
 		return (set_exit_status_with_errout(err_word, E_SYNTAX, d->vars_list));
-	// status = heredocument();
-	// if (status == E_SYSTEM)
-	// 	return (E_SYSTEM);
-	// else if (status == E_HEREDOC)
-	// 	return (SUCCESS);
+	status = read_heredocument(d, tokens, start, end);
+	if (status == E_SYSTEM)
+		return (E_SYSTEM);
+	else if (status == E_SIG_INTERRUPT)
+		return (SUCCESS);
 	backup_read_fd = dup(0);
 	if (backup_read_fd == -1
 		|| signal(SIGQUIT, SIG_DFL) == SIG_ERR)
