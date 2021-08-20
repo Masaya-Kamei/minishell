@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/08/01 13:09:34 by mkamei            #+#    #+#             */
-/*   Updated: 2021/08/17 16:29:54 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/08/20 17:26:52 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,27 +15,26 @@
 t_status	strjoin_to_cmd_str(
 	t_token *tokens, int word_index, char **cmd_str, t_list *vars_list[3])
 {
-	char		*tmp;
+	char	*tmp;
+	char	*expanded_str;
 
-	if (expand_word_token(&tokens[word_index].str, vars_list) == E_SYSTEM)
+	if (expand_word_token(tokens[word_index].str, vars_list, 0, &expanded_str)
+		 == E_SYSTEM)
 		return (E_SYSTEM);
-	if (tokens[word_index].str == NULL)
+	if (expanded_str == NULL)
 		return (SUCCESS);
-	else if ((tokens[word_index].str)[0] == '\0')
-	{
-		free(tokens[word_index].str);
-		tokens[word_index].str = ft_strdup("\21");
-		if (tokens[word_index].str == NULL)
-			return (E_SYSTEM);
-	}
 	tmp = *cmd_str;
 	*cmd_str = strjoin_with_null_support(tmp, " ");
 	free(tmp);
 	if (*cmd_str == NULL)
 		return (E_SYSTEM);
 	tmp = *cmd_str;
-	*cmd_str = strjoin_with_null_support(tmp, tokens[word_index].str);
+	if (expanded_str[0] == '\0')
+		*cmd_str = strjoin_with_null_support(tmp, "\21");
+	else
+		*cmd_str = strjoin_with_null_support(tmp, expanded_str);
 	free(tmp);
+	free(expanded_str);
 	if (*cmd_str == NULL)
 		return (E_SYSTEM);
 	return (SUCCESS);
