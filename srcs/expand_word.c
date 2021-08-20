@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/18 11:54:50 by mkamei            #+#    #+#             */
-/*   Updated: 2021/08/20 17:25:12 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/08/20 21:32:03 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,13 +52,13 @@ static t_bool	judge_special_dollar_char(
 	is_rec_call = 1;
 	if (is_document == 1)
 		is_rec_call = 0;
-	else if (type == RAW
+	else if (type == RAW && word[i] != '\0'
 		&& ft_strchr("\'\"", word[i]) && ft_strchr(&word[i + 1], word[i]))
 		type = word[i];
 	else if ((type == '\'' && word[i] == '\'')
 		|| (type == '\"' && word[i] == '\"'))
 		type = RAW;
-	else if (type == RAW && word[i] == '$'
+	else if (type == RAW && word[i] == '$' && word[i + 1] != '\0'
 		&& ft_strchr("\'\"", word[i + 1]) && ft_strchr(&word[i + 2], word[i + 1]))
 		;
 	else
@@ -68,7 +68,7 @@ static t_bool	judge_special_dollar_char(
 		ft_strlcpy(&word[i], &word[i + 1], ft_strlen(&word[i + 1]) + 1);
 		return (judge_special_dollar_char(word, i, is_document, is_rec_call));
 	}
-	return (word[i] == '$' && type != '\''
+	return (word[i] == '$' && type != '\'' && word[i + 1] != '\0'
 		&& (ft_isalpha(word[i + 1]) || ft_strchr("?_", word[i + 1])));
 }
 
