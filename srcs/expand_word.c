@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/18 11:54:50 by mkamei            #+#    #+#             */
-/*   Updated: 2021/08/20 21:32:03 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/08/22 11:42:39 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,15 +26,15 @@ static t_status	substr_and_strjoin(
 		substr = get_var(vars_list, &substr_start[1]);
 	else
 		substr = substr_start;
-	if (*expanded_str[0] == '\0' && substr == NULL && backup_char == '\0')
+	if ((substr == NULL || substr[0] == '\0')
+		&& *expanded_str[0] == '\0' && backup_char == '\0')
 	{
-		free(*expanded_str);
-		*expanded_str = NULL;
 		substr_start[len] = backup_char;
+		safe_free((void **)expanded_str);
 		return (SUCCESS);
 	}
 	tmp = *expanded_str;
-	*expanded_str = strjoin_with_null_support(tmp, substr);
+	*expanded_str = ft_strjoin(tmp, substr);
 	free(tmp);
 	substr_start[len] = backup_char;
 	if (*expanded_str == NULL)

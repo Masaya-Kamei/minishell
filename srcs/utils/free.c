@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/29 18:28:52 by mkamei            #+#    #+#             */
-/*   Updated: 2021/08/19 17:41:06 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/08/22 10:56:21 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,12 @@ t_status	free_and_return(void *p, t_status status)
 {
 	free(p);
 	return (status);
+}
+
+void	safe_free(void **p)
+{
+	free(*p);
+	*p = NULL;
 }
 
 void	clear_shell_data(t_data *d)
