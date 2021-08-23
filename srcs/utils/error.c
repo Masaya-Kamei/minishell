@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/09 10:48:30 by mkamei            #+#    #+#             */
-/*   Updated: 2021/08/18 17:23:36 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/08/23 17:55:11 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,11 +45,11 @@ void	write_err(
 	const char	usages[7][42] = {"", "cd: usage: cd [dir]\n"
 		, "pwd: usage: pwd\n", "export: usage: export [name[=value] ...]\n"
 		, "unset: usage: unset [name ...]\n", "env: usage: env\n", ""};
-	const char	err_msgs[20][36] = {"", "", "invalid option", " not set"
-		, "numeric argument required", "too many arguments"
-		, "not a valid identifier", "invalid option or argument"
-		, "syntax error near unexpected token ", "command not found"
-		, "ambiguous redirect"};
+	const char	err_msgs[20][36] = {"", "", "invalid option\n", " not set\n"
+		, "numeric argument required\n", "too many arguments\n"
+		, "not a valid identifier\n", "invalid option or argument\n"
+		, "syntax error near unexpected token ", "command not found\n"
+		, "ambiguous redirect\n"};
 
 	if (status != E_GETCWD)
 		write(2, "minishell: ", 11);
@@ -59,10 +59,9 @@ void	write_err(
 	if (is_errno == 0)
 		write(2, err_msgs[status], ft_strlen(err_msgs[status]));
 	else
-		write(2, strerror(errno), ft_strlen(strerror(errno)));
+		perror(NULL);
 	if (status == E_SYNTAX)
-		write(2, err_word, ft_strlen(err_word));
-	write(2, "\n", 1);
+		ft_putendl_fd(err_word, 2);
 	if (status == E_INVALID_OP)
 		write(2, usages[place - 1], ft_strlen(usages[place - 1]));
 }
