@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   process_redirect.c                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: keguchi <keguchi@student.42tokyo.jp>       +#+  +:+       +#+        */
+/*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/19 09:25:38 by keguchi           #+#    #+#             */
-/*   Updated: 2021/08/05 14:10:53 by keguchi          ###   ########.fr       */
+/*   Updated: 2021/08/20 17:31:32 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,7 +64,7 @@ static t_status	wait_eof_loop(char *eof_word)
 		|| close(pipe_fd[0]) == -1)
 		return (E_SYSTEM);
 	return (SUCCESS);
-}	
+}
 
 static t_status	open_and_redirect_file(t_token *tokens,
 	int file_index, t_list **save_fd)
@@ -85,7 +85,7 @@ static t_status	open_and_redirect_file(t_token *tokens,
 		fd = open(tokens[file_index].str, O_RDWR | O_CREAT | O_APPEND, 0644);
 	else if (tokens[file_index - 1].type == 'L')
 	{
-		rl_event_hook = &redisplay_prompt;
+		// rl_event_hook = &redisplay_prompt;
 		status = wait_eof_loop(tokens[file_index].str);
 		return (status);
 	}
@@ -107,8 +107,9 @@ t_status	process_redirect(t_token *tokens, int i,
 		original_token = ft_strdup(tokens[i + 1].str);
 		if (!original_token)
 			return (E_SYSTEM);
-		if (expand_word_token(&tokens[i + 1].str, vars_list) == E_SYSTEM)
-			return (E_SYSTEM);
+		(void)(**vars_list);
+		// if (expand_word_token(&tokens[i + 1].str, vars_list) == E_SYSTEM)
+		// 	return (E_SYSTEM);
 		if (!tokens[i + 1].str)
 		{
 			tokens[i + 1].str = original_token;

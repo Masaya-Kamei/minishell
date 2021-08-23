@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/19 09:24:35 by keguchi           #+#    #+#             */
-/*   Updated: 2021/08/10 15:29:52 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/08/20 17:05:07 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,7 +77,7 @@ static t_status	exec_command(t_data *d, char **command, t_bool is_pipe)
 		else
 			exec_external_command(command, d->vars_list);
 	}
-	status = add_pid_list(&d->pid_list, pid);
+	status = add_to_pid_list(&d->pid_list, pid);
 	if (status == E_SYSTEM)
 		return (E_SYSTEM);
 	return (SUCCESS);
@@ -91,7 +91,7 @@ static t_status	edit_status_with_restore_fd(
 	int				backup_fd;
 
 	if (status == E_OPEN || status == E_AMBIGUOUS)
-		set_exit_status_with_errout(err_word, status, P_SHELL, d->vars_list);
+		set_exit_status_with_errout(err_word, status, d->vars_list);
 	if (status == SUCCESS || status == E_OPEN || status == E_AMBIGUOUS)
 	{
 		list = save_fd;
@@ -121,13 +121,14 @@ t_status	process_command(t_data *d, t_token *tokens, int start, int end)
 	cmd_str = NULL;
 	command = NULL;
 	status = SUCCESS;
-	while (status == SUCCESS && start <= end)
+	start -= 1;
+	while (status == SUCCESS && ++start <= end)
 	{
 		if (tokens[start].type == WORD)
 			status = strjoin_to_cmd_str(tokens, start, &cmd_str, d->vars_list);
 		else
-			status = process_redirect(tokens, start++, &save_fd, d->vars_list);
-		start++;
+			start++;
+		// 	status = process_redirect(tokens, start++, &save_fd, d->vars_list);
 	}
 	if (status == SUCCESS)
 		status = split_cmd_str(cmd_str, &command);

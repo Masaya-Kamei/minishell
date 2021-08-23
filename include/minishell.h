@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/28 09:39:27 by mkamei            #+#    #+#             */
-/*   Updated: 2021/08/11 18:57:29 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/08/22 10:58:09 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,7 +50,7 @@ typedef enum e_status
 	E_AMBIGUOUS			= 10,
 	E_OPEN				= 11,
 	E_GETCWD			= 12,
-	E_CHDIR				= 13
+	E_SIG_INTERRUPT		= 13
 }			t_status;
 
 typedef enum e_place
@@ -107,7 +107,8 @@ t_status		process_pipeline(
 t_status		process_command(t_data *d, t_token *tokens, int start, int end);
 t_status		process_redirect(t_token *tokens,
 					int i, t_list **save_fd, t_list *vars_list[3]);
-t_status		expand_word_token(char **word, t_list *vars_list[3]);
+t_status		expand_word_token(char *word, t_list *vars_list[3],
+					t_bool is_document, char **expanded_str);
 
 // builtins
 t_exit_status	mini_echo(t_data *d, char **argv);
@@ -134,31 +135,30 @@ t_list			*get_target_list(t_list *any_list, char *var, int var_name_len);
 t_status		add_new_var(t_list **any_list, char *var);
 
 // utils
-int				redisplay_prompt(void);
 char			*strjoin_with_null_support(char *s1, char *s2);
-char			*create_full_path(char *path, char *last_file);
-t_status		search_match_path_from_path_var(
-					char *last_file, char *path_value,
-					t_file_check_func check_func, char **matched_path);
-t_bool			is_redirect_token(t_token_type type);
+t_bool			is_redirect_token(t_token token);
 t_status		strjoin_to_cmd_str(t_token *tokens,
 					int word_index, char **cmd_str, t_list *vars_list[3]);
 t_status		split_cmd_str(char *cmd_str, char ***command);
 t_status		search_command_path(
 					char *cmd_name, t_list *vars_list[3], char **cmd_path);
-t_status		add_pid_list(t_list **pid_list, pid_t pid);
+t_status		add_to_pid_list(t_list **pid_list, pid_t pid);
+char			*create_full_path(char *path, char *last_file);
+t_status		search_match_path_from_path_var(
+					char *last_file, char *path_value,
+					t_file_check_func check_func, char **matched_path);
 t_bool			check_valid_identifier(char *var, int var_name_len);
 void			write_err(char *word,
 					t_status status, t_bool is_errno, t_place place);
 t_exit_status	get_exit_status_with_errout(
-					char *word, t_status status, t_place place);
-void			set_exit_status_with_errout(char *word,
-					t_status status, t_place place, t_list *vars_list[3]);
+					char *err_word, t_status status, t_place place);
+t_status		set_exit_status_with_errout(
+					char *err_word, t_status status, t_list *vars_list[3]);
 void			free_double_pointer(void **p);
 void			free_tokens(t_token *tokens);
 t_status		free_and_return(void *p, t_status status);
-void			free_and_fill_null(char **p);
-void			clear_vars_list(t_list *vars_list[3]);
+void			safe_free(void **p);
+void			clear_shell_data(t_data *d);
 
 // debug
 void			print_line_and_word_start_array(char *line, int *word_start);

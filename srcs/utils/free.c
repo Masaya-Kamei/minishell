@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/29 18:28:52 by mkamei            #+#    #+#             */
-/*   Updated: 2021/08/02 17:17:41 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/08/22 10:56:21 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,15 +46,17 @@ t_status	free_and_return(void *p, t_status status)
 	return (status);
 }
 
-void	free_and_fill_null(char **p)
+void	safe_free(void **p)
 {
 	free(*p);
 	*p = NULL;
 }
 
-void	clear_vars_list(t_list *vars_list[3])
+void	clear_shell_data(t_data *d)
 {
-	ft_lstclear(&vars_list[ENV], free);
-	ft_lstclear(&vars_list[SHELL], free);
-	ft_lstclear(&vars_list[SPECIAL], free);
+	free(d->pwd);
+	ft_lstclear(&d->pid_list, free);
+	ft_lstclear(&d->vars_list[ENV], free);
+	ft_lstclear(&d->vars_list[SHELL], free);
+	ft_lstclear(&d->vars_list[SPECIAL], free);
 }

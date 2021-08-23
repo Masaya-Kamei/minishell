@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/28 15:30:07 by mkamei            #+#    #+#             */
-/*   Updated: 2021/08/10 15:05:55 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/08/18 17:36:01 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,44 +17,35 @@ static void	handler(int signum)
 	g_received_signal = signum;
 }
 
-int	redisplay_prompt(void)
+static int	interrupt_by_signal(void)
 {
 	if (g_received_signal == SIGINT)
 	{
 		g_received_signal = 0;
-		printf("\033[%dC\033[K", (int)ft_strlen(rl_prompt) + rl_end);
-		if (ft_strncmp(rl_prompt, "> ", 3) == 0)
-		{
-			rl_redisplay();
-			rl_replace_line("\3", 1);
-			rl_done = 1;
-		}
-		else
-		{
-			printf("\n");
-			rl_replace_line("", 1);
-			rl_on_new_line();
-			rl_redisplay();
-		}
-	}
-	else if (g_received_signal == SIGQUIT)
-	{
-		g_received_signal = 0;
-		printf("\033[%dC\033[K", (int)ft_strlen(rl_prompt) + rl_end);
-		rl_redisplay();
+		rl_replace_line("\3", 1);
+		rl_done = 1;
 	}
 	return (0);
 }
 
-static void	exit_by_eof(t_data *d)
+static t_bool	check_interrupt(t_data *d, char *line)
 {
-	free(d->pwd);
-	ft_lstclear(&d->pid_list, free);
-	clear_vars_list(d->vars_list);
-	printf("\033[1A\033[11C");
-	rl_redisplay();
-	write(2, "exit\n", 5);
-	exit(0);
+	t_exit_status	exit_status;
+
+	if (line == NULL)
+	{
+		exit_status = ft_atoi(get_var(d->vars_list, "?"));
+		clear_shell_data(d);
+		write(2, "exit\n", 5);
+		exit(exit_status);
+	}
+	else if (line[0] == '\3')
+	{
+		free(line);
+		set_exit_status(d->vars_list[SPECIAL], 1);
+		return (1);
+	}
+	return (0);
 }
 
 static void	loop_minishell(t_data *d)
@@ -69,20 +60,19 @@ static void	loop_minishell(t_data *d)
 	{
 		g_received_signal = 0;
 		line = readline("minishell$ ");
-		if (line == NULL)
-			exit_by_eof(d);
+		if (check_interrupt(d, line) == 1)
+			continue ;
 		if (line[0] != '\0')
 			add_history(line);
 		status = lex_line(line, &tokens, &token_num);
 		free(line);
-		if (status != SUCCESS)
+		if (status == E_SYSTEM)
 			break ;
-		status = start_process(d, tokens, 0, token_num - 1);
+		if (token_num != 0)
+			status = start_process(d, tokens, 0, token_num - 1);
 		free_tokens(tokens);
 	}
-	free(d->pwd);
-	ft_lstclear(&d->pid_list, free);
-	clear_vars_list(d->vars_list);
+	clear_shell_data(d);
 	exit(get_exit_status_with_errout(NULL, status, P_SHELL));
 }
 
@@ -93,9 +83,9 @@ int	main(int argc, char **argv, char **envp)
 	(void)argc;
 	(void)**argv;
 	if (signal(SIGINT, handler) == SIG_ERR
-		|| signal(SIGQUIT, handler) == SIG_ERR)
+		|| signal(SIGQUIT, SIG_IGN) == SIG_ERR)
 		exit(get_exit_status_with_errout(NULL, E_SYSTEM, P_SHELL));
-	rl_signal_event_hook = &redisplay_prompt;
+	rl_event_hook = &interrupt_by_signal;
 	d.pwd = NULL;
 	d.pid_list = NULL;
 	d.vars_list[SHELL] = NULL;
@@ -108,7 +98,7 @@ int	main(int argc, char **argv, char **envp)
 		|| countup_shlvl_env(&d.vars_list[ENV]) == E_SYSTEM
 		|| set_pwd(&d, P_SHELL, NULL) == E_SYSTEM)
 	{
-		clear_vars_list(d.vars_list);
+		clear_shell_data(&d);
 		exit(get_exit_status_with_errout(NULL, E_SYSTEM, P_SHELL));
 	}
 	loop_minishell(&d);

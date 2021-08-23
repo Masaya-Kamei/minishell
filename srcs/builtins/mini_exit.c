@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/07 20:12:35 by mkamei            #+#    #+#             */
-/*   Updated: 2021/08/09 14:01:22 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/08/16 13:35:51 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,22 +14,23 @@
 
 t_exit_status	mini_exit(t_data *d, char **argv)
 {
-	int		exit_num;
-	int		i;
+	unsigned long long	exit_num;
+	int					i;
 
-	(void)*d;
 	write(2, "exit\n", 5);
 	if (argv[1] == NULL)
-		exit(0);
-	i = 0;
-	if (argv[1][i] == '+' || argv[1][i] == '-')
-		i++;
+		exit(ft_atoi(get_var(d->vars_list, "?")));
+	i = (argv[1][0] == '+' || argv[1][0] == '-');
+	if (argv[1][i] == '\0')
+		exit(get_exit_status_with_errout(argv[1], E_NUM_ARG_REQ, P_EXIT));
 	exit_num = 0;
 	while (argv[1][i] != '\0')
 	{
-		if (ft_isdigit(argv[1][i]) == 0)
-			exit(get_exit_status_with_errout(argv[1], E_NUM_ARG_REQ, P_EXIT));
 		exit_num = exit_num * 10 + argv[1][i] - '0';
+		if (ft_isdigit(argv[1][i]) == 0
+			|| (argv[1][0] == '-' && exit_num > (unsigned long long) -LLONG_MIN)
+			|| (argv[1][0] != '-' && exit_num > (unsigned long long)LLONG_MAX))
+			exit(get_exit_status_with_errout(argv[1], E_NUM_ARG_REQ, P_EXIT));
 		i++;
 	}
 	if (argv[2] != NULL)

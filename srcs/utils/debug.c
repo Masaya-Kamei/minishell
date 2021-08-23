@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/30 17:55:37 by mkamei            #+#    #+#             */
-/*   Updated: 2021/08/01 12:50:00 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/08/23 17:31:30 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,8 @@ void	print_line_and_word_start_array(char *line, int *word_start_array)
 
 void	print_tokens(t_token *tokens, t_list *vars_list[3])
 {
-	int	i;
+	int		i;
+	char	*expanded_str;
 
 	printf("[ tokens ]\n");
 	i = 0;
@@ -43,10 +44,14 @@ void	print_tokens(t_token *tokens, t_list *vars_list[3])
 	{
 		if (tokens[i].type == WORD)
 		{
-			if (expand_word_token(&tokens[i].str, vars_list) == E_SYSTEM)
+			if (expand_word_token(tokens[i].str, vars_list, 0, &expanded_str)
+				 == E_SYSTEM)
 				return ;
+			printf("%2d	type:%c, str:%s,\n", i, tokens[i].type, expanded_str);
+			free(expanded_str);
 		}
-		printf("%2d	type:%c, str:%s,\n", i, tokens[i].type, tokens[i].str);
+		else
+			printf("%2d	type:%c, str:%s,\n", i, tokens[i].type, tokens[i].str);
 		i++;
 	}
 }

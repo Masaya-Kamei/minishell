@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/07 14:33:48 by mkamei            #+#    #+#             */
-/*   Updated: 2021/08/09 14:01:47 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/08/16 12:00:00 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -107,8 +107,8 @@ t_exit_status	mini_export(t_data *d, char **argv)
 		else
 			var_name_len = equal_pointer - argv[i];
 		if (check_valid_identifier(argv[i], var_name_len) == 0)
-			exit_status = get_exit_status_with_errout(
-					argv[i], E_INVALID_ID, P_EXPORT);
+			exit_status
+				= get_exit_status_with_errout(argv[i], E_INVALID_ID, P_EXPORT);
 		else if (set_var(d->vars_list, argv[i], ENV) == E_SYSTEM)
 			return (get_exit_status_with_errout(NULL, E_SYSTEM, P_EXPORT));
 	}
