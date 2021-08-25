@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/09 10:48:30 by mkamei            #+#    #+#             */
-/*   Updated: 2021/08/23 17:55:11 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/08/25 13:02:19 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,12 +14,6 @@
 
 static void	write_word(char *err_word, t_status status)
 {
-	if (status == E_GETCWD)
-	{
-		write(2, "error retrieving current directory: ", 36);
-		write(2, "getcwd: cannot access parent directories: ", 42);
-		return ;
-	}
 	if (err_word == NULL || status == E_SYNTAX)
 		return ;
 	if (status == E_INVALID_ID)
