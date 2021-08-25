@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/28 09:39:27 by mkamei            #+#    #+#             */
-/*   Updated: 2021/08/22 10:58:09 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/08/25 13:13:50 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,9 @@
 # include "libft.h"
 # include <readline/readline.h>
 # include <readline/history.h>
+
+# define GETCWD_EMSG "error retrieving current directory:\
+ getcwd: cannot access parent directories"
 
 typedef enum e_bool
 {

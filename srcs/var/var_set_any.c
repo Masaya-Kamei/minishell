@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/05 14:03:48 by mkamei            #+#    #+#             */
-/*   Updated: 2021/08/10 18:54:54 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/08/25 13:05:29 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,7 +68,7 @@ t_status	set_pwd(t_data *d, t_place place, char *cd_target_dir)
 	new_pwd = getcwd(NULL, 0);
 	if (new_pwd == NULL)
 	{
-		write_err(NULL, E_GETCWD, 1, place);
+		write_err(GETCWD_EMSG, E_GETCWD, 1, place);
 		if (d->pwd == NULL && cd_target_dir == NULL)
 			return (SUCCESS);
 		new_pwd = create_full_path(d->pwd, cd_target_dir);
