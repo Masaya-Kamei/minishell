@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
+/*   By: keguchi <keguchi@student.42tokyo.jp>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/28 09:39:27 by mkamei            #+#    #+#             */
-/*   Updated: 2021/08/22 10:58:09 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/08/24 17:41:33 by keguchi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,9 +48,11 @@ typedef enum e_status
 	E_SYNTAX			= 8,
 	E_NOCOMMAND			= 9,
 	E_AMBIGUOUS			= 10,
-	E_OPEN				= 11,
-	E_GETCWD			= 12,
-	E_SIG_INTERRUPT		= 13
+	E_OVER_FD			= 11,
+	E_OPEN				= 12,
+	E_GETCWD			= 13,
+	E_SIG_INTERRUPT		= 14,
+	E_OVER_LIMIT		= 15
 }			t_status;
 
 typedef enum e_place
@@ -136,6 +138,7 @@ t_status		add_new_var(t_list **any_list, char *var);
 
 // utils
 char			*strjoin_with_null_support(char *s1, char *s2);
+long long int	atoi_with_unsigned_int(char *str);
 t_bool			is_redirect_token(t_token token);
 t_status		strjoin_to_cmd_str(t_token *tokens,
 					int word_index, char **cmd_str, t_list *vars_list[3]);

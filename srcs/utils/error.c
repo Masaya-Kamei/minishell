@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   error.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
+/*   By: keguchi <keguchi@student.42tokyo.jp>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/09 10:48:30 by mkamei            #+#    #+#             */
-/*   Updated: 2021/08/23 17:55:11 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/08/24 18:10:15 by keguchi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,7 +83,7 @@ t_exit_status	get_exit_status_with_errout(
 {
 	t_exit_status	exit_status;
 	const t_bool	is_errno = (
-		status == E_SYSTEM || status == E_OPEN || status == E_GETCWD);
+		status == E_SYSTEM || status == E_OPEN || status == E_GETCWD || status == E_OVER_FD || status == E_OVER_LIMIT);
 	const int		status_table[8][3][2] = {
 		{{E_AMBIGUOUS, 1}, {E_NOCOMMAND, 127}, {E_SYNTAX, 258}}
 		, {}

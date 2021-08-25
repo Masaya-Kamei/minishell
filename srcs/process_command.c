@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   process_command.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
+/*   By: keguchi <keguchi@student.42tokyo.jp>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/19 09:24:35 by keguchi           #+#    #+#             */
-/*   Updated: 2021/08/20 17:05:07 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/08/25 02:11:53 by keguchi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,9 +90,11 @@ static t_status	edit_status_with_restore_fd(
 	int				redirect_fd;
 	int				backup_fd;
 
-	if (status == E_OPEN || status == E_AMBIGUOUS)
-		set_exit_status_with_errout(err_word, status, d->vars_list);
-	if (status == SUCCESS || status == E_OPEN || status == E_AMBIGUOUS)
+	err_word = NULL;
+	(void)*d;
+	// if (status == E_OPEN || status == E_AMBIGUOUS || status == E_OVER_LIMIT)
+	// 	set_exit_status_with_errout(err_word, status, d->vars_list);
+	if (status == SUCCESS || status == E_OPEN || status == E_AMBIGUOUS || status == E_OVER_FD || status == E_OVER_LIMIT)
 	{
 		list = save_fd;
 		status = SUCCESS;
@@ -127,8 +129,7 @@ t_status	process_command(t_data *d, t_token *tokens, int start, int end)
 		if (tokens[start].type == WORD)
 			status = strjoin_to_cmd_str(tokens, start, &cmd_str, d->vars_list);
 		else
-			start++;
-		// 	status = process_redirect(tokens, start++, &save_fd, d->vars_list);
+			status = process_redirect(tokens, start++, &save_fd, d->vars_list);
 	}
 	if (status == SUCCESS)
 		status = split_cmd_str(cmd_str, &command);

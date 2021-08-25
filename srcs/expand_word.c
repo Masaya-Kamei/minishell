@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   expand_word.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
+/*   By: keguchi <keguchi@student.42tokyo.jp>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/18 11:54:50 by mkamei            #+#    #+#             */
-/*   Updated: 2021/08/22 11:42:39 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/08/25 04:37:39 by keguchi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,7 @@ static t_status	substr_and_strjoin(
 		substr = get_var(vars_list, &substr_start[1]);
 	else
 		substr = substr_start;
+	printf("substr = [%s]\n", substr);
 	if ((substr == NULL || substr[0] == '\0')
 		&& *expanded_str[0] == '\0' && backup_char == '\0')
 	{
