@@ -6,7 +6,7 @@
 /*   By: keguchi <keguchi@student.42tokyo.jp>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/18 11:54:50 by mkamei            #+#    #+#             */
-/*   Updated: 2021/08/25 04:37:39 by keguchi          ###   ########.fr       */
+/*   Updated: 2021/08/25 20:49:42 by keguchi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,7 @@ static t_status	substr_and_strjoin(
 		return (SUCCESS);
 	}
 	tmp = *expanded_str;
-	*expanded_str = ft_strjoin(tmp, substr);
+	*expanded_str = strjoin_with_null_support(tmp, substr);
 	free(tmp);
 	substr_start[len] = backup_char;
 	if (*expanded_str == NULL)

@@ -6,7 +6,7 @@
 /*   By: keguchi <keguchi@student.42tokyo.jp>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/19 09:25:38 by keguchi           #+#    #+#             */
-/*   Updated: 2021/08/25 04:10:49 by keguchi          ###   ########.fr       */
+/*   Updated: 2021/08/25 21:19:24 by keguchi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -110,17 +110,18 @@ t_status	process_redirect(t_token *tokens, int i,
 		status = E_AMBIGUOUS;
 	if (status == SUCCESS)
 		status = open_and_redirect_file(tokens[i], save_fd, expanded_str);
-	//status = open_and_redirect_file(tokens, i + 1, save_fd);
 	free(expanded_str);
 	if (status == E_OPEN || status == E_AMBIGUOUS || status == E_OVER_FD || status == E_OVER_LIMIT)
 	{
-		printf("status = %d, [%s]\n", status, tokens[i + 1].str);
+		printf("status = %d, [%s] => [%s] [%s]\n", status, tokens[i + 1].str, expanded_str, "");
 		if (status == E_OVER_FD)
 			set_exit_status_with_errout("file descriptor out of range", status, vars_list);
 		else if (status == E_OVER_LIMIT)
 			set_exit_status_with_errout(ft_itoa(ft_atoi(tokens[i].str)), status, vars_list);
-		else if (status == E_OPEN || status == E_AMBIGUOUS)
+		else if (status == E_AMBIGUOUS)
 			set_exit_status_with_errout(tokens[i + 1].str, status, vars_list);
+		else if (status == E_OPEN)
+			set_exit_status_with_errout("", status, vars_list);
 	}
 	return (status);
 }

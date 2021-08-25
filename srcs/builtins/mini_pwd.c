@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/07 20:11:20 by mkamei            #+#    #+#             */
-/*   Updated: 2021/08/10 15:07:45 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/08/25 13:13:35 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@ t_exit_status	mini_pwd(t_data *d, char **argv)
 	{
 		absolute_path = getcwd(NULL, 0);
 		if (absolute_path == NULL)
-			return (get_exit_status_with_errout(NULL, E_GETCWD, P_PWD));
+			return (get_exit_status_with_errout(GETCWD_EMSG, E_GETCWD, P_PWD));
 		ft_putendl_fd(absolute_path, 1);
 		free(absolute_path);
 	}
