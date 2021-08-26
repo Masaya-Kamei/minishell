@@ -6,7 +6,7 @@
 /*   By: keguchi <keguchi@student.42tokyo.jp>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/19 09:24:35 by keguchi           #+#    #+#             */
-/*   Updated: 2021/08/26 17:58:00 by keguchi          ###   ########.fr       */
+/*   Updated: 2021/08/26 18:00:20 by keguchi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,7 +91,8 @@ static t_status	edit_status_with_restore_fd(t_list *save_fd,
 	int				backup_fd;
 
 	err_word = NULL;
-	if (status == SUCCESS || status == E_OPEN || status == E_AMBIGUOUS || status == E_OVER_FD || status == E_OVER_LIMIT)
+	if (status == SUCCESS || status == E_OPEN || status == E_AMBIGUOUS
+		|| status == E_OVER_FD || status == E_OVER_LIMIT)
 	{
 		list = save_fd;
 		status = SUCCESS;
