@@ -6,7 +6,7 @@
 /*   By: keguchi <keguchi@student.42tokyo.jp>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/18 11:54:50 by mkamei            #+#    #+#             */
-/*   Updated: 2021/08/25 20:49:42 by keguchi          ###   ########.fr       */
+/*   Updated: 2021/08/26 14:41:12 by keguchi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,6 @@ static t_status	substr_and_strjoin(
 		substr = get_var(vars_list, &substr_start[1]);
 	else
 		substr = substr_start;
-	printf("substr = [%s]\n", substr);
 	if ((substr == NULL || substr[0] == '\0')
 		&& *expanded_str[0] == '\0' && backup_char == '\0')
 	{
@@ -44,14 +43,14 @@ static t_status	substr_and_strjoin(
 }
 
 static t_bool	judge_special_dollar_char(
-	char *word, int i, t_bool is_document, t_bool is_rec_call)
+	char *word, int i, t_bool is_heredoc, t_bool is_rec_call)
 {
 	static t_str_type	type;
 
 	if (i == 0 && is_rec_call == 0)
 		type = RAW;
 	is_rec_call = 1;
-	if (is_document == 1)
+	if (is_heredoc == 1)
 		is_rec_call = 0;
 	else if (type == RAW && word[i] != '\0'
 		&& ft_strchr("\'\"", word[i]) && ft_strchr(&word[i + 1], word[i]))
@@ -67,14 +66,14 @@ static t_bool	judge_special_dollar_char(
 	if (is_rec_call == 1)
 	{
 		ft_strlcpy(&word[i], &word[i + 1], ft_strlen(&word[i + 1]) + 1);
-		return (judge_special_dollar_char(word, i, is_document, is_rec_call));
+		return (judge_special_dollar_char(word, i, is_heredoc, is_rec_call));
 	}
 	return (word[i] == '$' && type != '\'' && word[i + 1] != '\0'
 		&& (ft_isalpha(word[i + 1]) || ft_strchr("?_", word[i + 1])));
 }
 
 t_status	expand_word_token(
-	char *word, t_list *vars_list[3], t_bool is_document, char **expanded_str)
+	char *word, t_list *vars_list[3], t_bool is_heredoc, char **expanded_str)
 {
 	int		i;
 	int		start;
@@ -85,9 +84,9 @@ t_status	expand_word_token(
 	*expanded_str = ft_strdup("");
 	if (*expanded_str == NULL)
 		return (E_SYSTEM);
-	while (word[++i] != '\0')
+	while ((i == -1 || word[i] != '\0') && word[++i] != '\0')
 	{
-		if (judge_special_dollar_char(word, i, is_document, 0) == 0)
+		if (judge_special_dollar_char(word, i, is_heredoc, 0) == 0)
 			continue ;
 		dollar_index = i++;
 		if (word[dollar_index + 1] != '?')

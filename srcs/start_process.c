@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   start_process.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
+/*   By: keguchi <keguchi@student.42tokyo.jp>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/08/09 16:54:39 by mkamei            #+#    #+#             */
-/*   Updated: 2021/08/20 17:08:58 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/08/26 15:51:13 by keguchi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,8 +93,8 @@ static t_status	read_heredocument(
 		free(tokens[i].str);
 		tokens[i].str = heredoc;
 		// debug
-		expand_word_token(heredoc, d->vars_list, 1, &heredoc);
-		printf("%s", heredoc);
+		// expand_word_token(heredoc, d->vars_list, 1, &heredoc);
+		// printf("%s", heredoc);
 	}
 	return (SUCCESS);
 }

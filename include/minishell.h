@@ -6,7 +6,7 @@
 /*   By: keguchi <keguchi@student.42tokyo.jp>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/28 09:39:27 by mkamei            #+#    #+#             */
-/*   Updated: 2021/08/25 20:53:56 by keguchi          ###   ########.fr       */
+/*   Updated: 2021/08/26 17:00:55 by keguchi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -113,7 +113,7 @@ t_status		process_command(t_data *d, t_token *tokens, int start, int end);
 t_status		process_redirect(t_token *tokens,
 					int i, t_list **save_fd, t_list *vars_list[3]);
 t_status		expand_word_token(char *word, t_list *vars_list[3],
-					t_bool is_document, char **expanded_str);
+					t_bool is_heredoc, char **expanded_str);
 
 // builtins
 t_exit_status	mini_echo(t_data *d, char **argv);
@@ -141,7 +141,6 @@ t_status		add_new_var(t_list **any_list, char *var);
 
 // utils
 char			*strjoin_with_null_support(char *s1, char *s2);
-long long int	atoi_with_unsigned_int(char *str);
 t_bool			is_redirect_token(t_token token);
 t_status		strjoin_to_cmd_str(t_token *tokens,
 					int word_index, char **cmd_str, t_list *vars_list[3]);
