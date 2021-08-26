@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/18 11:54:50 by mkamei            #+#    #+#             */
-/*   Updated: 2021/08/25 12:46:12 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/08/26 11:27:51 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,7 +84,7 @@ t_status	expand_word_token(
 	*expanded_str = ft_strdup("");
 	if (*expanded_str == NULL)
 		return (E_SYSTEM);
-	while (word[++i] != '\0')
+	while ((i == -1 || word[i] != '\0') && word[++i] != '\0')
 	{
 		if (judge_special_dollar_char(word, i, is_document, 0) == 0)
 			continue ;
