@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/28 09:39:27 by mkamei            #+#    #+#             */
-/*   Updated: 2021/08/25 13:13:50 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/08/26 11:42:38 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -111,7 +111,7 @@ t_status		process_command(t_data *d, t_token *tokens, int start, int end);
 t_status		process_redirect(t_token *tokens,
 					int i, t_list **save_fd, t_list *vars_list[3]);
 t_status		expand_word_token(char *word, t_list *vars_list[3],
-					t_bool is_document, char **expanded_str);
+					t_bool is_heredoc, char **expanded_str);
 
 // builtins
 t_exit_status	mini_echo(t_data *d, char **argv);
