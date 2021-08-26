@@ -6,7 +6,7 @@
 /*   By: keguchi <keguchi@student.42tokyo.jp>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/19 09:24:35 by keguchi           #+#    #+#             */
-/*   Updated: 2021/08/25 02:11:53 by keguchi          ###   ########.fr       */
+/*   Updated: 2021/08/26 17:58:00 by keguchi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,17 +83,14 @@ static t_status	exec_command(t_data *d, char **command, t_bool is_pipe)
 	return (SUCCESS);
 }
 
-static t_status	edit_status_with_restore_fd(
-	t_data *d, t_list *save_fd, char *err_word, t_status status)
+static t_status	edit_status_with_restore_fd(t_list *save_fd,
+	char *err_word, t_status status)
 {
 	t_list			*list;
 	int				redirect_fd;
 	int				backup_fd;
 
 	err_word = NULL;
-	(void)*d;
-	// if (status == E_OPEN || status == E_AMBIGUOUS || status == E_OVER_LIMIT)
-	// 	set_exit_status_with_errout(err_word, status, d->vars_list);
 	if (status == SUCCESS || status == E_OPEN || status == E_AMBIGUOUS || status == E_OVER_FD || status == E_OVER_LIMIT)
 	{
 		list = save_fd;
@@ -137,5 +134,5 @@ t_status	process_command(t_data *d, t_token *tokens, int start, int end)
 		status = exec_command(d, command, is_pipe);
 	free(cmd_str);
 	free_double_pointer((void **)command);
-	return (edit_status_with_restore_fd(d, save_fd, tokens[start].str, status));
+	return (edit_status_with_restore_fd(save_fd, tokens[start].str, status));
 }
