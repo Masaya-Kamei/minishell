@@ -6,7 +6,7 @@
 /*   By: keguchi <keguchi@student.42tokyo.jp>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/19 09:25:38 by keguchi           #+#    #+#             */
-/*   Updated: 2021/08/26 17:38:30 by keguchi          ###   ########.fr       */
+/*   Updated: 2021/08/27 19:05:58 by keguchi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,7 +85,22 @@ static t_status	open_and_redirect_file(t_token token,
 		return (E_OPEN);
 	if (token.type == 'L')
 		fd = -1;
+	// tokensに新しいメンバを追加した場合、ここで出力文を入れ替える。
+	// if (token.expand_flag)
+	// 	return (set_redirect_and_save_fd(save_fd, red_fd, fd, tokens[i + 1].str));
 	return (set_redirect_and_save_fd(save_fd, red_fd, fd, expanded_str));
+}
+
+static void	redirect_replaced_null(char *str)
+{
+	char	*ret;
+
+	ret = ft_strchr(str, '>');
+	if (ret != NULL)
+		*ret = '\0';
+	ret = ft_strchr(str, '<');
+	if (ret != NULL)
+		*ret = '\0';
 }
 
 t_status	process_redirect(t_token *tokens, int i,
@@ -95,23 +110,22 @@ t_status	process_redirect(t_token *tokens, int i,
 	char		*expanded_str;
 
 	status = 0;
-	if (expand_word_token(tokens[i + 1].str, vars_list, 0, &expanded_str)
+	if (expand_word_token(tokens[++i].str, vars_list, 0, &expanded_str)
 		 == E_SYSTEM)
 		return (E_SYSTEM);
 	if (!expanded_str)
 		status = E_AMBIGUOUS;
 	if (status == SUCCESS)
-		status = open_and_redirect_file(tokens[i], save_fd, expanded_str);
-	free(expanded_str);
+		status = open_and_redirect_file(tokens[i - 1], save_fd, expanded_str);
 	if (status == E_OVER_FD)
 		set_exit_status_with_errout("file descriptor out of range",
 			status, vars_list);
-	else if (status == E_OVER_LIMIT)
-		set_exit_status_with_errout(ft_itoa(ft_atoi(tokens[i].str)),
-			status, vars_list);
-	else if (status == E_AMBIGUOUS)
-		set_exit_status_with_errout(tokens[i + 1].str, status, vars_list);
-	else if (status == E_OPEN)
-		set_exit_status_with_errout("", status, vars_list);
+	if (status == E_OVER_LIMIT)
+		redirect_replaced_null(tokens[--i].str);
+	if (status == E_AMBIGUOUS || status == E_OVER_LIMIT)
+		set_exit_status_with_errout(tokens[i].str, status, vars_list);
+	if (status == E_OPEN)
+		set_exit_status_with_errout(expanded_str, status, vars_list);
+	free(expanded_str);
 	return (status);
 }
