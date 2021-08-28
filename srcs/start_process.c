@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/08/09 16:54:39 by mkamei            #+#    #+#             */
-/*   Updated: 2021/08/20 17:08:58 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/08/28 13:11:11 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,60 +41,71 @@ static t_status	check_syntax_error(t_token *tokens, char **err_word)
 	return (SUCCESS);
 }
 
-static t_status	strjoin_to_heredoc(t_data *d, char *line, char **heredoc)
+static t_status	read_heredocument(
+	char *eof, t_list *vars_list[3], char **heredoc)
 {
+	char	*line;
 	char	*tmp;
 
-	if (line[0] == '\3')
+	*heredoc = ft_strdup("");
+	if (*heredoc == NULL)
+		return (E_SYSTEM);
+	line = readline("> ");
+	while (line && ft_strncmp(eof, line, ft_strlen(eof) + 1) != 0)
 	{
-		free(*heredoc);
+		if (line[0] == '\3')
+		{
+			free(line);
+			set_exit_status(vars_list[SPECIAL], 1);
+			return (E_SIG_INTERRUPT);
+		}
+		tmp = *heredoc;
+		*heredoc = strjoin_three(tmp, line, "\n");
+		free(tmp);
 		free(line);
-		set_exit_status(d->vars_list[SPECIAL], 1);
-		return (E_SIG_INTERRUPT);
+		if (*heredoc == NULL)
+			return (E_SYSTEM);
+		line = readline("> ");
 	}
-	tmp = *heredoc;
-	*heredoc = strjoin_with_null_support(tmp, line);
 	free(line);
-	free(tmp);
-	if (!*heredoc)
-		return (E_SYSTEM);
-	tmp = *heredoc;
-	*heredoc = strjoin_with_null_support(tmp, "\n");
-	free(tmp);
-	if (!*heredoc)
-		return (E_SYSTEM);
 	return (SUCCESS);
 }
 
-static t_status	read_heredocument(
-	t_data *d, t_token *tokens, int start, int end)
+static t_status	receive_heredocument(
+	t_token *tokens, int start, int end, t_list *vars_list[3])
 {
-	char	*line;
-	char	*heredoc;
-	int		i;
+	int			i;
+	int			j;
+	t_status	status;
+	char		*eof;
 
-	i = start;
-	while (i <= end)
+	i = start - 1;
+	while (++i <= end)
 	{
-		if (tokens[i++].type != D_LESS)
+		if (tokens[i].type != D_LESS)
 			continue ;
-		heredoc = ft_strdup("");
-		while (heredoc != NULL)
-		{
-			line = readline("> ");
-			if (!line || !ft_strncmp(tokens[i].str, line, ft_strlen(line) + 1))
-				break ;
-			if (strjoin_to_heredoc(d, line, &heredoc) == E_SIG_INTERRUPT)
-				return (E_SIG_INTERRUPT);
-		}
-		if (heredoc == NULL)
+		j = -1;
+		tokens[++i].type = HEREDOC_D_QUOTE;
+		while (tokens[i].type == HEREDOC_D_QUOTE && tokens[i].str[++j] != '\0')
+			if (is_special_quote_char(tokens[i].str, j, RAW) == 1)
+				tokens[i].type = HEREDOC_S_QUOTE;
+		if (expand_word_token(
+				tokens[i].str, vars_list, EXPAND_QUOTE, &eof) == E_SYSTEM)
 			return (E_SYSTEM);
-		free(line);
 		free(tokens[i].str);
-		tokens[i].str = heredoc;
-		// debug
-		expand_word_token(heredoc, d->vars_list, 1, &heredoc);
-		printf("%s", heredoc);
+		status = read_heredocument(eof, vars_list, &tokens[i].str);
+		free(eof);
+		if (status != SUCCESS)
+			return (status);
+		////// debug
+		if (tokens[i].type == HEREDOC_D_QUOTE)
+		{
+			expand_word_token(tokens[i].str, vars_list, EXPAND_VAR, &eof);
+			printf("%s\n", eof);
+		}
+		else
+			printf("%s\n", tokens[i].str);
+		///////////////////
 	}
 	return (SUCCESS);
 }
@@ -136,7 +147,7 @@ t_status	start_process(t_data *d, t_token *tokens, int start, int end)
 
 	if (check_syntax_error(tokens, &err_word) == E_SYNTAX)
 		return (set_exit_status_with_errout(err_word, E_SYNTAX, d->vars_list));
-	status = read_heredocument(d, tokens, start, end);
+	status = receive_heredocument(tokens, start, end, d->vars_list);
 	if (status == E_SYSTEM)
 		return (E_SYSTEM);
 	else if (status == E_SIG_INTERRUPT)
