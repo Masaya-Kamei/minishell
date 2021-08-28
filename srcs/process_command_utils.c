@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/08/01 13:09:34 by mkamei            #+#    #+#             */
-/*   Updated: 2021/08/20 17:26:52 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/08/27 18:04:57 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,8 +18,8 @@ t_status	strjoin_to_cmd_str(
 	char	*tmp;
 	char	*expanded_str;
 
-	if (expand_word_token(tokens[word_index].str, vars_list, 0, &expanded_str)
-		 == E_SYSTEM)
+	if (expand_word_token(tokens[word_index].str, vars_list,
+			EXPAND_VAR | EXPAND_QUOTE, &expanded_str) == E_SYSTEM)
 		return (E_SYSTEM);
 	if (expanded_str == NULL)
 		return (SUCCESS);
