@@ -6,9 +6,10 @@
 /*   By: keguchi <keguchi@student.42tokyo.jp>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/28 09:39:27 by mkamei            #+#    #+#             */
-/*   Updated: 2021/08/26 17:51:17 by keguchi          ###   ########.fr       */
+/*   Updated: 2021/08/31 17:17:39 by keguchi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
 
 #ifndef MINISHELL_H
 # define MINISHELL_H
@@ -31,6 +32,12 @@ typedef enum e_bool
 	FALSE		= 0,
 	TRUE		= 1
 }			t_bool;
+
+typedef enum e_expand_flag
+{
+	EXPAND_QUOTE	= 0x00000001,
+	EXPAND_VAR		= 0x00000002
+}			t_expand_flag;
 
 typedef enum e_str_type{
 	RAW			= 'R',
@@ -77,12 +84,14 @@ typedef enum e_vars_type{
 }			t_vars_type;
 
 typedef enum e_token_type{
-	PIPE		= '|',
-	GREATER		= '>',
-	LESS		= '<',
-	D_GREATER	= 'G',
-	D_LESS		= 'L',
-	WORD		= 'W'
+	PIPE			= '|',
+	GREATER			= '>',
+	LESS			= '<',
+	D_GREATER		= 'G',
+	D_LESS			= 'L',
+	WORD			= 'W',
+	HEREDOC_D_QUOTE	= '\"',
+	HEREDOC_S_QUOTE = '\''
 }			t_token_type;
 
 typedef struct s_token
@@ -113,7 +122,7 @@ t_status		process_command(t_data *d, t_token *tokens, int start, int end);
 t_status		process_redirect(t_token *tokens,
 					int i, t_list **save_fd, t_list *vars_list[3]);
 t_status		expand_word_token(char *word, t_list *vars_list[3],
-					t_bool is_heredoc, char **expanded_str);
+					t_expand_flag flag, char **expanded_str);
 
 // builtins
 t_exit_status	mini_echo(t_data *d, char **argv);
@@ -142,6 +151,8 @@ t_status		add_new_var(t_list **any_list, char *var);
 // utils
 char			*strjoin_with_null_support(char *s1, char *s2);
 t_bool			is_redirect_token(t_token token);
+char			*strjoin_three(char *s1, char *s2, char *s3);
+t_bool			is_special_quote_char(char *word, int i, t_str_type type);
 t_status		strjoin_to_cmd_str(t_token *tokens,
 					int word_index, char **cmd_str, t_list *vars_list[3]);
 t_status		split_cmd_str(char *cmd_str, char ***command);
