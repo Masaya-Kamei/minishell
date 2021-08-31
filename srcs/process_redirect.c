@@ -6,7 +6,7 @@
 /*   By: keguchi <keguchi@student.42tokyo.jp>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/19 09:25:38 by keguchi           #+#    #+#             */
-/*   Updated: 2021/08/31 11:12:43 by keguchi          ###   ########.fr       */
+/*   Updated: 2021/08/31 14:31:38 by keguchi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,7 +84,7 @@ static t_status	open_and_redirect_file(t_token token,
 		if (close(pipe_fd[1]) == -1)
 			return (E_SYSTEM);
 	}
-	return (set_redirect_and_save_fd(save_fd, token, fd, pipe[0]));
+	return (set_redirect_and_save_fd(save_fd, token, fd, pipe_fd[0]));
 }
 
 static void	redirect_replaced_null(char *str)
