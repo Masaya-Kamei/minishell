@@ -6,7 +6,7 @@
 /*   By: keguchi <keguchi@student.42tokyo.jp>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/19 09:25:38 by keguchi           #+#    #+#             */
-/*   Updated: 2021/08/31 14:31:38 by keguchi          ###   ########.fr       */
+/*   Updated: 2021/08/31 15:26:03 by keguchi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,16 +87,24 @@ static t_status	open_and_redirect_file(t_token token,
 	return (set_redirect_and_save_fd(save_fd, token, fd, pipe_fd[0]));
 }
 
-static void	redirect_replaced_null(char *str)
+static void	error_check_in_redirect(t_token token, t_status status,
+	char *expanded_str, t_list *vars_list[3])
 {
 	char	*ret;
 
-	ret = ft_strchr(str, '>');
+	ret = ft_strchr(token.str, '>');
 	if (ret != NULL)
 		*ret = '\0';
-	ret = ft_strchr(str, '<');
+	ret = ft_strchr(token.str, '<');
 	if (ret != NULL)
 		*ret = '\0';
+	if (status == E_OVER_FD)
+		set_exit_status_with_errout("file descriptor out of range",
+			status, vars_list);
+	if (status == E_AMBIGUOUS || status == E_OVER_LIMIT)
+		set_exit_status_with_errout(tokens.str, status, vars_list);
+	if (status == E_OPEN)
+		set_exit_status_with_errout(expanded_str, status, vars_list);
 }
 
 t_status	process_redirect(t_token *tokens, int i,
@@ -104,24 +112,24 @@ t_status	process_redirect(t_token *tokens, int i,
 {
 	t_status	status;
 	char		*expanded_str;
+	int			flag;
 
 	status = 0;
-	if (expand_word_token(tokens[++i].str, vars_list, 0, &expanded_str)
-		 == E_SYSTEM)
+	flag = 0;
+	if (tokens[i + 1].type == WORD)
+		flag = EXPAND_QUOTE | EXPAND_VAR;
+	else if (tokens[i + 1].type == HEREDOC_D_QUOTE)
+		flag = EXPAND_VAR;
+	if (expand_word_token(
+			tokens[++i].str, vars_list, flag, &expanded_str) == E_SYSTEM)
 		return (E_SYSTEM);
 	if (!expanded_str)
 		status = E_AMBIGUOUS;
 	if (status == SUCCESS)
 		status = open_and_redirect_file(tokens[i - 1], save_fd, expanded_str);
-	if (status == E_OVER_FD)
-		set_exit_status_with_errout("file descriptor out of range",
-			status, vars_list);
 	if (status == E_OVER_LIMIT)
-		redirect_replaced_null(tokens[--i].str);
-	if (status == E_AMBIGUOUS || status == E_OVER_LIMIT)
-		set_exit_status_with_errout(tokens[i].str, status, vars_list);
-	if (status == E_OPEN)
-		set_exit_status_with_errout(expanded_str, status, vars_list);
+		i--;
+	error_check_in_redirect(tokens[i], status, expanded_str, vars_list);
 	free(expanded_str);
 	return (status);
 }
