@@ -6,7 +6,7 @@
 /*   By: keguchi <keguchi@student.42tokyo.jp>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/19 09:25:38 by keguchi           #+#    #+#             */
-/*   Updated: 2021/08/31 15:26:03 by keguchi          ###   ########.fr       */
+/*   Updated: 2021/08/31 16:28:29 by keguchi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,7 +102,7 @@ static void	error_check_in_redirect(t_token token, t_status status,
 		set_exit_status_with_errout("file descriptor out of range",
 			status, vars_list);
 	if (status == E_AMBIGUOUS || status == E_OVER_LIMIT)
-		set_exit_status_with_errout(tokens.str, status, vars_list);
+		set_exit_status_with_errout(token.str, status, vars_list);
 	if (status == E_OPEN)
 		set_exit_status_with_errout(expanded_str, status, vars_list);
 }
@@ -121,14 +121,15 @@ t_status	process_redirect(t_token *tokens, int i,
 	else if (tokens[i + 1].type == HEREDOC_D_QUOTE)
 		flag = EXPAND_VAR;
 	if (expand_word_token(
-			tokens[++i].str, vars_list, flag, &expanded_str) == E_SYSTEM)
+			tokens[i + 1].str, vars_list, flag, &expanded_str) == E_SYSTEM)
 		return (E_SYSTEM);
 	if (!expanded_str)
+	{
 		status = E_AMBIGUOUS;
+		i++;
+	}
 	if (status == SUCCESS)
-		status = open_and_redirect_file(tokens[i - 1], save_fd, expanded_str);
-	if (status == E_OVER_LIMIT)
-		i--;
+		status = open_and_redirect_file(tokens[i], save_fd, expanded_str);
 	error_check_in_redirect(tokens[i], status, expanded_str, vars_list);
 	free(expanded_str);
 	return (status);
