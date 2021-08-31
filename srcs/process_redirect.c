@@ -6,13 +6,13 @@
 /*   By: keguchi <keguchi@student.42tokyo.jp>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/19 09:25:38 by keguchi           #+#    #+#             */
-/*   Updated: 2021/08/31 16:28:29 by keguchi          ###   ########.fr       */
+/*   Updated: 2021/08/31 18:58:23 by keguchi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-static long long int	get_redirect_num(char *str)
+static int	get_redirect_num(char *str)
 {
 	int				i;
 	long long int	nbr;
@@ -27,17 +27,17 @@ static long long int	get_redirect_num(char *str)
 		nbr = (nbr * 10) + str[i++] - '0';
 	if (nbr > INT_MAX)
 		return (-1);
-	return (nbr);
+	return ((int)nbr);
 }
 
 static t_status	set_redirect_and_save_fd(t_list **save_fd,
 	t_token token, int fd, int pipe_fd)
 {
-	t_list			*new;
-	long long int	*red_fd;
+	t_list	*new;
+	int		*red_fd;
 
 	fd = pipe_fd;
-	red_fd = malloc(sizeof(long long int) * 2);
+	red_fd = malloc(sizeof(int) * 2);
 	if (!red_fd)
 		return (E_SYSTEM);
 	red_fd[0] = get_redirect_num(token.str);
