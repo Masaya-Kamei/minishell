@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/18 11:54:50 by mkamei            #+#    #+#             */
-/*   Updated: 2021/08/26 11:41:53 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/08/28 12:08:00 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,38 +42,52 @@ static t_status	substr_and_strjoin(
 	return (SUCCESS);
 }
 
-static t_bool	judge_special_dollar_char(
-	char *word, int i, t_bool is_heredoc, t_bool is_rec_call)
+t_bool	is_special_quote_char(char *word, int i, t_str_type type)
+{
+	if (type == RAW
+		&& ((word[i] == '\'' && ft_strchr(&word[i + 1], '\''))
+			|| (word[i] == '\"' && ft_strchr(&word[i + 1], '\"'))))
+	{
+		return (1);
+	}
+	else if ((type == '\'' && word[i] == '\'')
+		|| (type == '\"' && word[i] == '\"'))
+	{
+		return (1);
+	}
+	return (0);
+}
+
+static t_bool	is_special_dollar_char(
+	char *word, int i, t_expand_flag flag, t_bool is_rec_call)
 {
 	static t_str_type	type;
 
 	if (i == 0 && is_rec_call == 0)
 		type = RAW;
-	is_rec_call = 1;
-	if (is_heredoc == 1)
-		is_rec_call = 0;
-	else if (type == RAW && word[i] != '\0'
-		&& ft_strchr("\'\"", word[i]) && ft_strchr(&word[i + 1], word[i]))
-		type = word[i];
-	else if ((type == '\'' && word[i] == '\'')
-		|| (type == '\"' && word[i] == '\"'))
-		type = RAW;
-	else if (type == RAW && word[i] == '$' && word[i + 1] != '\0'
-		&& ft_strchr("\'\"", word[i + 1]) && ft_strchr(&word[i + 2], word[i + 1]))
-		;
-	else
-		is_rec_call = 0;
-	if (is_rec_call == 1)
+	if (flag & EXPAND_QUOTE
+		&& is_special_quote_char(word, i, type) == 1)
+	{
+		if (type == '\'' || type == '\"')
+			type = RAW;
+		else
+			type = word[i];
+		ft_strlcpy(&word[i], &word[i + 1], ft_strlen(&word[i + 1]) + 1);
+		return (is_special_dollar_char(word, i, flag, 1));
+	}
+	else if (flag & EXPAND_QUOTE && word[i] == '$' && type == RAW
+		&& is_special_quote_char(word, i + 1, type) == 1)
 	{
 		ft_strlcpy(&word[i], &word[i + 1], ft_strlen(&word[i + 1]) + 1);
-		return (judge_special_dollar_char(word, i, is_heredoc, is_rec_call));
+		return (is_special_dollar_char(word, i, flag, 1));
 	}
-	return (word[i] == '$' && type != '\'' && word[i + 1] != '\0'
+	return (flag & EXPAND_VAR
+		&& word[i] == '$' && type != '\'' && word[i + 1] != '\0'
 		&& (ft_isalpha(word[i + 1]) || ft_strchr("?_", word[i + 1])));
 }
 
 t_status	expand_word_token(
-	char *word, t_list *vars_list[3], t_bool is_heredoc, char **expanded_str)
+	char *word, t_list *vars_list[3], t_expand_flag flag, char **expanded_str)
 {
 	int		i;
 	int		start;
@@ -86,7 +100,7 @@ t_status	expand_word_token(
 		return (E_SYSTEM);
 	while ((i == -1 || word[i] != '\0') && word[++i] != '\0')
 	{
-		if (judge_special_dollar_char(word, i, is_heredoc, 0) == 0)
+		if (is_special_dollar_char(word, i, flag, 0) == 0)
 			continue ;
 		dollar_index = i++;
 		if (word[dollar_index + 1] != '?')

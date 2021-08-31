@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/04 10:45:21 by keguchi           #+#    #+#             */
-/*   Updated: 2021/08/17 16:01:49 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/08/27 16:41:12 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,4 +30,20 @@ t_bool	is_redirect_token(t_token token)
 		return (1);
 	else
 		return (0);
+}
+
+char	*strjoin_three(char *s1, char *s2, char *s3)
+{
+	char	*joined_str;
+	char	*tmp;
+
+	joined_str = ft_strjoin(s1, s2);
+	if (joined_str == NULL)
+		return (NULL);
+	tmp = joined_str;
+	joined_str = ft_strjoin(tmp, s3);
+	free(tmp);
+	if (joined_str == NULL)
+		return (NULL);
+	return (joined_str);
 }
