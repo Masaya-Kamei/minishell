@@ -6,7 +6,7 @@
 /*   By: keguchi <keguchi@student.42tokyo.jp>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/19 09:25:38 by keguchi           #+#    #+#             */
-/*   Updated: 2021/08/31 18:58:23 by keguchi          ###   ########.fr       */
+/*   Updated: 2021/09/02 13:58:14 by keguchi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,105 +14,104 @@
 
 static int	get_redirect_num(char *str)
 {
-	int				i;
-	long long int	nbr;
+	int			i;
+	long int	nbr;
 
-	i = 0;
-	nbr = 0;
 	if (ft_strncmp(str, "<", 2) == 0 || ft_strncmp(str, "<<", 3) == 0)
 		return (STDIN_FILENO);
 	else if (ft_strncmp(str, ">", 2) == 0 || ft_strncmp(str, ">>", 3) == 0)
 		return (STDOUT_FILENO);
-	while (str[i] >= '0' && str[i] <= '9' && nbr <= INT_MAX)
-		nbr = (nbr * 10) + str[i++] - '0';
-	if (nbr > INT_MAX)
-		return (-1);
-	return ((int)nbr);
+	else
+	{
+		i = 0;
+		nbr = 0;
+		while (str[i] >= '0' && str[i] <= '9' && nbr <= INT_MAX)
+			nbr = (nbr * 10) + str[i++] - '0';
+		if (nbr > INT_MAX)
+			return (-1);
+		return ((int)nbr);
+	}
 }
 
-static t_status	set_redirect_and_save_fd(t_list **save_fd,
-	t_token token, int fd, int pipe_fd)
+static t_status	set_redirect_and_save_fd(t_token redirect_token,
+		t_list **fds_list, int target_fd)
 {
 	t_list	*new;
-	int		*red_fd;
+	int		*save_fd;
 
-	fd = pipe_fd;
-	red_fd = malloc(sizeof(int) * 2);
-	if (!red_fd)
+	save_fd = malloc(sizeof(int) * 2);
+	if (!save_fd)
 		return (E_SYSTEM);
-	red_fd[0] = get_redirect_num(token.str);
-	red_fd[1] = dup(red_fd[0]);
-	if (red_fd[1] == -1 && red_fd[0] > 10496)
-		return (free_and_return(red_fd, E_OVER_LIMIT));
-	if (red_fd[1] == -1 && red_fd[0] < 0)
-		return (free_and_return(red_fd, E_OVER_FD));
-	if (red_fd[1] == -1)
-		return (free_and_return(red_fd, SUCCESS));
-	new = ft_lstnew(red_fd);
+	save_fd[0] = get_redirect_num(redirect_token.str);
+	save_fd[1] = dup(save_fd[0]);
+	if (save_fd[1] == -1 && save_fd[0] > 10496)
+		return (free_and_return(save_fd, E_OVER_LIMIT));
+	else if (save_fd[1] == -1 && save_fd[0] == -1)
+		return (free_and_return(save_fd, E_OVER_INT));
+	else if (save_fd[1] == -1)
+		return (free_and_return(save_fd, SUCCESS));
+	new = ft_lstnew(save_fd);
 	if (!new)
-		return (free_and_return(red_fd, E_SYSTEM));
-	ft_lstadd_front(save_fd, new);
-	if (dup2(fd, red_fd[0]) == -1 || close(fd) == -1)
+		return (free_and_return(save_fd, E_SYSTEM));
+	ft_lstadd_front(fds_list, new);
+	if (dup2(target_fd, save_fd[0]) == -1 || close(target_fd) == -1)
 		return (E_SYSTEM);
 	return (SUCCESS);
 }
 
-static t_status	open_and_redirect_file(t_token token,
-		t_list **save_fd, char *expanded_str)
+static t_status	redirect_to_file(t_token redirect_token,
+		t_list **fds_list, char *expanded_str)
 {
-	int		fd;
-	char	*str;
-	char	*tmp;
+	int		target_fd;
 	int		pipe_fd[2];
 
-	str = NULL;
-	tmp = NULL;
-	fd = 0;
-	if (token.type == '>')
-		fd = open(expanded_str, O_RDWR | O_CREAT | O_TRUNC, 0644);
-	else if (token.type == '<')
-		fd = open(expanded_str, O_RDONLY);
-	else if (token.type == 'G')
-		fd = open(expanded_str, O_RDWR | O_CREAT | O_APPEND, 0644);
-	if (fd < 0)
-		return (E_OPEN);
-	if (token.type == 'L')
+	target_fd = 0;
+	if (redirect_token.type == GREATER)
+		target_fd = open(expanded_str, O_RDWR | O_CREAT | O_TRUNC, 0644);
+	else if (redirect_token.type == LESS)
+		target_fd = open(expanded_str, O_RDONLY);
+	else if (redirect_token.type == D_GREATER)
+		target_fd = open(expanded_str, O_RDWR | O_CREAT | O_APPEND, 0644);
+	else if (redirect_token.type == D_LESS)
 	{
 		if (pipe(pipe_fd) < 0)
 			return (E_SYSTEM);
 		write(pipe_fd[1], expanded_str, ft_strlen(expanded_str));
+		target_fd = pipe_fd[0];
 		if (close(pipe_fd[1]) == -1)
 			return (E_SYSTEM);
 	}
-	return (set_redirect_and_save_fd(save_fd, token, fd, pipe_fd[0]));
+	if (target_fd < 0)
+		return (E_OPEN);
+	return (set_redirect_and_save_fd(redirect_token, fds_list, target_fd));
 }
 
-static void	error_check_in_redirect(t_token token, t_status status,
+static void	errout_in_redirect(char *err_token, t_status status,
 	char *expanded_str, t_list *vars_list[3])
 {
-	char	*ret;
+	char	*redirect_symbol_ptr;
 
-	ret = ft_strchr(token.str, '>');
-	if (ret != NULL)
-		*ret = '\0';
-	ret = ft_strchr(token.str, '<');
-	if (ret != NULL)
-		*ret = '\0';
-	if (status == E_OVER_FD)
-		set_exit_status_with_errout("file descriptor out of range",
-			status, vars_list);
-	if (status == E_AMBIGUOUS || status == E_OVER_LIMIT)
-		set_exit_status_with_errout(token.str, status, vars_list);
-	if (status == E_OPEN)
+	if (status == E_OVER_INT)
+		set_exit_status_with_errout(OVER_INT_EMSG, status, vars_list);
+	else if (status == E_OVER_LIMIT)
+	{
+		redirect_symbol_ptr = ft_strchr(err_token, '>');
+		if (redirect_symbol_ptr != NULL)
+			*redirect_symbol_ptr = '\0';
+		redirect_symbol_ptr = ft_strchr(err_token, '<');
+		if (redirect_symbol_ptr != NULL)
+			*redirect_symbol_ptr = '\0';
+	}
+	else if (status == E_OPEN)
 		set_exit_status_with_errout(expanded_str, status, vars_list);
 }
 
 t_status	process_redirect(t_token *tokens, int i,
-	t_list **save_fd, t_list *vars_list[3])
+	t_list **fds_list, t_list *vars_list[3])
 {
-	t_status	status;
-	char		*expanded_str;
-	int			flag;
+	t_status		status;
+	char			*expanded_str;
+	t_expand_flag	flag;
 
 	status = 0;
 	flag = 0;
@@ -125,12 +124,12 @@ t_status	process_redirect(t_token *tokens, int i,
 		return (E_SYSTEM);
 	if (!expanded_str)
 	{
-		status = E_AMBIGUOUS;
-		i++;
+		set_exit_status_with_errout(tokens[i + 1].str, status, vars_list);
+		return (E_AMBIGUOUS);
 	}
-	if (status == SUCCESS)
-		status = open_and_redirect_file(tokens[i], save_fd, expanded_str);
-	error_check_in_redirect(tokens[i], status, expanded_str, vars_list);
+	status = redirect_to_file(tokens[i], fds_list, expanded_str);
+	if (status != SUCCESS)
+		errout_in_redirect(tokens[i].str, status, expanded_str, vars_list);
 	free(expanded_str);
 	return (status);
 }

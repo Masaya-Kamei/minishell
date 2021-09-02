@@ -6,10 +6,9 @@
 /*   By: keguchi <keguchi@student.42tokyo.jp>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/08/09 16:54:39 by mkamei            #+#    #+#             */
-/*   Updated: 2021/08/31 17:18:47 by keguchi          ###   ########.fr       */
+/*   Updated: 2021/09/02 13:54:59 by keguchi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
 
 #include "minishell.h"
 
@@ -98,15 +97,6 @@ static t_status	receive_heredocument(
 		free(eof);
 		if (status != SUCCESS)
 			return (status);
-		////// debug
-		// if (tokens[i].type == HEREDOC_D_QUOTE)
-		// {
-		// 	expand_word_token(tokens[i].str, vars_list, EXPAND_VAR, &eof);
-		// 	printf("%s\n", eof);
-		// }
-		// else
-		// 	printf("%s\n", tokens[i].str);
-		///////////////////
 	}
 	return (SUCCESS);
 }
