@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: keguchi <keguchi@student.42tokyo.jp>       +#+  +:+       +#+        */
+/*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/28 09:39:27 by mkamei            #+#    #+#             */
-/*   Updated: 2021/09/02 13:57:58 by keguchi          ###   ########.fr       */
+/*   Updated: 2021/09/02 15:34:43 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,7 +62,8 @@ typedef enum e_status
 	E_GETCWD			= 12,
 	E_SIG_INTERRUPT		= 13,
 	E_OVER_INT			= 14,
-	E_OVER_LIMIT		= 15
+	E_OVER_LIMIT		= 15,
+	E_NO_PATHCOMMAND	= 16
 }			t_status;
 
 typedef enum e_place

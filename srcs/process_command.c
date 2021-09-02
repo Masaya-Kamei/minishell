@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   process_command.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: keguchi <keguchi@student.42tokyo.jp>       +#+  +:+       +#+        */
+/*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/19 09:24:35 by keguchi           #+#    #+#             */
-/*   Updated: 2021/09/02 13:57:14 by keguchi          ###   ########.fr       */
+/*   Updated: 2021/09/02 15:34:52 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,7 @@ static void	exec_external_command(char **command, t_list *vars_list[3])
 	if (envp == NULL)
 		exit(get_exit_status_with_errout(NULL, E_SYSTEM, P_SHELL));
 	execve(cmd_path, command, envp);
-	exit(get_exit_status_with_errout(cmd_path, E_SYSTEM, P_SHELL));
+	exit(get_exit_status_with_errout(cmd_path, E_NO_PATHCOMMAND, P_SHELL));
 }
 
 static t_status	exec_command(t_data *d, char **command, t_bool is_pipe)

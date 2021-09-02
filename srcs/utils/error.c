@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   error.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: keguchi <keguchi@student.42tokyo.jp>       +#+  +:+       +#+        */
+/*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/09 10:48:30 by mkamei            #+#    #+#             */
-/*   Updated: 2021/09/02 13:57:05 by keguchi          ###   ########.fr       */
+/*   Updated: 2021/09/02 15:35:56 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,9 +78,11 @@ t_exit_status	get_exit_status_with_errout(
 	t_exit_status	exit_status;
 	const t_bool	is_errno = (
 		status == E_SYSTEM || status == E_OPEN || status == E_GETCWD
-		|| status == E_OVER_INT || status == E_OVER_LIMIT);
-	const int		status_table[8][3][2] = {
-		{{E_AMBIGUOUS, 1}, {E_NOCOMMAND, 127}, {E_SYNTAX, 258}}
+		|| status == E_OVER_INT || status == E_OVER_LIMIT
+		|| status == E_NO_PATHCOMMAND);
+	const int		status_table[8][4][2] = {
+		{{E_AMBIGUOUS, 1}, {E_NO_PATHCOMMAND, 127}, {E_NOCOMMAND, 127}
+			, {E_SYNTAX, 258}}
 		, {}
 		, {{E_INVALID_OP, 1}, {E_NOSET_VAR, 1}}
 		, {{E_INVALID_OP, 1}}
@@ -90,7 +92,7 @@ t_exit_status	get_exit_status_with_errout(
 		, {{E_TOO_MANY_ARG, 1}, {E_NUM_ARG_REQ, 255}}};
 
 	write_err(err_word, status, is_errno, place);
-	if (is_errno == 1)
+	if (is_errno == 1 && status != E_NO_PATHCOMMAND)
 		exit_status = 1;
 	else
 		exit_status = get_value_from_status_table(status, status_table[place]);
