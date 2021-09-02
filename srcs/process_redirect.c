@@ -6,7 +6,7 @@
 /*   By: keguchi <keguchi@student.42tokyo.jp>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/19 09:25:38 by keguchi           #+#    #+#             */
-/*   Updated: 2021/09/02 14:09:30 by keguchi          ###   ########.fr       */
+/*   Updated: 2021/09/02 14:11:06 by keguchi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,8 +14,8 @@
 
 static int	get_redirect_num(char *str)
 {
-	int			i;
-	long int	nbr;
+	int		i;
+	long	nbr;
 
 	if (ft_strncmp(str, "<", 2) == 0 || ft_strncmp(str, "<<", 3) == 0)
 		return (STDIN_FILENO);
