@@ -6,7 +6,7 @@
 /*   By: keguchi <keguchi@student.42tokyo.jp>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/19 09:25:38 by keguchi           #+#    #+#             */
-/*   Updated: 2021/09/02 14:04:19 by keguchi          ###   ########.fr       */
+/*   Updated: 2021/09/02 14:09:30 by keguchi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -114,7 +114,6 @@ t_status	process_redirect(t_token *tokens, int i,
 	char			*expanded_str;
 	t_expand_flag	flag;
 
-	status = 0;
 	flag = 0;
 	if (tokens[i + 1].type == WORD)
 		flag = EXPAND_QUOTE | EXPAND_VAR;
@@ -125,7 +124,7 @@ t_status	process_redirect(t_token *tokens, int i,
 		return (E_SYSTEM);
 	if (!expanded_str)
 	{
-		set_exit_status_with_errout(tokens[i + 1].str, status, vars_list);
+		set_exit_status_with_errout(tokens[i + 1].str, E_AMBIGUOUS, vars_list);
 		return (E_AMBIGUOUS);
 	}
 	status = redirect_to_file(tokens[i], fds_list, expanded_str);
