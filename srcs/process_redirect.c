@@ -6,7 +6,7 @@
 /*   By: keguchi <keguchi@student.42tokyo.jp>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/19 09:25:38 by keguchi           #+#    #+#             */
-/*   Updated: 2021/09/02 13:58:14 by keguchi          ###   ########.fr       */
+/*   Updated: 2021/09/02 14:04:19 by keguchi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,6 +101,7 @@ static void	errout_in_redirect(char *err_token, t_status status,
 		redirect_symbol_ptr = ft_strchr(err_token, '<');
 		if (redirect_symbol_ptr != NULL)
 			*redirect_symbol_ptr = '\0';
+		set_exit_status_with_errout(err_token, status, vars_list);
 	}
 	else if (status == E_OPEN)
 		set_exit_status_with_errout(expanded_str, status, vars_list);
