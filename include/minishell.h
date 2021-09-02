@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
+/*   By: keguchi <keguchi@student.42tokyo.jp>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/28 09:39:27 by mkamei            #+#    #+#             */
-/*   Updated: 2021/08/28 12:09:13 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/09/02 13:57:58 by keguchi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,7 @@
 
 # define GETCWD_EMSG "error retrieving current directory:\
  getcwd: cannot access parent directories"
+# define OVER_INT_EMSG "file descriptor out of range"
 
 typedef enum e_bool
 {
@@ -59,7 +60,9 @@ typedef enum e_status
 	E_AMBIGUOUS			= 10,
 	E_OPEN				= 11,
 	E_GETCWD			= 12,
-	E_SIG_INTERRUPT		= 13
+	E_SIG_INTERRUPT		= 13,
+	E_OVER_INT			= 14,
+	E_OVER_LIMIT		= 15
 }			t_status;
 
 typedef enum e_place

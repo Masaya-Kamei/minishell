@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   mini_echo.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
+/*   By: keguchi <keguchi@student.42tokyo.jp>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/07 20:12:07 by mkamei            #+#    #+#             */
-/*   Updated: 2021/08/09 14:00:42 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/09/02 14:12:18 by keguchi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,17 +40,3 @@ t_exit_status	mini_echo(t_data *d, char **argv)
 		write(1, "\n", 1);
 	return (0);
 }
-
-// gcc -Wall -Werror -Wextra mini_echo.c ../error.c
-//	-I ../../include -I ../../libft/ ../../libft/libft.a
-
-// int	main(int argc, char **argv)
-// {
-// 	int		exit_status;
-
-// 	(void)argc;
-// 	argv[0] = "echo";
-// 	exit_status = mini_echo(argv, NULL);
-// 	printf("%d\n", exit_status);
-// 	return (0);
-// }

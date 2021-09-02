@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   process_command.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
+/*   By: keguchi <keguchi@student.42tokyo.jp>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/19 09:24:35 by keguchi           #+#    #+#             */
-/*   Updated: 2021/08/20 17:05:07 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/09/02 13:57:14 by keguchi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,18 +83,16 @@ static t_status	exec_command(t_data *d, char **command, t_bool is_pipe)
 	return (SUCCESS);
 }
 
-static t_status	edit_status_with_restore_fd(
-	t_data *d, t_list *save_fd, char *err_word, t_status status)
+static t_status	restore_fd(t_list *fds_list, t_status status)
 {
 	t_list			*list;
 	int				redirect_fd;
 	int				backup_fd;
 
-	if (status == E_OPEN || status == E_AMBIGUOUS)
-		set_exit_status_with_errout(err_word, status, d->vars_list);
-	if (status == SUCCESS || status == E_OPEN || status == E_AMBIGUOUS)
+	if (status == SUCCESS || status == E_OPEN || status == E_AMBIGUOUS
+		|| status == E_OVER_INT || status == E_OVER_LIMIT)
 	{
-		list = save_fd;
+		list = fds_list;
 		status = SUCCESS;
 		while (status == SUCCESS && list != NULL)
 		{
@@ -105,19 +103,19 @@ static t_status	edit_status_with_restore_fd(
 			list = list->next;
 		}
 	}
-	ft_lstclear(&save_fd, free);
+	ft_lstclear(&fds_list, free);
 	return (status);
 }
 
 t_status	process_command(t_data *d, t_token *tokens, int start, int end)
 {
 	t_status		status;
-	t_list			*save_fd;
+	t_list			*fds_list;
 	char			*cmd_str;
 	char			**command;
 	const t_bool	is_pipe = !(isatty(0) == 1 && isatty(1) == 1);
 
-	save_fd = NULL;
+	fds_list = NULL;
 	cmd_str = NULL;
 	command = NULL;
 	status = SUCCESS;
@@ -127,8 +125,7 @@ t_status	process_command(t_data *d, t_token *tokens, int start, int end)
 		if (tokens[start].type == WORD)
 			status = strjoin_to_cmd_str(tokens, start, &cmd_str, d->vars_list);
 		else
-			start++;
-		// 	status = process_redirect(tokens, start++, &save_fd, d->vars_list);
+			status = process_redirect(tokens, start++, &fds_list, d->vars_list);
 	}
 	if (status == SUCCESS)
 		status = split_cmd_str(cmd_str, &command);
@@ -136,5 +133,5 @@ t_status	process_command(t_data *d, t_token *tokens, int start, int end)
 		status = exec_command(d, command, is_pipe);
 	free(cmd_str);
 	free_double_pointer((void **)command);
-	return (edit_status_with_restore_fd(d, save_fd, tokens[start].str, status));
+	return (restore_fd(fds_list, status));
 }
