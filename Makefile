@@ -23,10 +23,10 @@ LIBFTDIR	:= ./libft
 LIBFTNAME 	:= ft
 LIBFTINCLUDEDIR := ./libft
 
-LIBREADDIR			:= /usr/local/opt/readline/lib
+LIBREADDIR			:= $(shell brew --prefix readline)/lib
 LIBREADNAME			:= readline
 LIBHISTNAME			:= history
-LIBREADINCLUDEDIR	:= /usr/local/opt/readline/include
+LIBREADINCLUDEDIR	:= $(shell brew --prefix readline)/include
 
 LIBINCLUDE	:= -I${LIBFTINCLUDEDIR} -I${LIBREADINCLUDEDIR}
 LIBDIR		:= -L${LIBFTDIR} -L${LIBREADDIR}
