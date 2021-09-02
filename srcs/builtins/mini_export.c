@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   mini_export.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
+/*   By: keguchi <keguchi@student.42tokyo.jp>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/07 14:33:48 by mkamei            #+#    #+#             */
-/*   Updated: 2021/07/20 19:01:31 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/09/02 14:12:38 by keguchi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,7 +49,7 @@ static t_exit_status	write_exported_vars(t_list *env_list)
 
 	envp = create_envp(env_list);
 	if (envp == NULL)
-		return (get_exit_status_with_errout(NULL, E_MALLOC, P_EXPORT));
+		return (get_exit_status_with_errout(NULL, E_SYSTEM, P_EXPORT));
 	bubble_sort_envp(envp);
 	i = -1;
 	while (envp[++i] != NULL)
@@ -66,7 +66,7 @@ static t_exit_status	write_exported_vars(t_list *env_list)
 			write(1, "\"\n", 2);
 		}
 	}
-	free_double_pointer(envp);
+	free_double_pointer((void **)envp);
 	return (0);
 }
 
@@ -86,7 +86,7 @@ t_bool	check_valid_identifier(char *var, int var_name_len)
 	return (1);
 }
 
-t_exit_status	mini_export(char **argv, t_list *vars_list[3])
+t_exit_status	mini_export(t_data *d, char **argv)
 {
 	int				i;
 	t_exit_status	exit_status;
@@ -96,7 +96,7 @@ t_exit_status	mini_export(char **argv, t_list *vars_list[3])
 	if (argv[1] != NULL && argv[1][0] == '-' && argv[1][1] != '\0')
 		return (get_exit_status_with_errout(argv[1], E_INVALID_OP, P_EXPORT));
 	if (argv[1] == NULL)
-		return (write_exported_vars(vars_list[ENV]));
+		return (write_exported_vars(d->vars_list[ENV]));
 	i = 0;
 	exit_status = 0;
 	while (argv[++i] != NULL)
@@ -107,45 +107,10 @@ t_exit_status	mini_export(char **argv, t_list *vars_list[3])
 		else
 			var_name_len = equal_pointer - argv[i];
 		if (check_valid_identifier(argv[i], var_name_len) == 0)
-			exit_status = get_exit_status_with_errout(
-					argv[i], E_INVALID_ID, P_EXPORT);
-		else if (set_var(vars_list, argv[i], ENV) == E_MALLOC)
-			return (get_exit_status_with_errout(NULL, E_MALLOC, P_EXPORT));
+			exit_status
+				= get_exit_status_with_errout(argv[i], E_INVALID_ID, P_EXPORT);
+		else if (set_var(d->vars_list, argv[i], ENV) == E_SYSTEM)
+			return (get_exit_status_with_errout(NULL, E_SYSTEM, P_EXPORT));
 	}
 	return (exit_status);
 }
-
-// gcc -Wall -Werror -Wextra mini_export.c ../var_env.c ../var_ope.c
-//	../var_set_any.c ../var_utils.c ../free.c ../error.c
-//	-I ../../include -I ../../libft/ ../../libft/libft.a
-
-// int	main(int argc, char **argv, char **envp)
-// {
-// 	t_list	*vars_list[3];
-// 	int		exit_status;
-// 	int		i;
-// 	char	*equal_pointer;
-
-// 	(void)argc;
-// 	vars_list[ENV] = create_env_list(envp);
-// 	vars_list[SHELL] = NULL;
-// 	vars_list[SPECIAL] = lstnew_with_strdup("?=0  ");
-// 	((char *)vars_list[SPECIAL]->content)[3] = '\0';
-// 	argv[0] = "export";
-// 	exit_status = mini_export(argv, vars_list);
-// 	set_exit_status(vars_list[SPECIAL], exit_status);
-// 	printf("%s\n", get_var(vars_list, "?"));
-// 	if (exit_status == 0)
-// 	{
-// 		i = 1;
-// 		while (argv[i] != NULL)
-// 		{
-// 			equal_pointer = ft_strchr(argv[i], '=');
-// 			if (equal_pointer != NULL)
-// 				*equal_pointer = '\0';
-// 			printf("%s\n", get_var(vars_list, argv[i]));
-// 			i++;
-// 		}
-// 	}
-// 	return (0);
-// }

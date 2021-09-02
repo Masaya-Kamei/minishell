@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
+/*   By: keguchi <keguchi@student.42tokyo.jp>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/28 09:39:27 by mkamei            #+#    #+#             */
-/*   Updated: 2021/07/20 18:56:58 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/09/02 13:57:58 by keguchi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,15 +16,28 @@
 # include <stdio.h>
 # include <string.h>
 # include <errno.h>
+# include <fcntl.h>
+# include <dirent.h>
+# include <sys/stat.h>
 # include "libft.h"
 # include <readline/readline.h>
 # include <readline/history.h>
+
+# define GETCWD_EMSG "error retrieving current directory:\
+ getcwd: cannot access parent directories"
+# define OVER_INT_EMSG "file descriptor out of range"
 
 typedef enum e_bool
 {
 	FALSE		= 0,
 	TRUE		= 1
 }			t_bool;
+
+typedef enum e_expand_flag
+{
+	EXPAND_QUOTE	= 0x00000001,
+	EXPAND_VAR		= 0x00000002
+}			t_expand_flag;
 
 typedef enum e_str_type{
 	RAW			= 'R',
@@ -34,21 +47,25 @@ typedef enum e_str_type{
 
 typedef enum e_status
 {
-	SUCCESS 			= 0,
-	E_INVALID_OP 		= 1,
-	E_NOSET_VAR 		= 2,
-	E_NUM_ARG_REQ 		= 3,
-	E_TOO_MANY_ARG 		= 4,
-	E_INVALID_ID 		= 5,
-	E_INVALID_OP_ARG	= 6,
-	E_SYNTAX 			= 7,
-	E_SIGNAL			= 8,
-	E_MALLOC			= 9,
-	E_DUP_CLOSE			= 10,
-	E_CHDIR				= 11
+	SUCCESS				= 0,
+	E_SYSTEM			= 1,
+	E_INVALID_OP		= 2,
+	E_NOSET_VAR			= 3,
+	E_NUM_ARG_REQ		= 4,
+	E_TOO_MANY_ARG		= 5,
+	E_INVALID_ID		= 6,
+	E_INVALID_OP_ARG	= 7,
+	E_SYNTAX			= 8,
+	E_NOCOMMAND			= 9,
+	E_AMBIGUOUS			= 10,
+	E_OPEN				= 11,
+	E_GETCWD			= 12,
+	E_SIG_INTERRUPT		= 13,
+	E_OVER_INT			= 14,
+	E_OVER_LIMIT		= 15
 }			t_status;
 
-typedef enum e_err_place
+typedef enum e_place
 {
 	P_SHELL		= 0,
 	P_ECHO		= 1,
@@ -58,7 +75,7 @@ typedef enum e_err_place
 	P_UNSET		= 5,
 	P_ENV		= 6,
 	P_EXIT		= 7
-}			t_err_place;
+}			t_place;
 
 typedef enum e_vars_type{
 	ENV			= 0,
@@ -67,12 +84,14 @@ typedef enum e_vars_type{
 }			t_vars_type;
 
 typedef enum e_token_type{
-	PIPE		= '|',
-	GREATER		= '>',
-	LESS		= '<',
-	D_GREATER	= 'G',
-	D_LESS		= 'L',
-	WORD		= 'W'
+	PIPE			= '|',
+	GREATER			= '>',
+	LESS			= '<',
+	D_GREATER		= 'G',
+	D_LESS			= 'L',
+	WORD			= 'W',
+	HEREDOC_D_QUOTE	= '\"',
+	HEREDOC_S_QUOTE = '\''
 }			t_token_type;
 
 typedef struct s_token
@@ -81,42 +100,83 @@ typedef struct s_token
 	t_token_type	type;
 }				t_token;
 
-typedef int	t_exit_status;
+typedef struct s_data
+{
+	t_list		*vars_list[3];
+	t_list		*pid_list;
+	char		*pwd;
+}				t_data;
 
-int			g_received_signal;
+typedef int				t_exit_status;
+typedef t_exit_status	(*t_builtin_func)(t_data *, char **);
+typedef t_bool			(*t_file_check_func)(char *);
 
+int						g_received_signal;
+
+// main
 t_status		lex_line(char *line, t_token **tokens, int *token_num);
-t_status		expand_word_token(char **word, t_list *vars_list[3]);
-t_status		start_process(
-					t_token *tokens, int start, int end, t_list *vars_list[3]);
-t_exit_status	mini_ehco(char **argv, t_list *vars_list[3]);
-t_exit_status	mini_cd(char **argv, t_list *vars_list[3]);
-t_exit_status	mini_pwd(char **argv, t_list *vars_list[3]);
-t_exit_status	mini_exit(char **argv, t_list *vars_list[3]);
-t_exit_status	mini_env(char **argv, t_list *vars_list[3]);
-t_exit_status	mini_export(char **argv, t_list *vars_list[3]);
-t_exit_status	mini_unset(char **argv, t_list *vars_list[3]);
-t_bool			check_valid_identifier(char *var, int var_name_len);
+t_status		start_process(t_data *d, t_token *tokens, int start, int end);
+t_status		process_pipeline(
+					t_data *d, t_token *tokens, int start, int end);
+t_status		process_command(t_data *d, t_token *tokens, int start, int end);
+t_status		process_redirect(t_token *tokens,
+					int i, t_list **save_fd, t_list *vars_list[3]);
+t_status		expand_word_token(char *word, t_list *vars_list[3],
+					t_expand_flag flag, char **expanded_str);
+
+// builtins
+t_exit_status	mini_echo(t_data *d, char **argv);
+t_exit_status	mini_cd(t_data *d, char **argv);
+t_exit_status	mini_pwd(t_data *d, char **argv);
+t_exit_status	mini_env(t_data *d, char **argv);
+t_exit_status	mini_export(t_data *d, char **argv);
+t_exit_status	mini_unset(t_data *d, char **argv);
+t_exit_status	mini_exit(t_data *d, char **argv);
+
+// var
+char			*get_var(t_list *vars_list[3], char *var_name);
+t_status		set_var(t_list *vars_list[3], char *var, t_vars_type var_type);
+void			delete_var(
+					t_list *vars_list[3], char *var_name, t_vars_type var_type);
 t_list			*create_env_list(char **envp);
 char			**create_envp(t_list *env_list);
+t_status		set_pwd(t_data *d, t_place place, char *cd_target_dir);
+t_status		countup_shlvl_env(t_list **env_list);
+void			set_exit_status(
+					t_list *special_list, t_exit_status exit_status);
 t_list			*lstnew_with_strdup(char *str);
 t_list			*get_target_list(t_list *any_list, char *var, int var_name_len);
 t_status		add_new_var(t_list **any_list, char *var);
-char			*get_var(t_list *vars_list[3], char *var_name);
-t_status		set_var(t_list *vars_list[3], char *var, int var_type);
-void			delete_var(t_list *vars_list[3], char *var_name, int var_type);
-char			*get_current_absolute_path(void);
-t_status		set_pwd_var(t_list *vars_list[3], int init);
-t_status		set_oldpwd_var(t_list *vars_list[3], int init);
-void			set_exit_status(t_list *special_list, int exit_status);
-t_status		countup_shlvl_env(t_list **env_list);
+
+// utils
+char			*strjoin_with_null_support(char *s1, char *s2);
+t_bool			is_redirect_token(t_token token);
+char			*strjoin_three(char *s1, char *s2, char *s3);
+t_bool			is_special_quote_char(char *word, int i, t_str_type type);
+t_status		strjoin_to_cmd_str(t_token *tokens,
+					int word_index, char **cmd_str, t_list *vars_list[3]);
+t_status		split_cmd_str(char *cmd_str, char ***command);
+t_status		search_command_path(
+					char *cmd_name, t_list *vars_list[3], char **cmd_path);
+t_status		add_to_pid_list(t_list **pid_list, pid_t pid);
+char			*create_full_path(char *path, char *last_file);
+t_status		search_match_path_from_path_var(
+					char *last_file, char *path_value,
+					t_file_check_func check_func, char **matched_path);
+t_bool			check_valid_identifier(char *var, int var_name_len);
+void			write_err(char *word,
+					t_status status, t_bool is_errno, t_place place);
 t_exit_status	get_exit_status_with_errout(
-					char *word, t_status status, t_err_place err_place);
-void			free_double_pointer(char **strs);
+					char *err_word, t_status status, t_place place);
+t_status		set_exit_status_with_errout(
+					char *err_word, t_status status, t_list *vars_list[3]);
+void			free_double_pointer(void **p);
 void			free_tokens(t_token *tokens);
 t_status		free_and_return(void *p, t_status status);
-void			free_and_fill_null(char **p);
-void			clear_vars_list(t_list *vars_list[3]);
+void			safe_free(void **p);
+void			clear_shell_data(t_data *d);
+
+// debug
 void			print_line_and_word_start_array(char *line, int *word_start);
 void			print_tokens(t_token *tokens, t_list *vars_list[3]);
 void			execve_sleep(void);

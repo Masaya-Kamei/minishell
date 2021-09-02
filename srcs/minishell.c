@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/28 15:30:07 by mkamei            #+#    #+#             */
-/*   Updated: 2021/07/20 19:05:27 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/08/18 17:36:01 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,35 +17,38 @@ static void	handler(int signum)
 	g_received_signal = signum;
 }
 
-static int	redisplay_prompt(void)
+static int	interrupt_by_signal(void)
 {
 	if (g_received_signal == SIGINT)
 	{
 		g_received_signal = 0;
-		printf("\033[%dC\033[K\n", 11 + rl_end);
-		rl_replace_line("", 1);
-		rl_on_new_line();
-		rl_redisplay();
-	}
-	else if (g_received_signal == SIGQUIT)
-	{
-		g_received_signal = 0;
-		printf("\033[%dC\033[K", 11 + rl_end);
-		rl_redisplay();
+		rl_replace_line("\3", 1);
+		rl_done = 1;
 	}
 	return (0);
 }
 
-static void	exit_by_eof(t_list *vars_list[3])
+static t_bool	check_interrupt(t_data *d, char *line)
 {
-	clear_vars_list(vars_list);
-	printf("\033[1A\033[11C");
-	rl_redisplay();
-	write(2, "exit\n", 5);
-	exit(0);
+	t_exit_status	exit_status;
+
+	if (line == NULL)
+	{
+		exit_status = ft_atoi(get_var(d->vars_list, "?"));
+		clear_shell_data(d);
+		write(2, "exit\n", 5);
+		exit(exit_status);
+	}
+	else if (line[0] == '\3')
+	{
+		free(line);
+		set_exit_status(d->vars_list[SPECIAL], 1);
+		return (1);
+	}
+	return (0);
 }
 
-static void	loop_minishell(t_list *vars_list[3])
+static void	loop_minishell(t_data *d)
 {
 	char		*line;
 	t_token		*tokens;
@@ -57,60 +60,47 @@ static void	loop_minishell(t_list *vars_list[3])
 	{
 		g_received_signal = 0;
 		line = readline("minishell$ ");
-		if (line == NULL)
-			exit_by_eof(vars_list);
+		if (check_interrupt(d, line) == 1)
+			continue ;
 		if (line[0] != '\0')
 			add_history(line);
 		status = lex_line(line, &tokens, &token_num);
 		free(line);
-		if (status == E_MALLOC)
+		if (status == E_SYSTEM)
 			break ;
-		status = start_process(tokens, 0, token_num - 1, vars_list);
+		if (token_num != 0)
+			status = start_process(d, tokens, 0, token_num - 1);
 		free_tokens(tokens);
 	}
-	clear_vars_list(vars_list);
+	clear_shell_data(d);
 	exit(get_exit_status_with_errout(NULL, status, P_SHELL));
 }
-		// print_tokens(tokens, vars_list);
-		// test_vars_list(vars_list);
-		// g_received_signal = 0;
-		// execve_sleep();
-		// if (g_received_signal == SIGINT)
-		// {
-		// 	g_received_signal = 0;
-		// 	printf("\n");
-		// }
-		// else if (g_received_signal == SIGQUIT)
-		// {
-		// 	g_received_signal = 0;
-		// 	printf("Quit: 3\n");
-		// }
 
 int	main(int argc, char **argv, char **envp)
 {
-	t_list		*vars_list[3];
+	t_data		d;
 
 	(void)argc;
 	(void)**argv;
-	if (signal(SIGINT, handler) == SIG_ERR)
-		exit(get_exit_status_with_errout(NULL, E_SIGNAL, P_SHELL));
-	if (signal(SIGQUIT, handler) == SIG_ERR)
-		exit(get_exit_status_with_errout(NULL, E_SIGNAL, P_SHELL));
-	rl_signal_event_hook = &redisplay_prompt;
-	vars_list[SHELL] = NULL;
-	vars_list[SPECIAL] = lstnew_with_strdup("?=0  ");
-	if (vars_list[SPECIAL] == NULL)
-		exit(get_exit_status_with_errout(NULL, E_MALLOC, P_SHELL));
-	((char *)vars_list[SPECIAL]->content)[3] = '\0';
-	vars_list[ENV] = create_env_list(envp);
-	if (vars_list[ENV] == NULL
-		|| set_oldpwd_var(vars_list, 1) == E_MALLOC
-		|| set_pwd_var(vars_list, 1) == E_MALLOC
-		|| countup_shlvl_env(&vars_list[ENV]) == E_MALLOC)
+	if (signal(SIGINT, handler) == SIG_ERR
+		|| signal(SIGQUIT, SIG_IGN) == SIG_ERR)
+		exit(get_exit_status_with_errout(NULL, E_SYSTEM, P_SHELL));
+	rl_event_hook = &interrupt_by_signal;
+	d.pwd = NULL;
+	d.pid_list = NULL;
+	d.vars_list[SHELL] = NULL;
+	d.vars_list[SPECIAL] = lstnew_with_strdup("?=0  ");
+	if (d.vars_list[SPECIAL] == NULL)
+		exit(get_exit_status_with_errout(NULL, E_SYSTEM, P_SHELL));
+	((char *)d.vars_list[SPECIAL]->content)[3] = '\0';
+	d.vars_list[ENV] = create_env_list(envp);
+	if (d.vars_list[ENV] == NULL
+		|| countup_shlvl_env(&d.vars_list[ENV]) == E_SYSTEM
+		|| set_pwd(&d, P_SHELL, NULL) == E_SYSTEM)
 	{
-		clear_vars_list(vars_list);
-		exit(get_exit_status_with_errout(NULL, E_MALLOC, P_SHELL));
+		clear_shell_data(&d);
+		exit(get_exit_status_with_errout(NULL, E_SYSTEM, P_SHELL));
 	}
-	loop_minishell(vars_list);
+	loop_minishell(&d);
 	return (0);
 }

@@ -6,67 +6,40 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/05 14:03:48 by mkamei            #+#    #+#             */
-/*   Updated: 2021/07/20 11:33:50 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/08/25 13:05:29 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-char	*get_current_absolute_path(void)
-{
-	int		size;
-	char	*absolute_path;
-
-	size = 128;
-	absolute_path = NULL;
-	while (absolute_path == NULL)
-	{
-		absolute_path = (char *)malloc(sizeof(char) * (size + 1));
-		if (absolute_path == NULL)
-			return (NULL);
-		absolute_path = getcwd(absolute_path, size);
-		if (absolute_path == NULL)
-		{
-			free(absolute_path);
-			size *= 2;
-		}
-	}
-	return (absolute_path);
-}
-
-t_status	set_pwd_var(t_list *vars_list[3], int init)
+static t_status	set_pwd_var(t_data *d, t_place place)
 {
 	char		*var;
-	char		*value;
-	int			var_type;
 	t_status	status;
+	t_vars_type	var_type;
 
-	if (init == 1)
+	if (place == P_SHELL)
 		var_type = ENV;
 	else
 		var_type = SHELL;
-	value = get_current_absolute_path();
-	if (value == NULL)
-		return (E_MALLOC);
-	var = ft_strjoin("PWD=", value);
-	free(value);
+	var = ft_strjoin("PWD=", d->pwd);
 	if (var == NULL)
-		return (E_MALLOC);
-	status = set_var(vars_list, var, var_type);
+		return (E_SYSTEM);
+	status = set_var(d->vars_list, var, var_type);
 	free(var);
-	if (status == E_MALLOC)
-		return (E_MALLOC);
+	if (status == E_SYSTEM)
+		return (E_SYSTEM);
 	return (SUCCESS);
 }
 
-t_status	set_oldpwd_var(t_list *vars_list[3], int init)
+static t_status	set_oldpwd_var(t_list *vars_list[3], t_place place)
 {
 	t_list		*target_list;
 	char		*var;
 	char		*value;
 	t_status	status;
 
-	if (init == 1)
+	if (place == P_SHELL)
 	{
 		target_list = get_target_list(vars_list[ENV], "OLDPWD", 6);
 		if (target_list == NULL)
@@ -80,15 +53,39 @@ t_status	set_oldpwd_var(t_list *vars_list[3], int init)
 	else
 		var = ft_strjoin("OLDPWD=", value);
 	if (var == NULL)
-		return (E_MALLOC);
+		return (E_SYSTEM);
 	status = set_var(vars_list, var, SHELL);
 	free(var);
-	if (status == E_MALLOC)
-		return (E_MALLOC);
+	if (status == E_SYSTEM)
+		return (E_SYSTEM);
 	return (SUCCESS);
 }
 
-void	set_exit_status(t_list *special_list, int exit_status)
+t_status	set_pwd(t_data *d, t_place place, char *cd_target_dir)
+{
+	char	*new_pwd;
+
+	new_pwd = getcwd(NULL, 0);
+	if (new_pwd == NULL)
+	{
+		write_err(GETCWD_EMSG, E_GETCWD, 1, place);
+		if (d->pwd == NULL && cd_target_dir == NULL)
+			return (SUCCESS);
+		new_pwd = create_full_path(d->pwd, cd_target_dir);
+		if (new_pwd == NULL)
+			return (E_SYSTEM);
+	}
+	free(d->pwd);
+	d->pwd = new_pwd;
+	if (set_oldpwd_var(d->vars_list, place) == E_SYSTEM
+		|| set_pwd_var(d, place) == E_SYSTEM)
+	{
+		return (E_SYSTEM);
+	}
+	return (SUCCESS);
+}
+
+void	set_exit_status(t_list *special_list, t_exit_status exit_status)
 {
 	int		digit_num;
 	t_list	*target_list;
@@ -123,11 +120,11 @@ t_status	countup_shlvl_env(t_list **env_list)
 	else
 		value = ft_itoa(ft_atoi(&((char *)target_list->content)[6]) + 1);
 	if (value == NULL)
-		return (E_MALLOC);
+		return (E_SYSTEM);
 	free(target_list->content);
 	target_list->content = ft_strjoin("SHLVL=", value);
 	free(value);
 	if (target_list->content == NULL)
-		return (E_MALLOC);
+		return (E_SYSTEM);
 	return (SUCCESS);
 }
