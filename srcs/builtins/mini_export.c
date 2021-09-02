@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   mini_export.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
+/*   By: keguchi <keguchi@student.42tokyo.jp>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/07 14:33:48 by mkamei            #+#    #+#             */
-/*   Updated: 2021/08/16 12:00:00 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/09/02 14:12:38 by keguchi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -114,38 +114,3 @@ t_exit_status	mini_export(t_data *d, char **argv)
 	}
 	return (exit_status);
 }
-
-// gcc -Wall -Werror -Wextra mini_export.c ../var_env.c ../var_ope.c
-//	../var_set_any.c ../var_utils.c ../free.c ../error.c
-//	-I ../../include -I ../../libft/ ../../libft/libft.a
-
-// int	main(int argc, char **argv, char **envp)
-// {
-// 	t_list	*vars_list[3];
-// 	int		exit_status;
-// 	int		i;
-// 	char	*equal_pointer;
-
-// 	(void)argc;
-// 	vars_list[ENV] = create_env_list(envp);
-// 	vars_list[SHELL] = NULL;
-// 	vars_list[SPECIAL] = lstnew_with_strdup("?=0  ");
-// 	((char *)vars_list[SPECIAL]->content)[3] = '\0';
-// 	argv[0] = "export";
-// 	exit_status = mini_export(argv, vars_list);
-// 	set_exit_status(vars_list[SPECIAL], exit_status);
-// 	printf("%s\n", get_var(vars_list, "?"));
-// 	if (exit_status == 0)
-// 	{
-// 		i = 1;
-// 		while (argv[i] != NULL)
-// 		{
-// 			equal_pointer = ft_strchr(argv[i], '=');
-// 			if (equal_pointer != NULL)
-// 				*equal_pointer = '\0';
-// 			printf("%s\n", get_var(vars_list, argv[i]));
-// 			i++;
-// 		}
-// 	}
-// 	return (0);
-// }
