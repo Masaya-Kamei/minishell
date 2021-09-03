@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/30 17:55:37 by mkamei            #+#    #+#             */
-/*   Updated: 2021/08/27 15:37:01 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/09/03 15:30:22 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,7 @@ void	print_tokens(t_token *tokens, t_list *vars_list[3])
 	i = 0;
 	while (tokens[i].type != '\0')
 	{
-		if (tokens[i].type == WORD)
+		if (is_word_token(tokens[i]))
 		{
 			if (expand_word_token(tokens[i].str, vars_list,
 					EXPAND_VAR | EXPAND_QUOTE, &expanded_str) == E_SYSTEM)

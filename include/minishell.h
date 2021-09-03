@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/28 09:39:27 by mkamei            #+#    #+#             */
-/*   Updated: 2021/09/02 15:34:43 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/09/03 15:35:47 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,9 +90,8 @@ typedef enum e_token_type{
 	LESS			= '<',
 	D_GREATER		= 'G',
 	D_LESS			= 'L',
-	WORD			= 'W',
-	HEREDOC_D_QUOTE	= '\"',
-	HEREDOC_S_QUOTE = '\''
+	WORD_RAW		= 'R',
+	WORD_QUOTE		= 'Q'
 }			t_token_type;
 
 typedef struct s_token
@@ -152,6 +151,7 @@ t_status		add_new_var(t_list **any_list, char *var);
 // utils
 char			*strjoin_with_null_support(char *s1, char *s2);
 t_bool			is_redirect_token(t_token token);
+t_bool			is_word_token(t_token token);
 char			*strjoin_three(char *s1, char *s2, char *s3);
 t_bool			is_special_quote_char(char *word, int i, t_str_type type);
 t_status		strjoin_to_cmd_str(t_token *tokens,

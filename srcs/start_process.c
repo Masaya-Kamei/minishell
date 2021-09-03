@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   start_process.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: keguchi <keguchi@student.42tokyo.jp>       +#+  +:+       +#+        */
+/*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/08/09 16:54:39 by mkamei            #+#    #+#             */
-/*   Updated: 2021/09/02 13:54:59 by keguchi          ###   ########.fr       */
+/*   Updated: 2021/09/03 15:29:24 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,9 +31,9 @@ static t_status	check_syntax_error(t_token *tokens, char **err_word)
 			else if (tokens[i + 1].type == D_LESS)
 				*err_word = "`<<'";
 		}
-		else if (tokens[i].type != WORD && tokens[i + 1].type == PIPE)
+		else if (is_word_token(tokens[i]) == 0 && tokens[i + 1].type == PIPE)
 			*err_word = "`|'";
-		else if (tokens[i].type != WORD && tokens[i + 1].type == '\0')
+		else if (is_word_token(tokens[i]) == 0 && tokens[i + 1].type == '\0')
 			*err_word = "`newline'";
 	}
 	if (*err_word != NULL)
@@ -75,7 +75,6 @@ static t_status	receive_heredocument(
 	t_token *tokens, int start, int end, t_list *vars_list[3])
 {
 	int			i;
-	int			j;
 	t_status	status;
 	char		*eof;
 
@@ -84,11 +83,7 @@ static t_status	receive_heredocument(
 	{
 		if (tokens[i].type != D_LESS)
 			continue ;
-		j = -1;
-		tokens[++i].type = HEREDOC_D_QUOTE;
-		while (tokens[i].type == HEREDOC_D_QUOTE && tokens[i].str[++j] != '\0')
-			if (is_special_quote_char(tokens[i].str, j, RAW) == 1)
-				tokens[i].type = HEREDOC_S_QUOTE;
+		i++;
 		if (expand_word_token(
 				tokens[i].str, vars_list, EXPAND_QUOTE, &eof) == E_SYSTEM)
 			return (E_SYSTEM);
