@@ -6,136 +6,134 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/29 18:33:43 by mkamei            #+#    #+#             */
-/*   Updated: 2021/08/01 12:57:47 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/09/03 15:22:52 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-static void	add_index_until_token_end(char *line, int *i)
+static int	find_token_end_index(char *line, int i)
 {
 	char	quote;
-	char	*next_quote_pointer;
-	int		num_flag;
+	char	*next_quote_ptr;
+	t_bool	num_flag;
 
+	if (line[i] == '|')
+		return (i);
 	num_flag = 1;
-	while (line[*i] != '\0' && ft_strchr(" <>|", line[*i]) == NULL)
+	while (line[i] != '\0' && ft_strchr(" <>|", line[i]) == NULL)
 	{
-		if (line[*i] == '\'' || line[*i] == '\"')
+		if (line[i] == '\'' || line[i] == '\"')
 		{
-			quote = line[(*i)++];
-			next_quote_pointer = ft_strchr(&line[*i], quote);
-			if (next_quote_pointer != NULL)
-				*i += next_quote_pointer - &line[*i];
+			quote = line[i];
+			next_quote_ptr = ft_strchr(&line[i + 1], quote);
+			if (next_quote_ptr != NULL)
+				i += next_quote_ptr - &line[i];
 		}
-		num_flag = num_flag && ft_isdigit(line[*i]);
-		(*i)++;
-	}
-	*i += (num_flag == 1) && (line[*i] == '>' || line[*i] == '<');
-	*i += (num_flag == 1) && ((line[*i - 1] == '>' && line[*i] == '>')
-			|| (line[*i - 1] == '<' && line[*i] == '<'));
-}
-
-static void	store_in_token_start_indexes(
-	char *line, int *token_start_indexes, int *token_num)
-{
-	int		i;
-
-	i = 0;
-	*token_num = 0;
-	while (line[i] != '\0')
-	{
-		if (line[i] == ' ')
-			i++;
-		else if (ft_strchr("<>|", line[i]) != NULL)
-		{
-			token_start_indexes[(*token_num)++] = i++;
-			i += (line[i - 1] == '>' && line[i] == '>')
-				|| (line[i - 1] == '<' && line[i] == '<');
-		}
-		else
-		{
-			token_start_indexes[(*token_num)++] = i;
-			add_index_until_token_end(line, &i);
-		}
-	}
-	token_start_indexes[*token_num] = -1;
-}
-
-static t_status	store_in_str_member_of_t_token(
-	char *line, int *token_start_indexes, t_token *tokens)
-{
-	int		i;
-	int		start;
-	int		len;
-
-	i = 0;
-	while (token_start_indexes[i] != -1)
-	{
-		start = token_start_indexes[i];
-		if (token_start_indexes[i + 1] != -1)
-			len = token_start_indexes[i + 1] - start;
-		else
-			len = ft_strlen(line) - start;
-		while (line[start + len - 1] == ' ')
-			len--;
-		tokens[i].str = ft_substr(line, start, len);
-		if (tokens[i].str == NULL)
-			return (E_SYSTEM);
+		num_flag &= ft_isdigit(line[i]);
 		i++;
 	}
-	tokens[i].str = NULL;
+	i += (num_flag == 1) && (line[i] == '>' || line[i] == '<');
+	i += (num_flag == 1) && ((line[i - 1] == '>' && line[i] == '>')
+			|| (line[i - 1] == '<' && line[i] == '<'));
+	return (i - 1);
+}
+
+static t_token_type	find_token_type(char *token_str, int end)
+{
+	int		i;
+
+	if (token_str[end] == '|')
+		return (PIPE);
+	else if (token_str[end] == '>' && (end != 0 && token_str[end - 1] == '>'))
+		return (D_GREATER);
+	else if (token_str[end] == '<' && (end != 0 && token_str[end - 1] == '<'))
+		return (D_LESS);
+	else if (token_str[end] == '>')
+		return (GREATER);
+	else if (token_str[end] == '<')
+		return (LESS);
+	else
+	{
+		i = 0;
+		while (i <= end)
+		{
+			if ((token_str[i] == '\'' && ft_strchr(&token_str[i + 1], '\''))
+				|| (token_str[i] == '\"' && ft_strchr(&token_str[i + 1], '\"')))
+				return (WORD_QUOTE);
+			i++;
+		}
+		return (WORD_RAW);
+	}
+}
+
+static t_status	add_to_token_list(
+	char *line, int start, int len, t_list **token_list)
+{
+	t_token	*token;
+	t_list	*new_list;
+
+	token = (t_token *)malloc(sizeof(t_token));
+	if (token == NULL)
+		return (E_SYSTEM);
+	token->str = ft_substr(line, start, len);
+	if (token->str == NULL)
+		return (free_and_return(token, E_SYSTEM));
+	token->type = find_token_type(token->str, len - 1);
+	new_list = ft_lstnew(token);
+	if (new_list == NULL)
+	{
+		free(token->str);
+		return (free_and_return(token, E_SYSTEM));
+	}
+	ft_lstadd_back(token_list, new_list);
 	return (SUCCESS);
 }
 
-static void	store_in_type_member_of_t_token(t_token *tokens)
+static t_token	*convert_token_list_to_array(t_list *token_list)
 {
+	t_token	*tokens;
 	int		i;
-	int		j;
+	t_list	*current_list;
 
+	tokens = (t_token *)malloc(sizeof(t_token) * (ft_lstsize(token_list) + 1));
+	if (tokens == NULL)
+		return (NULL);
 	i = 0;
-	while (tokens[i].str != NULL)
+	current_list = token_list;
+	while (current_list != NULL)
 	{
-		if (tokens[i].str[0] == '|')
-			tokens[i].type = '|';
-		else
-		{
-			j = 0;
-			while (ft_isdigit(tokens[i].str[j]) == 1)
-				j++;
-			if (tokens[i].str[j] == '>' && tokens[i].str[j + 1] == '>')
-				tokens[i].type = D_GREATER;
-			else if (tokens[i].str[j] == '<' && tokens[i].str[j + 1] == '<')
-				tokens[i].type = D_LESS;
-			else if (tokens[i].str[j] == '>' || tokens[i].str[j] == '<')
-				tokens[i].type = tokens[i].str[j];
-			else
-				tokens[i].type = WORD;
-		}
-		i++;
+		tokens[i++] = *(t_token *)current_list->content;
+		current_list = current_list->next;
 	}
 	tokens[i].type = '\0';
+	return (tokens);
 }
 
 t_status	lex_line(char *line, t_token **tokens, int *token_num)
 {
-	int			*token_start_indexes;
-	t_status	status;
+	int			i;
+	int			end;
+	t_list		*token_list;
 
-	token_start_indexes = (int *)malloc(sizeof(int) * (ft_strlen(line) + 1));
-	if (token_start_indexes == NULL)
-		return (E_SYSTEM);
-	store_in_token_start_indexes(line, token_start_indexes, token_num);
-	*tokens = (t_token *)malloc(sizeof(t_token) * (*token_num + 1));
-	if (*tokens == NULL)
-		return (E_SYSTEM);
-	status = store_in_str_member_of_t_token(line, token_start_indexes, *tokens);
-	free(token_start_indexes);
-	if (status == E_SYSTEM)
+	i = -1;
+	token_list = NULL;
+	while (line[++i] != '\0')
 	{
-		free_tokens(*tokens);
-		return (E_SYSTEM);
+		if (line[i] == ' ')
+			continue ;
+		end = find_token_end_index(line, i);
+		if (add_to_token_list(line, i, end - i + 1, &token_list) == E_SYSTEM)
+		{
+			ft_lstclear(&token_list, free);
+			return (E_SYSTEM);
+		}
+		i = end;
 	}
-	store_in_type_member_of_t_token(*tokens);
+	*tokens = convert_token_list_to_array(token_list);
+	*token_num = ft_lstsize(token_list);
+	ft_lstclear(&token_list, free);
+	if (tokens == NULL)
+		return (E_SYSTEM);
 	return (SUCCESS);
 }
