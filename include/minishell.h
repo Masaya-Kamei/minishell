@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/28 09:39:27 by mkamei            #+#    #+#             */
-/*   Updated: 2021/09/03 15:35:47 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/09/04 12:08:27 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -121,7 +121,7 @@ t_status		process_pipeline(
 t_status		process_command(t_data *d, t_token *tokens, int start, int end);
 t_status		process_redirect(t_token *tokens,
 					int i, t_list **save_fd, t_list *vars_list[3]);
-t_status		expand_word_token(char *word, t_list *vars_list[3],
+t_status		expand_word_token(t_token word_token, t_list *vars_list[3],
 					t_expand_flag flag, char **expanded_str);
 
 // builtins
@@ -149,11 +149,10 @@ t_list			*get_target_list(t_list *any_list, char *var, int var_name_len);
 t_status		add_new_var(t_list **any_list, char *var);
 
 // utils
-char			*strjoin_with_null_support(char *s1, char *s2);
 t_bool			is_redirect_token(t_token token);
 t_bool			is_word_token(t_token token);
+char			*strjoin_with_null_support(char *s1, char *s2);
 char			*strjoin_three(char *s1, char *s2, char *s3);
-t_bool			is_special_quote_char(char *word, int i, t_str_type type);
 t_status		strjoin_to_cmd_str(t_token *tokens,
 					int word_index, char **cmd_str, t_list *vars_list[3]);
 t_status		split_cmd_str(char *cmd_str, char ***command);
@@ -174,7 +173,6 @@ t_status		set_exit_status_with_errout(
 void			free_double_pointer(void **p);
 void			free_tokens(t_token *tokens);
 t_status		free_and_return(void *p, t_status status);
-void			safe_free(void **p);
 void			clear_shell_data(t_data *d);
 
 // debug

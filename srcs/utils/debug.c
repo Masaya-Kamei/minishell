@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/30 17:55:37 by mkamei            #+#    #+#             */
-/*   Updated: 2021/09/03 15:30:22 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/09/03 20:20:03 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,7 @@ void	print_tokens(t_token *tokens, t_list *vars_list[3])
 	{
 		if (is_word_token(tokens[i]))
 		{
-			if (expand_word_token(tokens[i].str, vars_list,
+			if (expand_word_token(tokens[i], vars_list,
 					EXPAND_VAR | EXPAND_QUOTE, &expanded_str) == E_SYSTEM)
 				return ;
 			printf("%2d	type:%c, str:%s,\n", i, tokens[i].type, expanded_str);

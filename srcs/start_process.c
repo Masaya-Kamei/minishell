@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/08/09 16:54:39 by mkamei            #+#    #+#             */
-/*   Updated: 2021/09/03 15:29:24 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/09/04 12:05:44 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,7 +85,7 @@ static t_status	receive_heredocument(
 			continue ;
 		i++;
 		if (expand_word_token(
-				tokens[i].str, vars_list, EXPAND_QUOTE, &eof) == E_SYSTEM)
+				tokens[i], vars_list, EXPAND_QUOTE, &eof) == E_SYSTEM)
 			return (E_SYSTEM);
 		free(tokens[i].str);
 		status = read_heredocument(eof, vars_list, &tokens[i].str);

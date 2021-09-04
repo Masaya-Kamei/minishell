@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/19 09:25:38 by keguchi           #+#    #+#             */
-/*   Updated: 2021/09/03 15:33:48 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/09/03 20:20:42 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -120,7 +120,7 @@ t_status	process_redirect(t_token *tokens, int i,
 	else if (tokens[i].type == D_LESS && tokens[i + 1].type == WORD_QUOTE)
 		flag = 0;
 	if (expand_word_token(
-			tokens[i + 1].str, vars_list, flag, &expanded_str) == E_SYSTEM)
+			tokens[i + 1], vars_list, flag, &expanded_str) == E_SYSTEM)
 		return (E_SYSTEM);
 	if (!expanded_str)
 	{
