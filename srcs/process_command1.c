@@ -1,16 +1,22 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   process_command.c                                  :+:      :+:    :+:   */
+/*   process_command1.c                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/19 09:24:35 by keguchi           #+#    #+#             */
-/*   Updated: 2021/09/07 15:22:06 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/09/07 16:46:03 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
+
+t_status	add_to_cmd_args(t_token *tokens,
+				int word_index, t_list **args_list, t_list *vars_list[3]);
+t_status	search_command_path(
+				char *cmd_name, t_list *vars_list[3], char **cmd_path);
+t_status	add_to_pid_list(t_list **pid_list, pid_t pid);
 
 static t_builtin_func	check_builtin_command(char *cmd_name)
 {

@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/28 09:39:27 by mkamei            #+#    #+#             */
-/*   Updated: 2021/09/07 13:36:28 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/09/07 16:42:56 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -154,15 +154,6 @@ t_list			*lstnew_with_strdup(char *str);
 t_status		convert_strs_to_list(char **strs, t_list **list);
 t_status		convert_list_to_strs(t_list *list, char ***strs);
 void			delete_last_list(t_list **expand_list);
-t_status		add_to_cmd_args(t_token *tokens,
-					int word_index, t_list **args_list, t_list *vars_list[3]);
-t_status		search_command_path(
-					char *cmd_name, t_list *vars_list[3], char **cmd_path);
-t_status		add_to_pid_list(t_list **pid_list, pid_t pid);
-t_str_type		judge_str_type(
-					char *word, int i, t_expand_flag flag, t_bool init_flag);
-t_status		add_to_expand_list(char *substr_start,
-					int len, t_list *vars_list[3], t_list **expand_list);
 char			*create_full_path(char *path, char *last_file);
 t_status		search_match_path_from_path_var(
 					char *last_file, char *path_value,

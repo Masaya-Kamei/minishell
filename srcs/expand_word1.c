@@ -1,16 +1,19 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   expand_word.c                                      :+:      :+:    :+:   */
+/*   expand_word1.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/18 11:54:50 by mkamei            #+#    #+#             */
-/*   Updated: 2021/09/07 16:26:21 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/09/07 16:45:30 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
+
+t_status	add_to_expand_list(char *substr_start,
+				int len, t_list *vars_list[3], t_list **expand_list);
 
 static t_bool	is_special_quote(char *word, int i, t_str_type type)
 {

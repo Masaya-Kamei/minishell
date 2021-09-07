@@ -1,16 +1,19 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   expand_word_utils.c                                :+:      :+:    :+:   */
+/*   expand_word2.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/06 15:53:24 by mkamei            #+#    #+#             */
-/*   Updated: 2021/09/07 15:34:01 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/09/07 16:45:38 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
+
+t_str_type	judge_str_type(
+				char *word, int i, t_expand_flag flag, t_bool init_flag);
 
 static t_status	strjoin_to_expand_list(char *substr, t_list **expand_list)
 {
