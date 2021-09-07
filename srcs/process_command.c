@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/19 09:24:35 by keguchi           #+#    #+#             */
-/*   Updated: 2021/09/03 15:30:06 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/09/07 15:22:06 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,8 +47,8 @@ static void	exec_external_command(char **command, t_list *vars_list[3])
 		exit(get_exit_status_with_errout(NULL, E_SYSTEM, P_SHELL));
 	else if (status == E_NOCOMMAND)
 		exit(get_exit_status_with_errout(command[0], E_NOCOMMAND, P_SHELL));
-	envp = create_envp(vars_list[ENV]);
-	if (envp == NULL)
+	status = convert_list_to_strs(vars_list[ENV], &envp);
+	if (status == E_SYSTEM)
 		exit(get_exit_status_with_errout(NULL, E_SYSTEM, P_SHELL));
 	execve(cmd_path, command, envp);
 	exit(get_exit_status_with_errout(cmd_path, E_NO_PATHCOMMAND, P_SHELL));
@@ -111,27 +111,27 @@ t_status	process_command(t_data *d, t_token *tokens, int start, int end)
 {
 	t_status		status;
 	t_list			*fds_list;
-	char			*cmd_str;
+	t_list			*args_list;
 	char			**command;
 	const t_bool	is_pipe = !(isatty(0) == 1 && isatty(1) == 1);
 
 	fds_list = NULL;
-	cmd_str = NULL;
+	args_list = NULL;
 	command = NULL;
 	status = SUCCESS;
 	start -= 1;
 	while (status == SUCCESS && ++start <= end)
 	{
 		if (is_word_token(tokens[start]))
-			status = strjoin_to_cmd_str(tokens, start, &cmd_str, d->vars_list);
+			status = add_to_cmd_args(tokens, start, &args_list, d->vars_list);
 		else
 			status = process_redirect(tokens, start++, &fds_list, d->vars_list);
 	}
 	if (status == SUCCESS)
-		status = split_cmd_str(cmd_str, &command);
+		status = convert_list_to_strs(args_list, &command);
 	if (status == SUCCESS)
 		status = exec_command(d, command, is_pipe);
-	free(cmd_str);
+	ft_lstclear(&args_list, free);
 	free_double_pointer((void **)command);
 	return (restore_fd(fds_list, status));
 }

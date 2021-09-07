@@ -6,121 +6,132 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/18 11:54:50 by mkamei            #+#    #+#             */
-/*   Updated: 2021/09/04 12:09:16 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/09/07 16:26:21 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-static t_bool	is_special_quote(char *str, int i, t_str_type type)
+static t_bool	is_special_quote(char *word, int i, t_str_type type)
 {
 	if (type == RAW
-		&& ((str[i] == '\'' && ft_strchr(&str[i + 1], '\''))
-			|| (str[i] == '\"' && ft_strchr(&str[i + 1], '\"'))))
+		&& ((word[i] == '\'' && ft_strchr(&word[i + 1], '\''))
+			|| (word[i] == '\"' && ft_strchr(&word[i + 1], '\"'))))
 	{
 		return (1);
 	}
-	else if ((type == '\'' && str[i] == '\'')
-		|| (type == '\"' && str[i] == '\"'))
+	else if ((type == '\'' && word[i] == '\'')
+		|| (type == '\"' && word[i] == '\"'))
 	{
 		return (1);
 	}
 	return (0);
 }
 
-static t_bool	is_special_dollar_with_del_quote(
-	char *str, int i, t_expand_flag flag, t_bool is_rec_call)
+static t_bool	is_special_dollar(
+	char *word, int i, t_str_type type, int *var_len)
+{
+	if (word[i] == '$' && type != '\'' && word[i + 1] != '\0'
+		&& (ft_isalpha(word[i + 1]) || ft_strchr("?_", word[i + 1])))
+	{
+		*var_len = 1;
+		if (word[i + *var_len] != '?')
+		{
+			while (ft_isalnum(word[i + *var_len + 1])
+				|| word[i + *var_len + 1] == '_')
+			{
+				(*var_len)++;
+			}
+		}
+		return (1);
+	}
+	return (0);
+}
+
+t_str_type	judge_str_type(
+	char *word, int i, t_expand_flag flag, t_bool init_flag)
 {
 	static t_str_type	type;
 
-	if (i == 0 && is_rec_call == 0)
+	if (init_flag == 1)
 		type = RAW;
-	if (flag & EXPAND_QUOTE
-		&& is_special_quote(str, i, type) == 1)
+	if (flag == EXPAND_VAR)
+		type = '\"';
+	else if (flag & EXPAND_QUOTE
+		&& is_special_quote(word, i, type) == 1)
 	{
 		if (type == '\'' || type == '\"')
 			type = RAW;
 		else
-			type = str[i];
-		ft_strlcpy(&str[i], &str[i + 1], ft_strlen(&str[i + 1]) + 1);
-		return (is_special_dollar_with_del_quote(str, i, flag, 1));
+			type = word[i];
+		ft_strlcpy(&word[i], &word[i + 1], ft_strlen(&word[i + 1]) + 1);
+		return (judge_str_type(word, i, flag, 0));
 	}
 	else if (flag & EXPAND_QUOTE
-		&& str[i] == '$' && type == RAW
-		&& is_special_quote(str, i + 1, type) == 1)
+		&& word[i] == '$' && type == RAW
+		&& is_special_quote(word, i + 1, type) == 1)
 	{
-		ft_strlcpy(&str[i], &str[i + 1], ft_strlen(&str[i + 1]) + 1);
-		return (is_special_dollar_with_del_quote(str, i, flag, 1));
+		ft_strlcpy(&word[i], &word[i + 1], ft_strlen(&word[i + 1]) + 1);
+		return (judge_str_type(word, i, flag, 0));
 	}
-	return (flag & EXPAND_VAR
-		&& str[i] == '$' && type != '\'' && str[i + 1] != '\0'
-		&& (ft_isalpha(str[i + 1]) || ft_strchr("?_", str[i + 1])));
+	return (type);
 }
 
-static t_status	strjoin_with_expand(
-	char *substr, t_token_type type, t_list *vars_list[3], char **expanded_str)
+static t_status	expand_word(char *word,
+	t_list *vars_list[3], t_expand_flag flag, t_list **expand_list)
 {
-	char	*expanded_substr;
-	char	*tmp;
-
-	if (substr == NULL)
-		return (free_and_return(*expanded_str, E_SYSTEM));
-	if (vars_list != NULL)
-		expanded_substr = get_var(vars_list, substr);
-	else
-		expanded_substr = substr;
-	tmp = *expanded_str;
-	*expanded_str = strjoin_with_null_support(tmp, expanded_substr);
-	free(tmp);
-	free(substr);
-	if (*expanded_str == NULL)
-		return (E_SYSTEM);
-	if (*expanded_str[0] == '\0' && type == WORD_RAW)
-	{
-		free(*expanded_str);
-		*expanded_str = NULL;
-	}
-	return (SUCCESS);
-}
-
-static int	count_var_len(char *str, int start)
-{
-	int		var_len;
-
-	if (str[start] == '?')
-		return (1);
-	var_len = 1;
-	while (ft_isalnum(str[start + var_len]) || str[start + var_len] == '_')
-		var_len++;
-	return (var_len);
-}
-
-t_status	expand_word_token(t_token word_token,
-	t_list *vars_list[3], t_expand_flag flag, char **expanded_str)
-{
-	int		i;
-	int		start;
-	char	*substr;
+	int			i;
+	int			start;
+	t_str_type	type;
+	int			var_len;
 
 	i = -1;
 	start = 0;
-	*expanded_str = NULL;
-	while ((i < 0 || word_token.str[i] != '\0') && word_token.str[++i] != '\0')
+	while (word[++i] != '\0')
 	{
-		if (is_special_dollar_with_del_quote(word_token.str, i, flag, 0) == 0)
-			continue ;
-		substr = ft_substr(word_token.str, start, i - start);
-		if (strjoin_with_expand(
-				substr, word_token.type, NULL, expanded_str) == E_SYSTEM)
-			return (E_SYSTEM);
-		start = ++i;
-		i += count_var_len(word_token.str, start);
-		substr = ft_substr(word_token.str, start, i - start);
-		if (strjoin_with_expand(
-				substr, word_token.type, vars_list, expanded_str) == E_SYSTEM)
-			return (E_SYSTEM);
-		start = i--;
+		type = judge_str_type(word, i, flag, i == 0);
+		if (word[i] == '\0')
+			break ;
+		if (flag & EXPAND_VAR && is_special_dollar(word, i, type, &var_len))
+		{
+			if (add_to_expand_list(&word[start]
+					, i - start, NULL, expand_list) == E_SYSTEM
+				 || add_to_expand_list(&word[i]
+					 	, var_len + 1, vars_list, expand_list) == E_SYSTEM)
+				return (E_SYSTEM);
+			i += var_len;
+			start = i + 1;
+		}
 	}
-	substr = ft_substr(word_token.str, start, i - start);
-	return (strjoin_with_expand(substr, word_token.type, NULL, expanded_str));
+	return (add_to_expand_list(&word[start], i - start, NULL, expand_list));
+}
+
+t_status	expand_word_token(t_token word_token,
+	t_list *vars_list[3], t_expand_flag flag, t_list **expand_list)
+{
+	t_list		*head;
+	char		*copy_word;
+	t_status	status;
+	t_list		*last;
+
+	copy_word = ft_strdup(word_token.str);
+	if (copy_word == NULL)
+		return (E_SYSTEM);
+	*expand_list = lstnew_with_strdup("");
+	if (*expand_list == NULL)
+		return (free_and_return(copy_word, E_SYSTEM));
+	head = *expand_list;
+	status = expand_word(copy_word, vars_list, flag, expand_list);
+	free(copy_word);
+	*expand_list = head;
+	if (status == E_SYSTEM)
+	{
+		ft_lstclear(expand_list, free);
+		return (E_SYSTEM);
+	}
+	last = ft_lstlast(*expand_list);
+	if (((char *)last->content)[0] == '\0'
+		&& !(last == *expand_list && word_token.type == WORD_QUOTE))
+		delete_last_list(expand_list);
+	return (SUCCESS);
 }

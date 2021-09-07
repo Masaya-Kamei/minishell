@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/28 09:39:27 by mkamei            #+#    #+#             */
-/*   Updated: 2021/09/04 12:08:27 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/09/07 13:36:28 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -122,7 +122,7 @@ t_status		process_command(t_data *d, t_token *tokens, int start, int end);
 t_status		process_redirect(t_token *tokens,
 					int i, t_list **save_fd, t_list *vars_list[3]);
 t_status		expand_word_token(t_token word_token, t_list *vars_list[3],
-					t_expand_flag flag, char **expanded_str);
+					t_expand_flag flag, t_list **expand_list);
 
 // builtins
 t_exit_status	mini_echo(t_data *d, char **argv);
@@ -138,13 +138,10 @@ char			*get_var(t_list *vars_list[3], char *var_name);
 t_status		set_var(t_list *vars_list[3], char *var, t_vars_type var_type);
 void			delete_var(
 					t_list *vars_list[3], char *var_name, t_vars_type var_type);
-t_list			*create_env_list(char **envp);
-char			**create_envp(t_list *env_list);
 t_status		set_pwd(t_data *d, t_place place, char *cd_target_dir);
 t_status		countup_shlvl_env(t_list **env_list);
 void			set_exit_status(
 					t_list *special_list, t_exit_status exit_status);
-t_list			*lstnew_with_strdup(char *str);
 t_list			*get_target_list(t_list *any_list, char *var, int var_name_len);
 t_status		add_new_var(t_list **any_list, char *var);
 
@@ -153,12 +150,19 @@ t_bool			is_redirect_token(t_token token);
 t_bool			is_word_token(t_token token);
 char			*strjoin_with_null_support(char *s1, char *s2);
 char			*strjoin_three(char *s1, char *s2, char *s3);
-t_status		strjoin_to_cmd_str(t_token *tokens,
-					int word_index, char **cmd_str, t_list *vars_list[3]);
-t_status		split_cmd_str(char *cmd_str, char ***command);
+t_list			*lstnew_with_strdup(char *str);
+t_status		convert_strs_to_list(char **strs, t_list **list);
+t_status		convert_list_to_strs(t_list *list, char ***strs);
+void			delete_last_list(t_list **expand_list);
+t_status		add_to_cmd_args(t_token *tokens,
+					int word_index, t_list **args_list, t_list *vars_list[3]);
 t_status		search_command_path(
 					char *cmd_name, t_list *vars_list[3], char **cmd_path);
 t_status		add_to_pid_list(t_list **pid_list, pid_t pid);
+t_str_type		judge_str_type(
+					char *word, int i, t_expand_flag flag, t_bool init_flag);
+t_status		add_to_expand_list(char *substr_start,
+					int len, t_list *vars_list[3], t_list **expand_list);
 char			*create_full_path(char *path, char *last_file);
 t_status		search_match_path_from_path_var(
 					char *last_file, char *path_value,
