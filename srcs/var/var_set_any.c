@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/05 14:03:48 by mkamei            #+#    #+#             */
-/*   Updated: 2021/08/25 13:05:29 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/09/07 16:59:01 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,10 +48,7 @@ static t_status	set_oldpwd_var(t_list *vars_list[3], t_place place)
 		return (SUCCESS);
 	}
 	value = get_var(vars_list, "PWD");
-	if (value == NULL)
-		var = ft_strdup("OLDPWD=");
-	else
-		var = ft_strjoin("OLDPWD=", value);
+	var = strjoin_with_null_support("OLDPWD=", value);
 	if (var == NULL)
 		return (E_SYSTEM);
 	status = set_var(vars_list, var, SHELL);

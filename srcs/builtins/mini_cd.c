@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   mini_cd.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: keguchi <keguchi@student.42tokyo.jp>       +#+  +:+       +#+        */
+/*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/07 20:10:11 by mkamei            #+#    #+#             */
-/*   Updated: 2021/09/02 14:12:13 by keguchi          ###   ########.fr       */
+/*   Updated: 2021/09/07 16:56:42 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,8 +15,6 @@
 char	*create_full_path(char *path, char *last_file)
 {
 	int		path_len;
-	char	*full_path;
-	char	*tmp;
 
 	if (path == NULL)
 		return (ft_strdup(last_file));
@@ -25,15 +23,7 @@ char	*create_full_path(char *path, char *last_file)
 	path_len = ft_strlen(path);
 	if (path[path_len - 1] == '/')
 		return (ft_strjoin(path, last_file));
-	full_path = ft_strjoin(path, "/");
-	if (full_path == NULL)
-		return (NULL);
-	tmp = full_path;
-	full_path = ft_strjoin(tmp, last_file);
-	free(tmp);
-	if (full_path == NULL)
-		return (NULL);
-	return (full_path);
+	return (strjoin_three(path, "/", last_file));
 }
 
 t_status	search_match_path_from_path_var(char *last_file
