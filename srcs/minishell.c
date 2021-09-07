@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/28 15:30:07 by mkamei            #+#    #+#             */
-/*   Updated: 2021/08/18 17:36:01 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/09/07 16:35:24 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,8 +93,7 @@ int	main(int argc, char **argv, char **envp)
 	if (d.vars_list[SPECIAL] == NULL)
 		exit(get_exit_status_with_errout(NULL, E_SYSTEM, P_SHELL));
 	((char *)d.vars_list[SPECIAL]->content)[3] = '\0';
-	d.vars_list[ENV] = create_env_list(envp);
-	if (d.vars_list[ENV] == NULL
+	if (convert_strs_to_list(envp, &d.vars_list[ENV]) == E_SYSTEM
 		|| countup_shlvl_env(&d.vars_list[ENV]) == E_SYSTEM
 		|| set_pwd(&d, P_SHELL, NULL) == E_SYSTEM)
 	{
