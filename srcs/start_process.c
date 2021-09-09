@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/08/09 16:54:39 by mkamei            #+#    #+#             */
-/*   Updated: 2021/09/06 16:42:40 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/09/09 14:34:56 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,18 +23,18 @@ static t_status	check_syntax_error(t_token *tokens, char **err_word)
 		if (is_redirect_token(tokens[i]) && is_redirect_token(tokens[i + 1]))
 		{
 			if (tokens[i + 1].type == GREATER)
-				*err_word = "`>'";
+				*err_word = tokens[i + 1].str;
 			if (tokens[i + 1].type == D_GREATER)
-				*err_word = "`>>'";
+				*err_word = tokens[i + 1].str;
 			else if (tokens[i + 1].type == LESS)
-				*err_word = "`<'";
+				*err_word = tokens[i + 1].str;
 			else if (tokens[i + 1].type == D_LESS)
-				*err_word = "`<<'";
+				*err_word = tokens[i + 1].str;
 		}
 		else if (is_word_token(tokens[i]) == 0 && tokens[i + 1].type == PIPE)
-			*err_word = "`|'";
+			*err_word = tokens[i + 1].str;
 		else if (is_word_token(tokens[i]) == 0 && tokens[i + 1].type == '\0')
-			*err_word = "`newline'";
+			*err_word = "newline";
 	}
 	if (*err_word != NULL)
 		return (E_SYNTAX);
