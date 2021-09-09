@@ -6,14 +6,11 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/06 15:53:24 by mkamei            #+#    #+#             */
-/*   Updated: 2021/09/07 16:45:38 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/09/09 12:22:27 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
-
-t_str_type	judge_str_type(
-				char *word, int i, t_expand_flag flag, t_bool init_flag);
 
 static t_status	strjoin_to_expand_list(char *substr, t_list **expand_list)
 {
@@ -56,12 +53,9 @@ static t_status	strjoin_to_expand_list_with_split(
 	while (status == SUCCESS && strs[++i] != NULL)
 	{
 		if ((i == 0 && substr[0] == ' ') || i >= 1)
-		{
 			status = advance_expand_list(expand_list);
-			if (status == E_SYSTEM)
-				break ;
-		}
-		status = strjoin_to_expand_list(strs[i], expand_list);
+		if (status == SUCCESS)
+			status = strjoin_to_expand_list(strs[i], expand_list);
 	}
 	free_double_pointer((void **)strs);
 	if (status == SUCCESS && substr[ft_strlen(substr) - 1] == ' ')
@@ -69,23 +63,22 @@ static t_status	strjoin_to_expand_list_with_split(
 	return (status);
 }
 
-t_status	add_to_expand_list(
-	char *substr_start, int len, t_list *vars_list[3], t_list **expand_list)
+t_status	add_to_expand_list(char *substr,
+		t_bool split_flag, t_list *vars_list[3], t_list **expand_list)
 {
-	char				*substr;
+	char				*expanded_str;
 	t_status			status;
-	const t_str_type	str_type_of_var = judge_str_type(substr_start, 0, 0, 0);
-	const char			backup_char = substr_start[len];
 
-	substr_start[len] = '\0';
+	if (substr == NULL)
+		return (E_SYSTEM);
 	if (vars_list == NULL)
-		substr = substr_start;
+		expanded_str = substr;
 	else
-		substr = get_var(vars_list, &substr_start[1]);
-	if (vars_list && str_type_of_var == RAW && substr && ft_strchr(substr, ' '))
-		status = strjoin_to_expand_list_with_split(substr, expand_list);
+		expanded_str = get_var(vars_list, &substr[1]);
+	if (split_flag && vars_list && expanded_str && ft_strchr(expanded_str, ' '))
+		status = strjoin_to_expand_list_with_split(expanded_str, expand_list);
 	else
-		status = strjoin_to_expand_list(substr, expand_list);
-	substr_start[len] = backup_char;
+		status = strjoin_to_expand_list(expanded_str, expand_list);
+	free(substr);
 	return (status);
 }

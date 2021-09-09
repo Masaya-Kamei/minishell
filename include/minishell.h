@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/28 09:39:27 by mkamei            #+#    #+#             */
-/*   Updated: 2021/09/07 16:42:56 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/09/08 19:31:48 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,8 @@ typedef enum e_bool
 typedef enum e_expand_flag
 {
 	EXPAND_QUOTE	= 0x00000001,
-	EXPAND_VAR		= 0x00000002
+	EXPAND_VAR		= 0x00000002,
+	EXPAND_SPLIT	= 0x00000004
 }			t_expand_flag;
 
 typedef enum e_str_type{

@@ -6,14 +6,14 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/18 11:54:50 by mkamei            #+#    #+#             */
-/*   Updated: 2021/09/07 16:45:30 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/09/09 12:23:04 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-t_status	add_to_expand_list(char *substr_start,
-				int len, t_list *vars_list[3], t_list **expand_list);
+t_status	add_to_expand_list(char *substr,
+				t_bool split_flag, t_list *vars_list[3], t_list **expand_list);
 
 static t_bool	is_special_quote(char *word, int i, t_str_type type)
 {
@@ -51,16 +51,10 @@ static t_bool	is_special_dollar(
 	return (0);
 }
 
-t_str_type	judge_str_type(
-	char *word, int i, t_expand_flag flag, t_bool init_flag)
+static t_str_type	judge_str_type(
+	char *word, int i, t_expand_flag flag, t_str_type type)
 {
-	static t_str_type	type;
-
-	if (init_flag == 1)
-		type = RAW;
-	if (flag == EXPAND_VAR)
-		type = '\"';
-	else if (flag & EXPAND_QUOTE
+	if (flag & EXPAND_QUOTE
 		&& is_special_quote(word, i, type) == 1)
 	{
 		if (type == '\'' || type == '\"')
@@ -68,14 +62,14 @@ t_str_type	judge_str_type(
 		else
 			type = word[i];
 		ft_strlcpy(&word[i], &word[i + 1], ft_strlen(&word[i + 1]) + 1);
-		return (judge_str_type(word, i, flag, 0));
+		return (judge_str_type(word, i, flag, type));
 	}
 	else if (flag & EXPAND_QUOTE
 		&& word[i] == '$' && type == RAW
 		&& is_special_quote(word, i + 1, type) == 1)
 	{
 		ft_strlcpy(&word[i], &word[i + 1], ft_strlen(&word[i + 1]) + 1);
-		return (judge_str_type(word, i, flag, 0));
+		return (judge_str_type(word, i, flag, type));
 	}
 	return (type);
 }
@@ -90,23 +84,24 @@ static t_status	expand_word(char *word,
 
 	i = -1;
 	start = 0;
-	while (word[++i] != '\0')
+	type = RAW;
+	while ((i == -1 || word[i] != '\0') && word[++i] != '\0')
 	{
-		type = judge_str_type(word, i, flag, i == 0);
-		if (word[i] == '\0')
-			break ;
+		type = judge_str_type(word, i, flag, type);
 		if (flag & EXPAND_VAR && is_special_dollar(word, i, type, &var_len))
 		{
-			if (add_to_expand_list(&word[start]
-					, i - start, NULL, expand_list) == E_SYSTEM
-				 || add_to_expand_list(&word[i]
-					 	, var_len + 1, vars_list, expand_list) == E_SYSTEM)
+			if (add_to_expand_list(ft_substr(word, start, i - start)
+					, 0, NULL, expand_list) == E_SYSTEM
+				|| add_to_expand_list(ft_substr(word, i, var_len + 1)
+					, (flag & EXPAND_SPLIT) * (type == RAW)
+					, vars_list, expand_list) == E_SYSTEM)
 				return (E_SYSTEM);
 			i += var_len;
 			start = i + 1;
 		}
 	}
-	return (add_to_expand_list(&word[start], i - start, NULL, expand_list));
+	return (add_to_expand_list(
+			ft_substr(word, start, i - start), 0, NULL, expand_list));
 }
 
 t_status	expand_word_token(t_token word_token,

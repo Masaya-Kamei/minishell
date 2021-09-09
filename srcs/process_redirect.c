@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/19 09:25:38 by keguchi           #+#    #+#             */
-/*   Updated: 2021/09/07 15:41:27 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/09/08 14:35:06 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -114,7 +114,7 @@ t_status	process_redirect(
 	t_expand_flag	flag;
 	t_list			*expand_list;
 
-	flag = EXPAND_QUOTE | EXPAND_VAR;
+	flag = EXPAND_QUOTE | EXPAND_VAR | EXPAND_SPLIT;
 	if (tokens[i].type == D_LESS && tokens[i + 1].type == WORD_RAW)
 		flag = EXPAND_VAR;
 	else if (tokens[i].type == D_LESS && tokens[i + 1].type == WORD_QUOTE)

@@ -6,14 +6,14 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/19 09:24:35 by keguchi           #+#    #+#             */
-/*   Updated: 2021/09/07 16:46:03 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/09/08 19:41:08 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
 t_status	add_to_cmd_args(t_token *tokens,
-				int word_index, t_list **args_list, t_list *vars_list[3]);
+				int i, t_list **args_list, t_list *vars_list[3]);
 t_status	search_command_path(
 				char *cmd_name, t_list *vars_list[3], char **cmd_path);
 t_status	add_to_pid_list(t_list **pid_list, pid_t pid);
@@ -89,7 +89,7 @@ static t_status	exec_command(t_data *d, char **command, t_bool is_pipe)
 	return (SUCCESS);
 }
 
-static t_status	restore_fd(t_list *fds_list, t_status status)
+static t_status	restore_fds(t_list *fds_list, t_status status)
 {
 	t_list			*list;
 	int				redirect_fd;
@@ -139,5 +139,5 @@ t_status	process_command(t_data *d, t_token *tokens, int start, int end)
 		status = exec_command(d, command, is_pipe);
 	ft_lstclear(&args_list, free);
 	free_double_pointer((void **)command);
-	return (restore_fd(fds_list, status));
+	return (restore_fds(fds_list, status));
 }

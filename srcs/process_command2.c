@@ -1,24 +1,55 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   process_command_utils.c                            :+:      :+:    :+:   */
+/*   process_command2.c                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/08/01 13:09:34 by mkamei            #+#    #+#             */
-/*   Updated: 2021/09/07 15:15:56 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/09/08 19:53:14 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-t_status	add_to_cmd_args(
-	t_token *tokens, int word_index, t_list **args_list, t_list *vars_list[3])
+static int	get_export_cmd_index(t_token *tokens, int word_index)
 {
-	t_list	*expand_list;
+	int		start;
+	int		export_cmd_index;
 
-	if (expand_word_token(tokens[word_index]
-			, vars_list, EXPAND_VAR | EXPAND_QUOTE, &expand_list) == E_SYSTEM)
+	start = word_index;
+	while (start >= 0 && tokens[start].type != PIPE)
+		start--;
+	export_cmd_index = start + 1;
+	while (is_word_token(tokens[export_cmd_index]) == 0)
+		export_cmd_index += 2;
+	return (export_cmd_index);
+}
+
+t_status	add_to_cmd_args(
+	t_token *tokens, int i, t_list **args_list, t_list *vars_list[3])
+{
+	t_expand_flag	flag;
+	t_list			*expand_list;
+	char			*equal_ptr;
+	int				j;
+
+	flag = EXPAND_VAR | EXPAND_QUOTE | EXPAND_SPLIT;
+	if (*args_list && ft_strncmp((*args_list)->content, "export", 7) == 0)
+	{
+		equal_ptr = ft_strchr(tokens[i].str, '=');
+		if (equal_ptr)
+			*equal_ptr = '\0';
+		j = get_export_cmd_index(tokens, i);
+		if (!ft_strchr(tokens[i].str, '\'') && !ft_strchr(tokens[i].str, '\"')
+			&& !ft_strchr(tokens[i].str, '$') && !ft_strchr(tokens[j].str, '\'')
+			&& !ft_strchr(tokens[j].str, '\"')
+			&& !ft_strchr(tokens[j].str, '$'))
+			flag &= ~EXPAND_SPLIT;
+		if (equal_ptr)
+			*equal_ptr = '=';
+	}
+	if (expand_word_token(tokens[i], vars_list, flag, &expand_list) == E_SYSTEM)
 		return (E_SYSTEM);
 	ft_lstadd_back(args_list, expand_list);
 	return (SUCCESS);
