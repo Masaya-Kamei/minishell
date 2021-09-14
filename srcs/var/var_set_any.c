@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/05 14:03:48 by mkamei            #+#    #+#             */
-/*   Updated: 2021/09/07 16:59:01 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/09/14 17:48:41 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,16 +62,21 @@ t_status	set_pwd(t_data *d, t_place place, char *cd_target_dir)
 {
 	char	*new_pwd;
 
-	new_pwd = getcwd(NULL, 0);
-	if (new_pwd == NULL)
+	if (place == P_CD && ft_strncmp(cd_target_dir, "//", 3) == 0)
+		new_pwd = ft_strdup("//");
+	else
 	{
-		write_err(GETCWD_EMSG, E_GETCWD, 1, place);
-		if (d->pwd == NULL && cd_target_dir == NULL)
-			return (SUCCESS);
-		new_pwd = create_full_path(d->pwd, cd_target_dir);
+		new_pwd = getcwd(NULL, 0);
 		if (new_pwd == NULL)
-			return (E_SYSTEM);
+		{
+			write_err(GETCWD_EMSG, E_GETCWD, 1, place);
+			if (place == P_SHELL)
+				return (SUCCESS);
+			new_pwd = create_full_path(d->pwd, cd_target_dir);
+		}
 	}
+	if (new_pwd == NULL)
+		return (E_SYSTEM);
 	free(d->pwd);
 	d->pwd = new_pwd;
 	if (set_oldpwd_var(d->vars_list, place) == E_SYSTEM
