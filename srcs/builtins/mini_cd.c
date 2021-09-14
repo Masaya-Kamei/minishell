@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/07 20:10:11 by mkamei            #+#    #+#             */
-/*   Updated: 2021/09/07 16:56:42 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/09/14 19:51:05 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,7 +55,7 @@ t_status	search_match_path_from_path_var(char *last_file
 	return (SUCCESS);
 }
 
-static t_bool	check_directory_exist(char *path)
+t_bool	check_directory_exist(char *path)
 {
 	struct stat	stat_buf;
 
@@ -99,10 +99,11 @@ t_exit_status	mini_cd(t_data *d, char **argv)
 	char		*var;
 	char		*cdpath_value;
 	char		*matched_path;
-	t_status	status;
 
 	if (argv[1] != NULL && argv[1][0] == '-' && argv[1][1] != '\0')
 		return (get_exit_status_with_errout(argv[1], E_INVALID_OP, P_CD));
+	if (argv[1] != NULL && argv[1][0] == '\0')
+		return (0);
 	var = NULL;
 	if (argv[1] == NULL)
 		var = "HOME";
@@ -115,9 +116,8 @@ t_exit_status	mini_cd(t_data *d, char **argv)
 		&& ft_strncmp(argv[1], "./", 2) != 0
 		&& ft_strncmp(argv[1], "../", 3) != 0)
 	{
-		status = search_match_path_from_path_var(
-				argv[1], cdpath_value, check_directory_exist, &matched_path);
-		if (status == E_SYSTEM)
+		if (search_match_path_from_path_var(argv[1], cdpath_value
+				, check_directory_exist, &matched_path) == E_SYSTEM)
 			return (get_exit_status_with_errout(NULL, E_SYSTEM, P_CD));
 	}
 	return (change_dir(d, &argv[1], var, matched_path));
