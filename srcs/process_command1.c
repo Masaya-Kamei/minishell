@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/19 09:24:35 by keguchi           #+#    #+#             */
-/*   Updated: 2021/09/08 19:41:08 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/09/14 19:43:09 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,7 +57,11 @@ static void	exec_external_command(char **command, t_list *vars_list[3])
 	if (status == E_SYSTEM)
 		exit(get_exit_status_with_errout(NULL, E_SYSTEM, P_SHELL));
 	execve(cmd_path, command, envp);
-	exit(get_exit_status_with_errout(cmd_path, E_NO_PATHCOMMAND, P_SHELL));
+	if (check_directory_exist(cmd_path) == 1)
+		status = E_IS_DIR;
+	else
+		status = E_NO_PATHCOMMAND;
+	exit(get_exit_status_with_errout(cmd_path, status, P_SHELL));
 }
 
 static t_status	exec_command(t_data *d, char **command, t_bool is_pipe)

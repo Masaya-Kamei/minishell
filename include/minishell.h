@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/28 09:39:27 by mkamei            #+#    #+#             */
-/*   Updated: 2021/09/08 19:31:48 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/09/14 19:41:12 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,12 +59,13 @@ typedef enum e_status
 	E_SYNTAX			= 8,
 	E_NOCOMMAND			= 9,
 	E_AMBIGUOUS			= 10,
-	E_OPEN				= 11,
-	E_GETCWD			= 12,
-	E_SIG_INTERRUPT		= 13,
-	E_OVER_INT			= 14,
-	E_OVER_LIMIT		= 15,
-	E_NO_PATHCOMMAND	= 16
+	E_IS_DIR			= 11,
+	E_NO_PATHCOMMAND	= 12,
+	E_OPEN				= 13,
+	E_GETCWD			= 14,
+	E_SIG_INTERRUPT		= 15,
+	E_OVER_INT			= 16,
+	E_OVER_LIMIT		= 17
 }			t_status;
 
 typedef enum e_place
@@ -159,6 +160,7 @@ char			*create_full_path(char *path, char *last_file);
 t_status		search_match_path_from_path_var(
 					char *last_file, char *path_value,
 					t_file_check_func check_func, char **matched_path);
+t_bool			check_directory_exist(char *path);
 t_bool			check_valid_identifier(char *var, int var_name_len);
 void			write_err(char *word,
 					t_status status, t_bool is_errno, t_place place);

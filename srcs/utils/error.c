@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/09 10:48:30 by mkamei            #+#    #+#             */
-/*   Updated: 2021/09/09 14:42:37 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/09/14 19:40:48 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,7 +68,7 @@ void	write_err(
 		, "numeric argument required\n", "too many arguments\n"
 		, "not a valid identifier\n", "invalid option or argument\n"
 		, "syntax error near unexpected token ", "command not found\n"
-		, "ambiguous redirect\n"};
+		, "ambiguous redirect\n", "is a directory\n"};
 
 	if (status != E_GETCWD)
 		write(2, "minishell: ", 11);
@@ -93,9 +93,9 @@ t_exit_status	get_exit_status_with_errout(
 	const t_bool	is_errno = (status == E_SYSTEM
 		|| status == E_OPEN || status == E_GETCWD || status == E_OVER_INT
 		|| status == E_OVER_LIMIT || status == E_NO_PATHCOMMAND);
-	const int		status_table[8][4][2] = {
-		{{E_AMBIGUOUS, 1}, {E_NO_PATHCOMMAND, 127}, {E_NOCOMMAND, 127}
-			, {E_SYNTAX, 258}}
+	const int		status_table[8][5][2] = {
+		{{E_AMBIGUOUS, 1}, {E_IS_DIR, 126}, {E_NO_PATHCOMMAND, 127}
+			, {E_NOCOMMAND, 127}, {E_SYNTAX, 258}}
 		, {}
 		, {{E_INVALID_OP, 1}, {E_NOSET_VAR, 1}}
 		, {{E_INVALID_OP, 1}}
