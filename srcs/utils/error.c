@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/09 10:48:30 by mkamei            #+#    #+#             */
-/*   Updated: 2021/09/14 19:40:48 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/09/15 12:14:23 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,12 +90,12 @@ t_exit_status	get_exit_status_with_errout(
 	char *err_word, t_status status, t_place place)
 {
 	int				i;
-	const t_bool	is_errno = (status == E_SYSTEM
-		|| status == E_OPEN || status == E_GETCWD || status == E_OVER_INT
-		|| status == E_OVER_LIMIT || status == E_NO_PATHCOMMAND);
-	const int		status_table[8][5][2] = {
-		{{E_AMBIGUOUS, 1}, {E_IS_DIR, 126}, {E_NO_PATHCOMMAND, 127}
-			, {E_NOCOMMAND, 127}, {E_SYNTAX, 258}}
+	const t_bool	is_errno = (status == E_SYSTEM || status == E_OPEN
+		|| status == E_GETCWD || status == E_OVER_INT || status == E_OVER_LIMIT
+		|| status == E_NO_PATHCOMMAND || status == E_IS_FILE);
+	const int		status_table[8][6][2] = {
+		{{E_AMBIGUOUS, 1}, {E_IS_DIR, 126}, {E_IS_FILE, 126}
+			, {E_NO_PATHCOMMAND, 127}, {E_NOCOMMAND, 127}, {E_SYNTAX, 258}}
 		, {}
 		, {{E_INVALID_OP, 1}, {E_NOSET_VAR, 1}}
 		, {{E_INVALID_OP, 1}}
@@ -105,7 +105,7 @@ t_exit_status	get_exit_status_with_errout(
 		, {{E_TOO_MANY_ARG, 1}, {E_NUM_ARG_REQ, 255}}};
 
 	write_err(err_word, status, is_errno, place);
-	if (is_errno == 1 && status != E_NO_PATHCOMMAND)
+	if (is_errno == 1 && status != E_NO_PATHCOMMAND && status != E_IS_FILE)
 		return (1);
 	else
 	{

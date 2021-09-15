@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/28 09:39:27 by mkamei            #+#    #+#             */
-/*   Updated: 2021/09/14 19:41:12 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/09/15 12:13:07 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,12 +60,13 @@ typedef enum e_status
 	E_NOCOMMAND			= 9,
 	E_AMBIGUOUS			= 10,
 	E_IS_DIR			= 11,
-	E_NO_PATHCOMMAND	= 12,
-	E_OPEN				= 13,
-	E_GETCWD			= 14,
-	E_SIG_INTERRUPT		= 15,
-	E_OVER_INT			= 16,
-	E_OVER_LIMIT		= 17
+	E_IS_FILE			= 12,
+	E_NO_PATHCOMMAND	= 13,
+	E_OPEN				= 14,
+	E_GETCWD			= 15,
+	E_SIG_INTERRUPT		= 16,
+	E_OVER_INT			= 17,
+	E_OVER_LIMIT		= 18
 }			t_status;
 
 typedef enum e_place

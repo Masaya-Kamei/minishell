@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/08/01 13:09:34 by mkamei            #+#    #+#             */
-/*   Updated: 2021/09/08 19:53:14 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/09/15 12:11:50 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,7 +55,7 @@ t_status	add_to_cmd_args(
 	return (SUCCESS);
 }
 
-static t_bool	check_regular_file_exist(char *path)
+t_bool	check_regular_file_exist(char *path)
 {
 	struct stat	stat_buf;
 

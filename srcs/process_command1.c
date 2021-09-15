@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/19 09:24:35 by keguchi           #+#    #+#             */
-/*   Updated: 2021/09/14 19:43:09 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/09/15 12:12:33 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 
 t_status	add_to_cmd_args(t_token *tokens,
 				int i, t_list **args_list, t_list *vars_list[3]);
+t_bool		check_regular_file_exist(char *path);
 t_status	search_command_path(
 				char *cmd_name, t_list *vars_list[3], char **cmd_path);
 t_status	add_to_pid_list(t_list **pid_list, pid_t pid);
@@ -59,6 +60,8 @@ static void	exec_external_command(char **command, t_list *vars_list[3])
 	execve(cmd_path, command, envp);
 	if (check_directory_exist(cmd_path) == 1)
 		status = E_IS_DIR;
+	else if (check_regular_file_exist(cmd_path) == 1)
+		status = E_IS_FILE;
 	else
 		status = E_NO_PATHCOMMAND;
 	exit(get_exit_status_with_errout(cmd_path, status, P_SHELL));
