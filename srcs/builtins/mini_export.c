@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   mini_export.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: keguchi <keguchi@student.42tokyo.jp>       +#+  +:+       +#+        */
+/*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/07 14:33:48 by mkamei            #+#    #+#             */
-/*   Updated: 2021/09/02 14:12:38 by keguchi          ###   ########.fr       */
+/*   Updated: 2021/09/07 15:11:01 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,8 +47,7 @@ static t_exit_status	write_exported_vars(t_list *env_list)
 	char	*equal_pointer;
 	char	**envp;
 
-	envp = create_envp(env_list);
-	if (envp == NULL)
+	if (convert_list_to_strs(env_list, &envp) == E_SYSTEM)
 		return (get_exit_status_with_errout(NULL, E_SYSTEM, P_EXPORT));
 	bubble_sort_envp(envp);
 	i = -1;

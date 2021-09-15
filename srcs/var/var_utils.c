@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/15 12:19:39 by mkamei            #+#    #+#             */
-/*   Updated: 2021/08/01 12:49:47 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/09/06 16:24:24 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,21 +44,4 @@ t_status	add_new_var(t_list **any_list, char *var)
 	else
 		last_list->next = new_list;
 	return (SUCCESS);
-}
-
-t_list	*lstnew_with_strdup(char *str)
-{
-	char	*content;
-	t_list	*new_list;
-
-	content = ft_strdup(str);
-	if (content == NULL)
-		return (NULL);
-	new_list = ft_lstnew(content);
-	if (new_list == NULL)
-	{
-		free(content);
-		return (NULL);
-	}
-	return (new_list);
 }

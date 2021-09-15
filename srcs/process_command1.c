@@ -1,16 +1,23 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   process_command.c                                  :+:      :+:    :+:   */
+/*   process_command1.c                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/19 09:24:35 by keguchi           #+#    #+#             */
-/*   Updated: 2021/09/02 15:34:52 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/09/15 12:12:33 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
+
+t_status	add_to_cmd_args(t_token *tokens,
+				int i, t_list **args_list, t_list *vars_list[3]);
+t_bool		check_regular_file_exist(char *path);
+t_status	search_command_path(
+				char *cmd_name, t_list *vars_list[3], char **cmd_path);
+t_status	add_to_pid_list(t_list **pid_list, pid_t pid);
 
 static t_builtin_func	check_builtin_command(char *cmd_name)
 {
@@ -47,11 +54,17 @@ static void	exec_external_command(char **command, t_list *vars_list[3])
 		exit(get_exit_status_with_errout(NULL, E_SYSTEM, P_SHELL));
 	else if (status == E_NOCOMMAND)
 		exit(get_exit_status_with_errout(command[0], E_NOCOMMAND, P_SHELL));
-	envp = create_envp(vars_list[ENV]);
-	if (envp == NULL)
+	status = convert_list_to_strs(vars_list[ENV], &envp);
+	if (status == E_SYSTEM)
 		exit(get_exit_status_with_errout(NULL, E_SYSTEM, P_SHELL));
 	execve(cmd_path, command, envp);
-	exit(get_exit_status_with_errout(cmd_path, E_NO_PATHCOMMAND, P_SHELL));
+	if (check_directory_exist(cmd_path) == 1)
+		status = E_IS_DIR;
+	else if (check_regular_file_exist(cmd_path) == 1)
+		status = E_IS_FILE;
+	else
+		status = E_NO_PATHCOMMAND;
+	exit(get_exit_status_with_errout(cmd_path, status, P_SHELL));
 }
 
 static t_status	exec_command(t_data *d, char **command, t_bool is_pipe)
@@ -83,7 +96,7 @@ static t_status	exec_command(t_data *d, char **command, t_bool is_pipe)
 	return (SUCCESS);
 }
 
-static t_status	restore_fd(t_list *fds_list, t_status status)
+static t_status	restore_fds(t_list *fds_list, t_status status)
 {
 	t_list			*list;
 	int				redirect_fd;
@@ -111,27 +124,27 @@ t_status	process_command(t_data *d, t_token *tokens, int start, int end)
 {
 	t_status		status;
 	t_list			*fds_list;
-	char			*cmd_str;
+	t_list			*args_list;
 	char			**command;
 	const t_bool	is_pipe = !(isatty(0) == 1 && isatty(1) == 1);
 
 	fds_list = NULL;
-	cmd_str = NULL;
+	args_list = NULL;
 	command = NULL;
 	status = SUCCESS;
 	start -= 1;
 	while (status == SUCCESS && ++start <= end)
 	{
-		if (tokens[start].type == WORD)
-			status = strjoin_to_cmd_str(tokens, start, &cmd_str, d->vars_list);
+		if (is_word_token(tokens[start]))
+			status = add_to_cmd_args(tokens, start, &args_list, d->vars_list);
 		else
 			status = process_redirect(tokens, start++, &fds_list, d->vars_list);
 	}
 	if (status == SUCCESS)
-		status = split_cmd_str(cmd_str, &command);
+		status = convert_list_to_strs(args_list, &command);
 	if (status == SUCCESS)
 		status = exec_command(d, command, is_pipe);
-	free(cmd_str);
+	ft_lstclear(&args_list, free);
 	free_double_pointer((void **)command);
-	return (restore_fd(fds_list, status));
+	return (restore_fds(fds_list, status));
 }

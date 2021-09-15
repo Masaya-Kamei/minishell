@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/28 09:39:27 by mkamei            #+#    #+#             */
-/*   Updated: 2021/09/02 15:34:43 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/09/15 12:13:07 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,8 @@ typedef enum e_bool
 typedef enum e_expand_flag
 {
 	EXPAND_QUOTE	= 0x00000001,
-	EXPAND_VAR		= 0x00000002
+	EXPAND_VAR		= 0x00000002,
+	EXPAND_SPLIT	= 0x00000004
 }			t_expand_flag;
 
 typedef enum e_str_type{
@@ -58,12 +59,14 @@ typedef enum e_status
 	E_SYNTAX			= 8,
 	E_NOCOMMAND			= 9,
 	E_AMBIGUOUS			= 10,
-	E_OPEN				= 11,
-	E_GETCWD			= 12,
-	E_SIG_INTERRUPT		= 13,
-	E_OVER_INT			= 14,
-	E_OVER_LIMIT		= 15,
-	E_NO_PATHCOMMAND	= 16
+	E_IS_DIR			= 11,
+	E_IS_FILE			= 12,
+	E_NO_PATHCOMMAND	= 13,
+	E_OPEN				= 14,
+	E_GETCWD			= 15,
+	E_SIG_INTERRUPT		= 16,
+	E_OVER_INT			= 17,
+	E_OVER_LIMIT		= 18
 }			t_status;
 
 typedef enum e_place
@@ -90,9 +93,8 @@ typedef enum e_token_type{
 	LESS			= '<',
 	D_GREATER		= 'G',
 	D_LESS			= 'L',
-	WORD			= 'W',
-	HEREDOC_D_QUOTE	= '\"',
-	HEREDOC_S_QUOTE = '\''
+	WORD_RAW		= 'R',
+	WORD_QUOTE		= 'Q'
 }			t_token_type;
 
 typedef struct s_token
@@ -122,8 +124,8 @@ t_status		process_pipeline(
 t_status		process_command(t_data *d, t_token *tokens, int start, int end);
 t_status		process_redirect(t_token *tokens,
 					int i, t_list **save_fd, t_list *vars_list[3]);
-t_status		expand_word_token(char *word, t_list *vars_list[3],
-					t_expand_flag flag, char **expanded_str);
+t_status		expand_word_token(t_token word_token, t_list *vars_list[3],
+					t_expand_flag flag, t_list **expand_list);
 
 // builtins
 t_exit_status	mini_echo(t_data *d, char **argv);
@@ -139,31 +141,27 @@ char			*get_var(t_list *vars_list[3], char *var_name);
 t_status		set_var(t_list *vars_list[3], char *var, t_vars_type var_type);
 void			delete_var(
 					t_list *vars_list[3], char *var_name, t_vars_type var_type);
-t_list			*create_env_list(char **envp);
-char			**create_envp(t_list *env_list);
 t_status		set_pwd(t_data *d, t_place place, char *cd_target_dir);
 t_status		countup_shlvl_env(t_list **env_list);
 void			set_exit_status(
 					t_list *special_list, t_exit_status exit_status);
-t_list			*lstnew_with_strdup(char *str);
 t_list			*get_target_list(t_list *any_list, char *var, int var_name_len);
 t_status		add_new_var(t_list **any_list, char *var);
 
 // utils
-char			*strjoin_with_null_support(char *s1, char *s2);
 t_bool			is_redirect_token(t_token token);
+t_bool			is_word_token(t_token token);
+char			*strjoin_with_null_support(char *s1, char *s2);
 char			*strjoin_three(char *s1, char *s2, char *s3);
-t_bool			is_special_quote_char(char *word, int i, t_str_type type);
-t_status		strjoin_to_cmd_str(t_token *tokens,
-					int word_index, char **cmd_str, t_list *vars_list[3]);
-t_status		split_cmd_str(char *cmd_str, char ***command);
-t_status		search_command_path(
-					char *cmd_name, t_list *vars_list[3], char **cmd_path);
-t_status		add_to_pid_list(t_list **pid_list, pid_t pid);
+t_list			*lstnew_with_strdup(char *str);
+t_status		convert_strs_to_list(char **strs, t_list **list);
+t_status		convert_list_to_strs(t_list *list, char ***strs);
+void			delete_last_list(t_list **expand_list);
 char			*create_full_path(char *path, char *last_file);
 t_status		search_match_path_from_path_var(
 					char *last_file, char *path_value,
 					t_file_check_func check_func, char **matched_path);
+t_bool			check_directory_exist(char *path);
 t_bool			check_valid_identifier(char *var, int var_name_len);
 void			write_err(char *word,
 					t_status status, t_bool is_errno, t_place place);
@@ -174,7 +172,6 @@ t_status		set_exit_status_with_errout(
 void			free_double_pointer(void **p);
 void			free_tokens(t_token *tokens);
 t_status		free_and_return(void *p, t_status status);
-void			safe_free(void **p);
 void			clear_shell_data(t_data *d);
 
 // debug

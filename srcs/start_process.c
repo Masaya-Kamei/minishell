@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   start_process.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: keguchi <keguchi@student.42tokyo.jp>       +#+  +:+       +#+        */
+/*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/08/09 16:54:39 by mkamei            #+#    #+#             */
-/*   Updated: 2021/09/02 13:54:59 by keguchi          ###   ########.fr       */
+/*   Updated: 2021/09/09 14:34:56 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,18 +23,18 @@ static t_status	check_syntax_error(t_token *tokens, char **err_word)
 		if (is_redirect_token(tokens[i]) && is_redirect_token(tokens[i + 1]))
 		{
 			if (tokens[i + 1].type == GREATER)
-				*err_word = "`>'";
+				*err_word = tokens[i + 1].str;
 			if (tokens[i + 1].type == D_GREATER)
-				*err_word = "`>>'";
+				*err_word = tokens[i + 1].str;
 			else if (tokens[i + 1].type == LESS)
-				*err_word = "`<'";
+				*err_word = tokens[i + 1].str;
 			else if (tokens[i + 1].type == D_LESS)
-				*err_word = "`<<'";
+				*err_word = tokens[i + 1].str;
 		}
-		else if (tokens[i].type != WORD && tokens[i + 1].type == PIPE)
-			*err_word = "`|'";
-		else if (tokens[i].type != WORD && tokens[i + 1].type == '\0')
-			*err_word = "`newline'";
+		else if (is_word_token(tokens[i]) == 0 && tokens[i + 1].type == PIPE)
+			*err_word = tokens[i + 1].str;
+		else if (is_word_token(tokens[i]) == 0 && tokens[i + 1].type == '\0')
+			*err_word = "newline";
 	}
 	if (*err_word != NULL)
 		return (E_SYNTAX);
@@ -75,28 +75,25 @@ static t_status	receive_heredocument(
 	t_token *tokens, int start, int end, t_list *vars_list[3])
 {
 	int			i;
-	int			j;
+	t_list		*expand_list;
 	t_status	status;
-	char		*eof;
 
 	i = start - 1;
 	while (++i <= end)
 	{
-		if (tokens[i].type != D_LESS)
-			continue ;
-		j = -1;
-		tokens[++i].type = HEREDOC_D_QUOTE;
-		while (tokens[i].type == HEREDOC_D_QUOTE && tokens[i].str[++j] != '\0')
-			if (is_special_quote_char(tokens[i].str, j, RAW) == 1)
-				tokens[i].type = HEREDOC_S_QUOTE;
-		if (expand_word_token(
-				tokens[i].str, vars_list, EXPAND_QUOTE, &eof) == E_SYSTEM)
-			return (E_SYSTEM);
-		free(tokens[i].str);
-		status = read_heredocument(eof, vars_list, &tokens[i].str);
-		free(eof);
-		if (status != SUCCESS)
-			return (status);
+		if (tokens[i].type == D_LESS)
+		{
+			i++;
+			if (expand_word_token(tokens[i]
+					, vars_list, EXPAND_QUOTE, &expand_list) == E_SYSTEM)
+				return (E_SYSTEM);
+			free(tokens[i].str);
+			status = read_heredocument(
+					expand_list->content, vars_list, &tokens[i].str);
+			ft_lstclear(&expand_list, free);
+			if (status != SUCCESS)
+				return (status);
+		}
 	}
 	return (SUCCESS);
 }

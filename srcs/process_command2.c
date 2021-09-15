@@ -1,71 +1,61 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   process_command_utils.c                            :+:      :+:    :+:   */
+/*   process_command2.c                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/08/01 13:09:34 by mkamei            #+#    #+#             */
-/*   Updated: 2021/08/27 18:04:57 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/09/15 12:11:50 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-t_status	strjoin_to_cmd_str(
-	t_token *tokens, int word_index, char **cmd_str, t_list *vars_list[3])
+static int	get_export_cmd_index(t_token *tokens, int word_index)
 {
-	char	*tmp;
-	char	*expanded_str;
+	int		start;
+	int		export_cmd_index;
 
-	if (expand_word_token(tokens[word_index].str, vars_list,
-			EXPAND_VAR | EXPAND_QUOTE, &expanded_str) == E_SYSTEM)
+	start = word_index;
+	while (start >= 0 && tokens[start].type != PIPE)
+		start--;
+	export_cmd_index = start + 1;
+	while (is_word_token(tokens[export_cmd_index]) == 0)
+		export_cmd_index += 2;
+	return (export_cmd_index);
+}
+
+t_status	add_to_cmd_args(
+	t_token *tokens, int i, t_list **args_list, t_list *vars_list[3])
+{
+	t_expand_flag	flag;
+	t_list			*expand_list;
+	char			*equal_ptr;
+	int				j;
+
+	flag = EXPAND_VAR | EXPAND_QUOTE | EXPAND_SPLIT;
+	if (*args_list && ft_strncmp((*args_list)->content, "export", 7) == 0)
+	{
+		equal_ptr = ft_strchr(tokens[i].str, '=');
+		if (equal_ptr)
+			*equal_ptr = '\0';
+		j = get_export_cmd_index(tokens, i);
+		if (!ft_strchr(tokens[i].str, '\'') && !ft_strchr(tokens[i].str, '\"')
+			&& !ft_strchr(tokens[i].str, '$') && !ft_strchr(tokens[j].str, '\'')
+			&& !ft_strchr(tokens[j].str, '\"')
+			&& !ft_strchr(tokens[j].str, '$'))
+			flag &= ~EXPAND_SPLIT;
+		if (equal_ptr)
+			*equal_ptr = '=';
+	}
+	if (expand_word_token(tokens[i], vars_list, flag, &expand_list) == E_SYSTEM)
 		return (E_SYSTEM);
-	if (expanded_str == NULL)
-		return (SUCCESS);
-	tmp = *cmd_str;
-	*cmd_str = strjoin_with_null_support(tmp, " ");
-	free(tmp);
-	if (*cmd_str == NULL)
-		return (E_SYSTEM);
-	tmp = *cmd_str;
-	if (expanded_str[0] == '\0')
-		*cmd_str = strjoin_with_null_support(tmp, "\21");
-	else
-		*cmd_str = strjoin_with_null_support(tmp, expanded_str);
-	free(tmp);
-	free(expanded_str);
-	if (*cmd_str == NULL)
-		return (E_SYSTEM);
+	ft_lstadd_back(args_list, expand_list);
 	return (SUCCESS);
 }
 
-t_status	split_cmd_str(char *cmd_str, char ***command)
-{
-	int		i;
-
-	if (cmd_str == NULL)
-	{
-		*command = (char **)malloc(sizeof(char *) * 1);
-		if (*command == NULL)
-			return (E_SYSTEM);
-		(*command)[0] = NULL;
-		return (SUCCESS);
-	}
-	*command = ft_split(cmd_str, ' ');
-	if (*command == NULL)
-		return (E_SYSTEM);
-	i = 0;
-	while ((*command)[i] != NULL)
-	{
-		if ((*command)[i][0] == '\21')
-			(*command)[i][0] = '\0';
-		i++;
-	}
-	return (SUCCESS);
-}
-
-static t_bool	check_regular_file_exist(char *path)
+t_bool	check_regular_file_exist(char *path)
 {
 	struct stat	stat_buf;
 

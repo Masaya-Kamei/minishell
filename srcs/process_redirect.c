@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   process_redirect.c                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: keguchi <keguchi@student.42tokyo.jp>       +#+  +:+       +#+        */
+/*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/19 09:25:38 by keguchi           #+#    #+#             */
-/*   Updated: 2021/09/02 14:11:06 by keguchi          ###   ########.fr       */
+/*   Updated: 2021/09/09 14:32:38 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,50 +86,41 @@ static t_status	redirect_to_file(t_token redirect_token,
 	return (set_redirect_and_save_fd(redirect_token, fds_list, target_fd));
 }
 
-static void	errout_in_redirect(char *err_token, t_status status,
-	char *expanded_str, t_list *vars_list[3])
+static void	errout_in_redirect(char *redirect_token_str,
+	t_list *expand_list, t_status status, t_list *vars_list[3])
 {
-	char	*redirect_symbol_ptr;
-
 	if (status == E_OVER_INT)
 		set_exit_status_with_errout(OVER_INT_EMSG, status, vars_list);
 	else if (status == E_OVER_LIMIT)
-	{
-		redirect_symbol_ptr = ft_strchr(err_token, '>');
-		if (redirect_symbol_ptr != NULL)
-			*redirect_symbol_ptr = '\0';
-		redirect_symbol_ptr = ft_strchr(err_token, '<');
-		if (redirect_symbol_ptr != NULL)
-			*redirect_symbol_ptr = '\0';
-		set_exit_status_with_errout(err_token, status, vars_list);
-	}
+		set_exit_status_with_errout(redirect_token_str, status, vars_list);
 	else if (status == E_OPEN)
-		set_exit_status_with_errout(expanded_str, status, vars_list);
+		set_exit_status_with_errout(expand_list->content, status, vars_list);
 }
 
-t_status	process_redirect(t_token *tokens, int i,
-	t_list **fds_list, t_list *vars_list[3])
+t_status	process_redirect(
+	t_token *tokens, int i, t_list **fds_list, t_list *vars_list[3])
 {
 	t_status		status;
-	char			*expanded_str;
 	t_expand_flag	flag;
+	t_list			*expand_list;
 
-	flag = 0;
-	if (tokens[i + 1].type == WORD)
-		flag = EXPAND_QUOTE | EXPAND_VAR;
-	else if (tokens[i + 1].type == HEREDOC_D_QUOTE)
+	flag = EXPAND_QUOTE | EXPAND_VAR | EXPAND_SPLIT;
+	if (tokens[i].type == D_LESS && tokens[i + 1].type == WORD_RAW)
 		flag = EXPAND_VAR;
-	if (expand_word_token(
-			tokens[i + 1].str, vars_list, flag, &expanded_str) == E_SYSTEM)
+	else if (tokens[i].type == D_LESS && tokens[i + 1].type == WORD_QUOTE)
+		flag = 0;
+	status = expand_word_token(tokens[i + 1], vars_list, flag, &expand_list);
+	if (status == E_SYSTEM)
 		return (E_SYSTEM);
-	if (!expanded_str)
+	else if (expand_list == NULL || ft_lstsize(expand_list) >= 2)
 	{
 		set_exit_status_with_errout(tokens[i + 1].str, E_AMBIGUOUS, vars_list);
+		ft_lstclear(&expand_list, free);
 		return (E_AMBIGUOUS);
 	}
-	status = redirect_to_file(tokens[i], fds_list, expanded_str);
+	status = redirect_to_file(tokens[i], fds_list, expand_list->content);
 	if (status != SUCCESS)
-		errout_in_redirect(tokens[i].str, status, expanded_str, vars_list);
-	free(expanded_str);
+		errout_in_redirect(tokens[i].str, expand_list, status, vars_list);
+	ft_lstclear(&expand_list, free);
 	return (status);
 }

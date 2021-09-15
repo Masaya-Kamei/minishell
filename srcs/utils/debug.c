@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/30 17:55:37 by mkamei            #+#    #+#             */
-/*   Updated: 2021/08/27 15:37:01 by mkamei           ###   ########.fr       */
+/*   Updated: 2021/09/08 14:37:30 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,23 +36,29 @@ void	print_line_and_word_start_array(char *line, int *word_start_array)
 void	print_tokens(t_token *tokens, t_list *vars_list[3])
 {
 	int		i;
-	char	*expanded_str;
+	t_list	*current_list;
+	t_list	*expand_list;
 
-	printf("[ tokens ]\n");
-	i = 0;
-	while (tokens[i].type != '\0')
+	i = -1;
+	while (tokens[++i].type != '\0')
 	{
-		if (tokens[i].type == WORD)
+		if (is_word_token(tokens[i]))
 		{
-			if (expand_word_token(tokens[i].str, vars_list,
-					EXPAND_VAR | EXPAND_QUOTE, &expanded_str) == E_SYSTEM)
+			if (expand_word_token(tokens[i], vars_list, EXPAND_VAR
+					| EXPAND_QUOTE | EXPAND_SPLIT, &expand_list) == E_SYSTEM)
 				return ;
-			printf("%2d	type:%c, str:%s,\n", i, tokens[i].type, expanded_str);
-			free(expanded_str);
+			printf("%2d	type:%c, str:", i, tokens[i].type);
+			current_list = expand_list;
+			while (current_list != NULL)
+			{
+				printf("%s, ", (char *)current_list->content);
+				current_list = current_list->next;
+			}
+			printf("\n");
+			ft_lstclear(&expand_list, free);
 		}
 		else
 			printf("%2d	type:%c, str:%s,\n", i, tokens[i].type, tokens[i].str);
-		i++;
 	}
 }
 
