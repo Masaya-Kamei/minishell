@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/19 09:24:35 by keguchi           #+#    #+#             */
-/*   Updated: 2021/09/15 12:12:33 by mkamei           ###   ########.fr       */
+/*   Updated: 2022/06/01 12:56:42 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,7 +70,6 @@ static void	exec_external_command(char **command, t_list *vars_list[3])
 static t_status	exec_command(t_data *d, char **command, t_bool is_pipe)
 {
 	pid_t					pid;
-	t_status				status;
 	t_exit_status			exit_status;
 	const t_builtin_func	builtin_func = check_builtin_command(command[0]);
 
@@ -85,13 +84,14 @@ static t_status	exec_command(t_data *d, char **command, t_bool is_pipe)
 		return (E_SYSTEM);
 	else if (pid == 0)
 	{
+		if (d->pipe_read_fd != -1 && close(d->pipe_read_fd) == -1)
+			exit(1);
 		if (builtin_func != NULL)
 			exit(builtin_func(d, command));
 		else
 			exec_external_command(command, d->vars_list);
 	}
-	status = add_to_pid_list(&d->pid_list, pid);
-	if (status == E_SYSTEM)
+	if (add_to_pid_list(&d->pid_list, pid) == E_SYSTEM)
 		return (E_SYSTEM);
 	return (SUCCESS);
 }
