@@ -1,5 +1,5 @@
-SRCDIR	= ./
-SRCNAME	=	ft_strlen.c \
+SRCSDIR	= ./
+SRCSNAME=	ft_strlen.c \
 			ft_strlcpy.c \
 			ft_strlcat.c \
 			ft_strchr.c \
@@ -44,25 +44,34 @@ SRCNAME	=	ft_strlen.c \
 			ft_lstmap.c
 
 SRCS	= $(addprefix $(SRCDIR), $(SRCNAME))
-OBJS	= $(SRCS:.c=.o)
+
+OBJSDIR	= ./objs
+OBJS	= $(addprefix $(OBJSDIR)/, $(SRCSNAME:.c=.o))
+DEPS    = $(addprefix $(OBJSDIR)/, $(SRCSNAME:.c=.d))
+
 INCLUDE	= -I./
 NAME	= libft.a
+
 CC		= gcc
 CFLAGS	= -Wall -Wextra -Werror
+CFLAGS	+= -MMD -MP
 AR		= ar
 ARFLAGS	= rc
 RM		= rm -f
 
 all		:	$(NAME)
 
-.c.o	:
-			$(CC) $(CFLAGS) $(INCLUDE) -c $< -o $(<:.c=.o)
-
 $(NAME)	:	$(OBJS)
 			$(AR) $(ARFLAGS) $(NAME) $(OBJS)
 
+$(OBJSDIR)/%.o	:	%.c
+			@mkdir -p $(dir $@)
+			$(CC) $(CFLAGS) $(INCLUDE) -o $@ -c $<
+
+-include $(DEPS)
+
 clean	:
-			$(RM) $(OBJS) $(B_OBJS)
+			$(RM) $(OBJS) $(DEPS)
 
 fclean	:	clean
 			$(RM) $(NAME)
@@ -75,4 +84,10 @@ debug	: 	re
 address	: 	CFLAGS += -g -fsanitize=address
 address	: 	re
 
-.PHONY	: all clean fclean re debug address
+ifeq ($(shell uname),Darwin)
+leak	:	CC		=	/usr/local/opt/llvm/bin/clang
+endif
+leak	:	CFLAGS	+=	-g -fsanitize=leak
+leak	:	re
+
+.PHONY	: all clean fclean re debug address leak

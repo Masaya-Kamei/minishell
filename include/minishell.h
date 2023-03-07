@@ -6,7 +6,7 @@
 /*   By: mkamei <mkamei@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/28 09:39:27 by mkamei            #+#    #+#             */
-/*   Updated: 2021/09/15 12:13:07 by mkamei           ###   ########.fr       */
+/*   Updated: 2022/06/01 12:36:29 by mkamei           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -107,6 +107,7 @@ typedef struct s_data
 {
 	t_list		*vars_list[3];
 	t_list		*pid_list;
+	int			pipe_read_fd;
 	char		*pwd;
 }				t_data;
 

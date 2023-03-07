@@ -4,3 +4,5 @@ minishell
 *.txt
 *.a
 .DS_Store
+*.d
+objs
